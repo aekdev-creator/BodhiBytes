@@ -9,29 +9,28 @@ plugins {
 val keystorePropsFile = rootProject.file("release.properties")
 val keystoreProps = Properties()
 
-if (keystorePropsFile.exists()) {
-    keystoreProps.load(FileInputStream(keystorePropsFile))
-}
-
-val hasValidSigningProps = keystorePropsFile.exists().also { exists ->
-    if (exists) {
-        FileInputStream(keystorePropsFile).use { keystoreProps.load(it) }
-    }
-}.let {
-    listOf("storeFile", "storePassword", 
-            "keyAlias", "keyPassword").all { key ->
+val hasValidSigningProps = if (keystorePropsFile.exists()) {
+    FileInputStream(keystorePropsFile).use { keystoreProps.load(it) }
+    listOf("storeFile", "storePassword", "keyAlias", "keyPassword").all { key ->
         keystoreProps[key] != null
     }
+} else {
+    false
 }
-
 
 android {
     namespace = "dev.alex.bodhibytes"
     compileSdk = 36 
     
-    // disable linter
+    // Disable linter for release builds if needed
     lint {
         checkReleaseBuilds = false
+    }
+
+    // REQUIRED FOR F-DROID: Disables dependency metadata embedding
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
         
     signingConfigs {
@@ -79,25 +78,25 @@ android {
 
     packaging {
         resources {
-            resources.excludes.add("/META-INF/{AL2.0,LGPL2.1}")
-            resources.excludes.add("META-INF/kotlinx_coroutines_core.version")
+            excludes.add("/META-INF/{AL2.0,LGPL2.1}")
+            excludes.add("META-INF/kotlinx_coroutines_core.version")
 
-            resources.pickFirsts.add("nonJvmMain/default/linkdata/package_androidx/0_androidx.knm")
-            resources.pickFirsts.add("nonJvmMain/default/linkdata/root_package/0_.knm")
-            resources.pickFirsts.add("nonJvmMain/default/linkdata/module")
+            pickFirsts.add("nonJvmMain/default/linkdata/package_androidx/0_androidx.knm")
+            pickFirsts.add("nonJvmMain/default/linkdata/root_package/0_.knm")
+            pickFirsts.add("nonJvmMain/default/linkdata/module")
 
-            resources.pickFirsts.add("nativeMain/default/linkdata/root_package/0_.knm")
-            resources.pickFirsts.add("nativeMain/default/linkdata/module")
+            pickFirsts.add("nativeMain/default/linkdata/root_package/0_.knm")
+            pickFirsts.add("nativeMain/default/linkdata/module")
 
-            resources.pickFirsts.add("commonMain/default/linkdata/root_package/0_.knm")
-            resources.pickFirsts.add("commonMain/default/linkdata/module")
-            resources.pickFirsts.add("commonMain/default/linkdata/package_androidx/0_androidx.knm")
+            pickFirsts.add("commonMain/default/linkdata/root_package/0_.knm")
+            pickFirsts.add("commonMain/default/linkdata/module")
+            pickFirsts.add("commonMain/default/linkdata/package_androidx/0_androidx.knm")
 
-            resources.pickFirsts.add("META-INF/kotlin-project-structure-metadata.json")
+            pickFirsts.add("META-INF/kotlin-project-structure-metadata.json")
 
-            resources.merges.add("commonMain/default/manifest")
-            resources.merges.add("nonJvmMain/default/manifest")
-            resources.merges.add("nativeMain/default/manifest")
+            merges.add("commonMain/default/manifest")
+            merges.add("nonJvmMain/default/manifest")
+            merges.add("nativeMain/default/manifest")
         }
     }
     
@@ -110,7 +109,6 @@ android {
             force("androidx.collection:collection:1.4.2")
             force("androidx.annotation:annotation:1.8.1")
             force("androidx.core:core-ktx:1.8.0")
-            // Removed the conflicting forced lifecycle-runtime-ktx constraint
             force("androidx.collection:collection-ktx:1.4.2")
         }
     }
