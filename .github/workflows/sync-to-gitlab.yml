@@ -1,0 +1,28 @@
+name: Mirror to GitLab
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Ensures full commit history is available
+
+      - name: Force Push main to GitLab master
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          # Hardcoding username 'aekdev-creator' and using the token secret securely
+          git remote add gitlab https://aekdev-creator:${{ env.GITLAB_TOKEN }}@gitlab.com/aekdev-creator/fdroiddata.git
+          
+          # Force push GitHub's 'main' branch to GitLab's 'master' branch
+          git push --force gitlab main:master
+          
+          # Force sync tags as well
+          git push --force gitlab --tags
