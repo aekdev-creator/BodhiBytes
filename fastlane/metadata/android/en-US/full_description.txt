@@ -1,0 +1,8 @@
+Discover peace and wisdom throughout your day with BodhiBytes. Explore an engaging collection of bite-sized lessons, traditional Zen koans, and foundational teachings from masters like Santideva. Designed for both beginners and experienced practitioners, BodhiBytes helps you cultivate mindfulness, reflection, and inner calm in just a few minutes a day.
+
+Features:
+- Daily bite-sized lessons on Buddhist philosophy and practice.
+- A curated repository of Zen koans for contemplation.
+- Wisdom and verses from Santideva's teachings.
+- Track your learning journey and progress seamlessly.
+- Clean, distraction-free open-source design.
