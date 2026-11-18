@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
@@ -29,6 +30,7 @@ import dev.alex.bodhibytes.data.LessonRepository
 import dev.alex.bodhibytes.model.Lesson
 import dev.alex.bodhibytes.model.Quiz
 import dev.alex.santideva.repository.SantidevaRepository
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 sealed interface AppScreen {
@@ -58,6 +60,14 @@ fun BodhiBytesApp() {
     var currentScreen by remember { mutableStateOf<AppScreen>(AppScreen.List) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    // Persistent state preservation across navigation pops/pushes
+    var lessonListScrollIndex by remember { mutableStateOf(0) }
+    var lessonListScrollOffset by remember { mutableStateOf(0) }
+    var lessonListExpandedKeys by remember { mutableStateOf(emptySet<String>()) }
+    
+    var bookmarksScrollIndex by remember { mutableStateOf(0) }
+    var bookmarksScrollOffset by remember { mutableStateOf(0) }
 
     // Initialize SharedPreferences for persistent bookmark storage
     val sharedPreferences = remember {
@@ -176,6 +186,14 @@ fun BodhiBytesApp() {
         when (val screen = currentScreen) {
             is AppScreen.List -> {
                 LessonListScreen(
+                    initialIndex = lessonListScrollIndex,
+                    initialOffset = lessonListScrollOffset,
+                    expandedKeys = lessonListExpandedKeys,
+                    onExpandedKeysChanged = { lessonListExpandedKeys = it },
+                    onScrollChanged = { index, offset ->
+                        lessonListScrollIndex = index
+                        lessonListScrollOffset = offset
+                    },
                     onLessonSelected = { lesson -> currentScreen = AppScreen.Detail(lesson) },
                     onMenuClick = { scope.launch { drawerState.open() } }
                 )
@@ -216,6 +234,12 @@ fun BodhiBytesApp() {
                 BookmarksScreen(
                     bookmarkedIds = bookmarkedLessonIds,
                     allLessons = combinedLessons,
+                    initialIndex = bookmarksScrollIndex,
+                    initialOffset = bookmarksScrollOffset,
+                    onScrollChanged = { index, offset ->
+                        bookmarksScrollIndex = index
+                        bookmarksScrollOffset = offset
+                    },
                     onLessonSelected = { lesson -> currentScreen = AppScreen.Detail(lesson) },
                     onBackClick = { currentScreen = AppScreen.List }
                 )
@@ -236,6 +260,11 @@ fun BodhiBytesApp() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LessonListScreen(
+    initialIndex: Int,
+    initialOffset: Int,
+    expandedKeys: Set<String>,
+    onExpandedKeysChanged: (Set<String>) -> Unit,
+    onScrollChanged: (Int, Int) -> Unit,
     onLessonSelected: (Lesson) -> Unit,
     onMenuClick: () -> Unit
 ) {
@@ -277,7 +306,18 @@ fun LessonListScreen(
         )
     }
 
-    var expandedKeys by remember { mutableStateOf(emptySet<String>()) }
+    // Lazy list state restoration and tracking
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = initialIndex,
+        initialFirstVisibleItemScrollOffset = initialOffset
+    )
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+            .collect { (index, offset) ->
+                onScrollChanged(index, offset)
+            }
+    }
 
     Scaffold(
         topBar = {
@@ -308,6 +348,7 @@ fun LessonListScreen(
         }
     ) { innerPadding ->
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
@@ -352,7 +393,9 @@ fun LessonListScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        expandedKeys = if (isExpanded) expandedKeys - key else expandedKeys + key
+                                        onExpandedKeysChanged(
+                                            if (isExpanded) expandedKeys - key else expandedKeys + key
+                                        )
                                     },
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
@@ -410,7 +453,9 @@ fun LessonListScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        expandedKeys = if (isGroupExpanded) expandedKeys - groupKey else expandedKeys + groupKey
+                                        onExpandedKeysChanged(
+                                            if (isGroupExpanded) expandedKeys - groupKey else expandedKeys + groupKey
+                                        )
                                     },
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
@@ -460,7 +505,9 @@ fun LessonListScreen(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .clickable {
-                                                    expandedKeys = if (isSubExpanded) expandedKeys - subKey else expandedKeys + subKey
+                                                    onExpandedKeysChanged(
+                                                        if (isSubExpanded) expandedKeys - subKey else expandedKeys + subKey
+                                                    )
                                                 },
                                             colors = CardDefaults.cardColors(
                                                 containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
@@ -523,11 +570,26 @@ fun LessonListScreen(
 fun BookmarksScreen(
     bookmarkedIds: Set<Int>,
     allLessons: List<Lesson>,
+    initialIndex: Int,
+    initialOffset: Int,
+    onScrollChanged: (Int, Int) -> Unit,
     onLessonSelected: (Lesson) -> Unit,
     onBackClick: () -> Unit
 ) {
     val bookmarkedLessons = remember(bookmarkedIds, allLessons) {
         allLessons.filter { bookmarkedIds.contains(it.id) }
+    }
+
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = initialIndex,
+        initialFirstVisibleItemScrollOffset = initialOffset
+    )
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+            .collect { (index, offset) ->
+                onScrollChanged(index, offset)
+            }
     }
 
     Scaffold(
@@ -557,6 +619,7 @@ fun BookmarksScreen(
             }
         } else {
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
