@@ -488,7 +488,7 @@ fun LessonListScreen(
                                         )
                                     },
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
                                 )
                             ) {
                                 Row(
@@ -502,8 +502,7 @@ fun LessonListScreen(
                                         Text(
                                             text = item.title,
                                             style = MaterialTheme.typography.titleLarge,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                                            fontWeight = FontWeight.Bold
                                         )
                                         Spacer(modifier = Modifier.height(2.dp))
                                         Text(
@@ -517,7 +516,7 @@ fun LessonListScreen(
                                             id = if (isGroupExpanded) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
                                         ),
                                         contentDescription = if (isGroupExpanded) "Collapse Group" else "Expand Group",
-                                        tint = MaterialTheme.colorScheme.secondary
+                                        tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
                             }
