@@ -72,9 +72,14 @@ fun BodhiBytesApp() {
     var bookmarksScrollIndex by remember { mutableStateOf(0) }
     var bookmarksScrollOffset by remember { mutableStateOf(0) }
 
-    // Initialize SharedPreferences for persistent bookmark storage
+    // Initialize SharedPreferences for persistent storage (bookmarks and preferences)
     val sharedPreferences = remember {
         context.getSharedPreferences("bodhibytes_prefs", android.content.Context.MODE_PRIVATE)
+    }
+
+    // Load dark mode preference
+    var isDarkMode by remember {
+        mutableStateOf(sharedPreferences.getBoolean("dark_mode", false))
     }
 
     // Load saved bookmarks from local storage on startup
@@ -102,172 +107,182 @@ fun BodhiBytesApp() {
 
     val combinedLessons = remember { allLessons + allKoans + santidevaLessons }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.mipmap.ic_launcher),
-                        contentDescription = "App Icon",
-                        modifier = Modifier.size(40.dp)
+    MaterialTheme(
+        colorScheme = if (isDarkMode) darkColorScheme() else lightColorScheme()
+    ) {
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.mipmap.ic_launcher),
+                            contentDescription = "App Icon",
+                            modifier = Modifier.size(40.dp)
+                        )
+                        Text(
+                            text = "BodhiBytes",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                        label = { Text("Home / Curriculum") },
+                        selected = currentScreen is AppScreen.List,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            currentScreen = AppScreen.List
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
-                    Text(
-                        text = "BodhiBytes",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.Favorite, contentDescription = "Bookmarks") },
+                        label = { Text("Bookmarks") },
+                        selected = currentScreen is AppScreen.Bookmarks,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            currentScreen = AppScreen.Bookmarks
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
+                        label = { Text("Settings") },
+                        selected = currentScreen is AppScreen.Settings,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            currentScreen = AppScreen.Settings
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.Email, contentDescription = "Feedback") },
+                        label = { Text("Feedback & Support") },
+                        selected = currentScreen is AppScreen.Feedback,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            currentScreen = AppScreen.Feedback
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.Info, contentDescription = "About") },
+                        label = { Text("About") },
+                        selected = currentScreen is AppScreen.About,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            currentScreen = AppScreen.About
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Exit") },
+                        label = { Text("Exit") },
+                        selected = false,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                activity?.finishAffinity()
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
                 }
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                    label = { Text("Home / Curriculum") },
-                    selected = currentScreen is AppScreen.List,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        currentScreen = AppScreen.List
-                    },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Favorite, contentDescription = "Bookmarks") },
-                    label = { Text("Bookmarks") },
-                    selected = currentScreen is AppScreen.Bookmarks,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        currentScreen = AppScreen.Bookmarks
-                    },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                    label = { Text("Settings") },
-                    selected = currentScreen is AppScreen.Settings,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        currentScreen = AppScreen.Settings
-                    },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Email, contentDescription = "Feedback") },
-                    label = { Text("Feedback & Support") },
-                    selected = currentScreen is AppScreen.Feedback,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        currentScreen = AppScreen.Feedback
-                    },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Info, contentDescription = "About") },
-                    label = { Text("About") },
-                    selected = currentScreen is AppScreen.About,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        currentScreen = AppScreen.About
-                    },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Exit") },
-                    label = { Text("Exit") },
-                    selected = false,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            activity?.finishAffinity()
+            }
+        ) {
+            when (val screen = currentScreen) {
+                is AppScreen.List -> {
+                    LessonListScreen(
+                        initialIndex = lessonListScrollIndex,
+                        initialOffset = lessonListScrollOffset,
+                        expandedKeys = lessonListExpandedKeys,
+                        onExpandedKeysChanged = { lessonListExpandedKeys = it },
+                        onScrollChanged = { index, offset ->
+                            lessonListScrollIndex = index
+                            lessonListScrollOffset = offset
+                        },
+                        onLessonSelected = { lesson -> currentScreen = AppScreen.Detail(lesson) },
+                        onMenuClick = { scope.launch { drawerState.open() } }
+                    )
+                }
+                is AppScreen.Detail -> {
+                    LessonDetailScreen(
+                        lesson = screen.lesson,
+                        isBookmarked = bookmarkedLessonIds.contains(screen.lesson.id),
+                        onBookmarkClick = {
+                            bookmarkedLessonIds = if (bookmarkedLessonIds.contains(screen.lesson.id)) {
+                                bookmarkedLessonIds - screen.lesson.id
+                            } else {
+                                bookmarkedLessonIds + screen.lesson.id
+                            }
+                            sharedPreferences.edit().putStringSet(
+                                "bookmarked_ids", 
+                                bookmarkedLessonIds.map { it.toString() }.toSet()
+                            ).apply()
+                        },
+                        onBackClick = { currentScreen = AppScreen.List },
+                        onQuizClick = { 
+                            screen.lesson.quiz?.let { quiz ->
+                                currentScreen = AppScreen.QuizScreenState(quiz, screen.lesson)
+                            }
                         }
-                    },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-            }
-        }
-    ) {
-        when (val screen = currentScreen) {
-            is AppScreen.List -> {
-                LessonListScreen(
-                    initialIndex = lessonListScrollIndex,
-                    initialOffset = lessonListScrollOffset,
-                    expandedKeys = lessonListExpandedKeys,
-                    onExpandedKeysChanged = { lessonListExpandedKeys = it },
-                    onScrollChanged = { index, offset ->
-                        lessonListScrollIndex = index
-                        lessonListScrollOffset = offset
-                    },
-                    onLessonSelected = { lesson -> currentScreen = AppScreen.Detail(lesson) },
-                    onMenuClick = { scope.launch { drawerState.open() } }
-                )
-            }
-            is AppScreen.Detail -> {
-                LessonDetailScreen(
-                    lesson = screen.lesson,
-                    isBookmarked = bookmarkedLessonIds.contains(screen.lesson.id),
-                    onBookmarkClick = {
-                        bookmarkedLessonIds = if (bookmarkedLessonIds.contains(screen.lesson.id)) {
-                            bookmarkedLessonIds - screen.lesson.id
-                        } else {
-                            bookmarkedLessonIds + screen.lesson.id
-                        }
-                        // Persist updated bookmarks instantly
-                        sharedPreferences.edit().putStringSet(
-                            "bookmarked_ids", 
-                            bookmarkedLessonIds.map { it.toString() }.toSet()
-                        ).apply()
-                    },
-                    onBackClick = { currentScreen = AppScreen.List },
-                    onQuizClick = { 
-                        screen.lesson.quiz?.let { quiz ->
-                            currentScreen = AppScreen.QuizScreenState(quiz, screen.lesson)
-                        }
-                    }
-                )
-            }
-            is AppScreen.QuizScreenState -> {
-                QuizScreen(
-                    quiz = screen.quiz,
-                    lesson = screen.lesson,
-                    onBackClick = { currentScreen = AppScreen.Detail(screen.lesson) },
-                    onHomeClick = { currentScreen = AppScreen.List }
-                )
-            }
-            is AppScreen.Bookmarks -> {
-                BookmarksScreen(
-                    bookmarkedIds = bookmarkedLessonIds,
-                    allLessons = combinedLessons,
-                    initialIndex = bookmarksScrollIndex,
-                    initialOffset = bookmarksScrollOffset,
-                    onScrollChanged = { index, offset ->
-                        bookmarksScrollIndex = index
-                        bookmarksScrollOffset = offset
-                    },
-                    onLessonSelected = { lesson -> currentScreen = AppScreen.Detail(lesson) },
-                    onBackClick = { currentScreen = AppScreen.List }
-                )
-            }
-            is AppScreen.Settings -> {
-                SettingsScreen(onBackClick = { currentScreen = AppScreen.List })
-            }
-            is AppScreen.Feedback -> {
-                FeedbackScreen(onBackClick = { currentScreen = AppScreen.List })
-            }
-            is AppScreen.About -> {
-                AboutScreen(onBackClick = { currentScreen = AppScreen.List })
+                    )
+                }
+                is AppScreen.QuizScreenState -> {
+                    QuizScreen(
+                        quiz = screen.quiz,
+                        lesson = screen.lesson,
+                        onBackClick = { currentScreen = AppScreen.Detail(screen.lesson) },
+                        onHomeClick = { currentScreen = AppScreen.List }
+                    )
+                }
+                is AppScreen.Bookmarks -> {
+                    BookmarksScreen(
+                        bookmarkedIds = bookmarkedLessonIds,
+                        allLessons = combinedLessons,
+                        initialIndex = bookmarksScrollIndex,
+                        initialOffset = bookmarksScrollOffset,
+                        onScrollChanged = { index, offset ->
+                            bookmarksScrollIndex = index
+                            bookmarksScrollOffset = offset
+                        },
+                        onLessonSelected = { lesson -> currentScreen = AppScreen.Detail(lesson) },
+                        onBackClick = { currentScreen = AppScreen.List }
+                    )
+                }
+                is AppScreen.Settings -> {
+                    SettingsScreen(
+                        isDarkMode = isDarkMode,
+                        onDarkModeChanged = { enabled ->
+                            isDarkMode = enabled
+                            sharedPreferences.edit().putBoolean("dark_mode", enabled).apply()
+                        },
+                        onBackClick = { currentScreen = AppScreen.List }
+                    )
+                }
+                is AppScreen.Feedback -> {
+                    FeedbackScreen(onBackClick = { currentScreen = AppScreen.List })
+                }
+                is AppScreen.About -> {
+                    AboutScreen(onBackClick = { currentScreen = AppScreen.List })
+                }
             }
         }
     }
@@ -322,7 +337,6 @@ fun LessonListScreen(
         )
     }
 
-    // Lazy list state restoration and tracking
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = initialIndex,
         initialFirstVisibleItemScrollOffset = initialOffset
@@ -656,7 +670,11 @@ fun BookmarksScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBackClick: () -> Unit) {
+fun SettingsScreen(
+    isDarkMode: Boolean,
+    onDarkModeChanged: (Boolean) -> Unit,
+    onBackClick: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -682,11 +700,33 @@ fun SettingsScreen(onBackClick: () -> Unit) {
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
-            Text(
-                text = "Customization options and reading preferences will appear here.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onDarkModeChanged(!isDarkMode) }
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Dark Mode",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "Use dark theme across the application",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = isDarkMode,
+                    onCheckedChange = { onDarkModeChanged(it) }
+                )
+            }
         }
     }
 }
