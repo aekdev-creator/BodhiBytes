@@ -1,5 +1,6 @@
 package dev.alex.bodhibytes.ui
 
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -57,6 +59,7 @@ sealed interface HomeItem {
 @Composable
 fun BodhiBytesApp() {
     val context = LocalContext.current
+    val activity = context as? Activity
     var currentScreen by remember { mutableStateOf<AppScreen>(AppScreen.List) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -177,6 +180,19 @@ fun BodhiBytesApp() {
                     onClick = {
                         scope.launch { drawerState.close() }
                         currentScreen = AppScreen.About
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Exit") },
+                    label = { Text("Exit") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            activity?.finishAffinity()
+                        }
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
