@@ -282,19 +282,19 @@ object LessonRepository {
                 content = """
                     The Koan Text:
 
-                    "In Tokyo in the Meiji era there lived two prominent teachers of opposite characteristics. One, Unsho, an instructor in Shingon, kept Buddha's precepts scrupulously. He never drank intoxicants, nor did he eat after eleven o'clock in the morning. The other teacher, Tanzan, a professor of philosophy at the Imperial University, never observed the precepts. When he felt like eating, he ate, and when he felt like sleeping in the daytime, he slept.
+                    In Tokyo in the Meiji era there lived two prominent teachers of opposite characteristics. One, Unsho, an instructor in Shingon, kept Buddha's precepts scrupulously. He never drank intoxicants, nor did he eat after eleven o'clock in the morning. The other teacher, Tanzan, a professor of philosophy at the Imperial University, never observed the precepts. When he felt like eating, he ate, and when he felt like sleeping in the daytime, he slept.
 
                     One day Unsho visited Tanzan, who was drinking wine at the time, not even a drop of which is supposed to touch the tongue of a Buddhist.
 
-                    'Hello, brother,' Tanzan greeted him. 'Won't you have a drink?'
+                    "Hello, brother," Tanzan greeted him. "Won't you have a drink?"
 
-                    'I never drink!' exclaimed Unsho solemnly.
+                    "I never drink!" exclaimed Unsho solemnly.
 
-                    'One who does not drink is not even human,' said Tanzan.
+                    "One who does not drink is not even human," said Tanzan.
 
-                    'Do you mean to call me inhuman just because I do not indulge in intoxicating liquids!' exclaimed Unsho in anger. 'Then if I am not human, what am I?'
+                    "Do you mean to call me inhuman just because I do not indulge in intoxicating liquids!" exclaimed Unsho in anger. "Then if I am not human, what am I?"
 
-                    'A Buddha,' answered Tanzan."
+                    "A Buddha," answered Tanzan.
 
                     Breaking Rigid Dualism: This encounter targets the trap of spiritual pride and external rigidity. Unsho relied heavily on outward rules to define his purity, while looking down on others. By calling him a "Buddha" when pushed, Tanzan touched past superficial conceptual labels straight to ultimate reality.
 
@@ -498,7 +498,7 @@ object LessonRepository {
                 content = """
                     The Koan Text:
 
-                    "Zengetsu, a Chinese master of the T'ang dynasty, wrote the following advice for his pupils:
+                    Zengetsu, a Chinese master of the T'ang dynasty, wrote the following advice for his pupils:
 
                     Living in the world yet not forming attachments to the dust of the world is the way of a true Zen student.
 
@@ -1024,13 +1024,13 @@ object LessonRepository {
                 content = """
                     The Koan Text:
 
-                    "The Zen master Hakuin was praised by his neighbors as one living a pure life.
+                    The Zen master Hakuin was praised by his neighbors as one living a pure life.
 
                     A beautiful Japanese girl whose parents owned a food store lived near him. Suddenly, without any warning, her parents discovered she was with child.
 
                     This made her parents very angry. She would not confess who the man was, but after much harassment at last named Hakuin.
 
-                    In great anger the parents went to the master. 'Is that so?' was all he would say.
+                    In great anger the parents went to the master. "Is that so?" was all he would say.
 
                     After the child was born it was brought to Hakuin. By this time he had lost his reputation, which did not trouble him, but he took very good care of the child. He obtained milk from his neighbors and everything else the little one needed.
 
@@ -1038,7 +1038,7 @@ object LessonRepository {
 
                     The mother and father of the girl at once went to Hakuin to ask his forgiveness, to apologize at length, and to get the child back again.
 
-                    Hakuin was willing. In yielding the child, all he said was: 'Is that so?'"
+                    Hakuin was willing. In yielding the child, all he said was: "Is that so?"
 
                     Equanimity in Praise and Blame: Hakuin demonstrates complete freedom from the opinions of the world. Whether praised as a saint or condemned as a sinner, his inner state remains undisturbed, anchored in unshakeable peace.
 
@@ -1080,8 +1080,6 @@ object LessonRepository {
                 title = "Sutta Nipāta Book 4: How Opinion & Thought Contaminate the Mind",
                 summary = "Exploring 'How Opinion & Thought Contaminate the Mind' from Book IV of the Sutta-Nipāta to understand how letting go of rigid beliefs, arguments, and pride leads to inner stillness.",
                 content = """
-                    HOW OPINION & THOUGHT CONTAMINATE THE MIND
-
                     Some people debate maliciously. Others honestly. But the wise are silent, stand back from arguments, keep the mind open.
 
                     How can you ever free the mind of its opinions if you let desire lead you and do exactly as you like?
@@ -1238,43 +1236,43 @@ object LessonRepository {
                 content = """
                     The Koan Text:
 
-                    "Gudo was the emperor's teacher of his time. Nevertheless, he used to travel alone as a wandering mendicant. Once when he was on his was to Edo, the cultural and political center of the shogunate, he approached a little village named Takenaka. It was evening and a heavy rain was falling. Gudo was thoroughly wet. His straw sandals were in pieces. At a farmhouse near the village he noticed four or five pairs of sandals in the window and decided to buy some dry ones.
+                    Gudo was the emperor's teacher of his time. Nevertheless, he used to travel alone as a wandering mendicant. Once when he was on his was to Edo, the cultural and political center of the shogunate, he approached a little village named Takenaka. It was evening and a heavy rain was falling. Gudo was thoroughly wet. His straw sandals were in pieces. At a farmhouse near the village he noticed four or five pairs of sandals in the window and decided to buy some dry ones.
 
                     The woman who offered him the sandals, seeing how wet he was, invited him in to remain for the night at her home. Gudo accepted, thanking her. He entered and recited a sutra before the family shrine. He then was introduced to the woman's mother, and to her children. Observing that the entire family was depressed, Gudo asked what was wrong.
 
-                    'My husband is a gambler and a drunkard,' the housewife told him. 'When he happens to win he drinks and becomes abusive. When he loses he borrows money from others. Sometimes when he becomes thoroughly drunk he does not come home at all. What can I do?'
+                    "My husband is a gambler and a drunkard," the housewife told him. "When he happens to win he drinks and becomes abusive. When he loses he borrows money from others. Sometimes when he becomes thoroughly drunk he does not come home at all. What can I do?"
 
-                    'I will help him,' said Gudo. 'Here is some money. Get me a gallon of fine wine and something good to eat. Then you may retire. I will meditate before the shrine.'
+                    "I will help him," said Gudo. "Here is some money. Get me a gallon of fine wine and something good to eat. Then you may retire. I will meditate before the shrine."
 
-                    When the man of the house returned about midnight, quite drunk, he bellowed: 'Hey, wife, I am home. Have you something for me to eat?'
+                    When the man of the house returned about midnight, quite drunk, he bellowed: "Hey, wife, I am home. Have you something for me to eat?"
 
-                    'I have something for you,' said Gudo. 'I happened to get caught in the rain and your wife kindly asked me to remain here for the night. In return I have bought some wine and fish, so you might as well have them.'
+                    "I have something for you," said Gudo. "I happened to get caught in the rain and your wife kindly asked me to remain here for the night. In return I have bought some wine and fish, so you might as well have them."
 
                     The man was delighted. He drank the wine at once and laid himself down on the floor. Gudo sat in meditation beside him.
 
-                    In the morning when the husband awoke he had forgotten about the previous night. 'Who are you? Where do you come from?' he asked Gudo, who still was meditating.
+                    In the morning when the husband awoke he had forgotten about the previous night. "Who are you? Where do you come from?" he asked Gudo, who still was meditating.
 
-                    'I am Gudo of Kyoto and I am going on to Edo,' replied the Zen master.
+                    "I am Gudo of Kyoto and I am going on to Edo," replied the Zen master.
 
                     The man was utterly ashamed. He apologized profusely to the teacher of his emperor.
 
-                    Gudo smiled. 'Everything in this life is impermanent,' he explained. 'Life is very brief. If you keep on gambling and drinking, you will have no time left to accomplish anything else, and you will cause your family to suffer too.'
+                    Gudo smiled. "Everything in this life is impermanent," he explained. "Life is very brief. If you keep on gambling and drinking, you will have no time left to accomplish anything else, and you will cause your family to suffer too."
 
-                    The perception of the husband awoke as if from a dream. 'You are right,' he declared. 'How can I ever repay you for this wonderful teaching! Let me see you off and carry your things a little way.'
+                    The perception of the husband awoke as if from a dream. "You are right," he declared. "How can I ever repay you for this wonderful teaching! Let me see you off and carry your things a little way."
 
-                    'If you wish,' assented Gudo.
+                    "If you wish," assented Gudo.
 
-                    The two started out. After they had gone three miles Gudo told him to return. 'Just another five miles,' he begged Gudo. They continued on.
+                    The two started out. After they had gone three miles Gudo told him to return. "Just another five miles," he begged Gudo. They continued on.
 
-                    'You may return now,' suggested Gudo.
+                    "You may return now," suggested Gudo.
 
-                    'After another ten miles,' the man replied.
+                    "After another ten miles," the man replied.
 
-                    'Return now,' said Gudo, when the ten miles had been passed.
+                    "Return now," said Gudo, when the ten miles had been passed.
 
-                    'I am going to follow you all the rest of my life,' declared the man.
+                    "I am going to follow you all the rest of my life," declared the man.
 
-                    Modern Zen teachers in Japan spring from the lineage of a famous master who was the successor of Gudo. His name was Mu-nan, the man who never turned back."
+                    Modern Zen teachers in Japan spring from the lineage of a famous master who was the successor of Gudo. His name was Mu-nan, the man who never turned back.
 
                     Meeting Suffering Without Condemnation: Rather than scolding the drunken husband or judging the troubled household, Gudo enters directly into their reality with radical hospitality and kindness. True wisdom does not isolate itself from human messiness; it meets distress with gentle, transformative presence.
 
@@ -1360,25 +1358,25 @@ object LessonRepository {
                 content = """
                     The Koan Text:
 
-                    "Zenkai, the son of a samurai, journeyed to Edo and there became the retainer of a high official. He fell in love with the official's wife and was discovered. In self-defence, he slew the official. Then he ran away with the wife."
+                    Zenkai, the son of a samurai, journeyed to Edo and there became the retainer of a high official. He fell in love with the official's wife and was discovered. In self-defence, he slew the official. Then he ran away with the wife.
 
-                    "Both of them later became thieves. But the woman was so greedy that Zenkai grew disgusted. Finally, leaving her, he journeyed far away to the province of Buzen, where he became a wandering mendicant."
+                    Both of them later became thieves. But the woman was so greedy that Zenkai grew disgusted. Finally, leaving her, he journeyed far away to the province of Buzen, where he became a wandering mendicant.
 
-                    "To atone for his past, Zenkai resolved to accomplish some good deed in his lifetime. Knowing of a dangerous road over a cliff that had caused death and injury to many persons, he resolved to cut a tunnel through the mountain there."
+                    To atone for his past, Zenkai resolved to accomplish some good deed in his lifetime. Knowing of a dangerous road over a cliff that had caused death and injury to many persons, he resolved to cut a tunnel through the mountain there.
 
-                    "Begging food in the daytime, Zenkai worked at night digging his tunnel. When thirty years had gone by, the tunnel was 2,280 feet long, 20 feet high, and 30 feet wide."
+                    Begging food in the daytime, Zenkai worked at night digging his tunnel. When thirty years had gone by, the tunnel was 2,280 feet long, 20 feet high, and 30 feet wide.
 
-                    "Two years before the work was completed, the son of the official he had slain, who was a skillful swordsman, found Zenkai out and came to kill him in revenge."
+                    Two years before the work was completed, the son of the official he had slain, who was a skillful swordsman, found Zenkai out and came to kill him in revenge.
 
-                    "'I will give you my life willingly,' said Zenkai. 'Only let me finish this work. On the day it is completed, then you may kill me.'"
+                    "I will give you my life willingly," said Zenkai. "Only let me finish this work. On the day it is completed, then you may kill me."
 
-                    "So the son awaited the day. Several months passed and Zenkai kept digging. The son grew tired of doing nothing and began to help with the digging. After he had helped for more than a year, he came to admire Zenkai's strong will and character."
+                    So the son awaited the day. Several months passed and Zenkai kept digging. The son grew tired of doing nothing and began to help with the digging. After he had helped for more than a year, he came to admire Zenkai's strong will and character.
 
-                    "At last the tunnel was completed and the people could use it and travel safely."
+                    At last the tunnel was completed and the people could use it and travel safely.
 
-                    "'Now cut off my head,' said Zenkai. 'My work is done.'"
+                    "Now cut off my head," said Zenkai. "My work is done."
 
-                    "'How can I cut off my own teacher's head?' asked the younger man with tears in his eyes."
+                    "How can I cut off my own teacher's head?" asked the younger man with tears in his eyes.
 
                     Karmic Transformation through Service: Zenkai's life demonstrates how intentional action (karma) can be redirected. Burdened by grave past mistakes, he chose neither despair nor evasion, but devoted decades to an arduous act of public welfare that saved countless lives.
 
@@ -1592,15 +1590,15 @@ object LessonRepository {
                 content = """
                     The Koan Text:
 
-                    "A farmer requested a Tendai priest to recite sutras for his wife, who had died. After the recitation was over the farmer asked: 'Do you think my wife will gain merit from this?'
+                    A farmer requested a Tendai priest to recite sutras for his wife, who had died. After the recitation was over the farmer asked: "Do you think my wife will gain merit from this?"
 
-                    'Not only your wife, but all sentient beings will benefit from the recitation of sutras,' answered the priest.
+                    "Not only your wife, but all sentient beings will benefit from the recitation of sutras," answered the priest.
 
-                    'If you say all sentient beings will benefit,' said the farmer, 'my wife may be very weak and others will take advantage of her, getting the benefit she should have. So please recite sutras just for her.'
+                    "If you say all sentient beings will benefit," said the farmer, "my wife may be very weak and others will take advantage of her, getting the benefit she should have. So please recite sutras just for her."
 
                     The priest explained that it was the desire of a Buddhist to offer blessings and wish merit for every living being.
 
-                    'That is a fine teaching,' concluded the farmer, 'but please make one exception. I have a neighbor who is rough and mean to me. Just exclude him from all those sentient beings.'"
+                    "That is a fine teaching," concluded the farmer, "but please make one exception. I have a neighbor who is rough and mean to me. Just exclude him from all those sentient beings."
 
                     The Illusion of Separation: The farmer's practical, conditioned worldview exposes how easily our compassion remains shackled by personal grudges and competitive framing. He views spiritual merit as a finite commodity subject to scarcity and exploitation.
 
