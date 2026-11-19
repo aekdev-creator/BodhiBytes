@@ -55,6 +55,8 @@ object LessonRepository {
 
                     Mendicant: A wandering ascetic or monastic practitioner who relies on alms and lives a simple, non-possessive life.
 
+                    Sutta / Sutra: A text that conveys great meaning with few words.
+
                     Phenomena: What you observe with your senses, observable events.
 
                     Concept / Conceptual: A memory or thought about something.
@@ -1080,6 +1082,8 @@ object LessonRepository {
                 title = "Sutta Nipāta Book 4: How Opinion & Thought Contaminate the Mind",
                 summary = "Exploring 'How Opinion & Thought Contaminate the Mind' from Book IV of the Sutta-Nipāta to understand how letting go of rigid beliefs, arguments, and pride leads to inner stillness.",
                 content = """
+                    HOW OPINION & THOUGHT CONTAMINATE THE MIND
+
                     Some people debate maliciously. Others honestly. But the wise are silent, stand back from arguments, keep the mind open.
 
                     How can you ever free the mind of its opinions if you let desire lead you and do exactly as you like?

@@ -319,12 +319,14 @@ fun LessonListScreen(
         }
     }
 
+    val topLesson = remember(allLessons) { allLessons.find { it.id == 1 } }
+
     val homeItems = remember {
         listOf(
-            HomeItem.RegularModule(LessonModule("Introduction", allLessons.filter { it.id in 1..8 })),
-            HomeItem.RegularModule(LessonModule("Emptiness", allLessons.filter { it.id in 9..14 })),
+            HomeItem.RegularModule(LessonModule("The Path", allLessons.filter { it.id in 2..8 })),
             HomeItem.RegularModule(LessonModule("The Three Marks of Existence", allLessons.filter { it.id in 15..23 })),
-            HomeItem.RegularModule(LessonModule("Bodhicitta", allLessons.filter { it.id in 24..30 })),
+            HomeItem.RegularModule(LessonModule("Wisdom (Emptiness)", allLessons.filter { it.id in 9..14 })),
+            HomeItem.RegularModule(LessonModule("Compassion (Bodhicitta)", allLessons.filter { it.id in 24..30 })),
             HomeItem.ParentGroup(
                 title = "General Reading",
                 subModules = listOf(
@@ -407,6 +409,31 @@ fun LessonListScreen(
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                }
+            }
+
+            if (topLesson != null) {
+                item(key = "top_lesson_${topLesson.id}") {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onLessonSelected(topLesson) },
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = topLesson.title,
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }
