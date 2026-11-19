@@ -960,7 +960,7 @@ object LessonRepository {
                                 "A lack of formal philosophical training"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Unsatisfactoriness arises when we expect changing, impermanent things to provide permanent security."
+                            explanation = "Unsatisfactoriness arises when we expect changing, impermanence things to provide permanent security."
                         ),
                         Question(
                             id = 2,
@@ -1704,13 +1704,5 @@ object LessonRepository {
                 )
             )
         )
-    }
-
-    fun getLessonById(id: Int): Lesson? {
-        return getCurriculum().find { it.id == id }
-    }
-
-    fun getLessonCount(): Int {
-        return getCurriculum().size
     }
 }

@@ -1865,12 +1865,4 @@ object KoanRepository {
             )
         )
     }
-
-    fun getKoanById(id: Int): Lesson? {
-        return getKoans().find { id == it.id }
-    }
-
-    fun getKoanCount(): Int {
-        return getKoans().size
-    }
 }
