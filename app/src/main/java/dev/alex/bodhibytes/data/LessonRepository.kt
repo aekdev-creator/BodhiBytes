@@ -37,9 +37,23 @@ object LessonRepository {
 
                     Upaya: Skillful means or adaptive strategies used to guide practice.
 
+                    Epithet: A descriptive title or honorary phrase used to characterize a figure or quality, such as a title of the Buddha.
+
                     Tathagata: An epithet for the Buddha, meaning one who has realized ultimate truth.
 
+                    Sugata: An epithet for the Buddha meaning "Well-Gone" or "One Who Has Blissfully Gone," signifying complete awakening and liberation.
+
                     Madhyamaka: The "Middle Way" school demonstrating the emptiness of all phenomena.
+
+                    Precepts: Voluntary ethical training guidelines undertaken to cultivate non-harm, inner peace, and clarity of mind.
+
+                    Ascetic: A practitioner who voluntarily renounces worldly comforts and sensual indulgences to cultivate self-discipline and spiritual focus.
+
+                    Monastic: A member of a dedicated religious community—such as a monk or nun—who lives a structured life of vows, study, and practice.
+
+                    Alms: Food, clothing, or offerings generously given by laypeople to support monks, nuns, and mendicants.
+
+                    Mendicant: A wandering ascetic or monastic practitioner who relies on alms and lives a simple, non-possessive life.
                 """.trimIndent(),
                 quiz = Quiz(
                     id = 1,
@@ -179,6 +193,18 @@ object LessonRepository {
                         ),
                         Question(
                             id = 12,
+                            text = "How is an *Epithet* defined in this lesson?",
+                            options = listOf(
+                                "A strict rule forbidding speech during meals",
+                                "A descriptive title or honorary phrase used to characterize a figure or quality, such as a title of the Buddha.",
+                                "A type of seated breathing meditation",
+                                "A cycle of rebirth in the conditioned world"
+                            ),
+                            correctOptionIndex = 1,
+                            explanation = "An epithet is a descriptive title or honorary phrase used to characterize a figure or quality."
+                        ),
+                        Question(
+                            id = 13,
                             text = "What is the meaning of the epithet *Tathagata*?",
                             options = listOf(
                                 "One who rules over kingdoms",
@@ -190,7 +216,19 @@ object LessonRepository {
                             explanation = "Tathagata is an epithet for the Buddha, meaning one who has realized ultimate truth."
                         ),
                         Question(
-                            id = 13,
+                            id = 14,
+                            text = "What does the epithet *Sugata* mean?",
+                            options = listOf(
+                                "One who wanders without a fixed destination",
+                                "A student still debating foundational doctrines",
+                                "An epithet for the Buddha meaning 'Well-Gone' or 'One Who Has Blissfully Gone,' signifying complete awakening and liberation.",
+                                "A guardian spirit of mountain passes"
+                            ),
+                            correctOptionIndex = 2,
+                            explanation = "Sugata is an epithet for the Buddha meaning 'Well-Gone' or 'One Who Has Blissfully Gone,' signifying complete awakening and liberation."
+                        ),
+                        Question(
+                            id = 15,
                             text = "What does the school of *Madhyamaka* demonstrate?",
                             options = listOf(
                                 "The permanent existence of physical atoms",
@@ -200,6 +238,66 @@ object LessonRepository {
                             ),
                             correctOptionIndex = 1,
                             explanation = "Madhyamaka is the 'Middle Way' school demonstrating the emptiness of all phenomena."
+                        ),
+                        Question(
+                            id = 16,
+                            text = "How are *Precepts* best understood in this curriculum?",
+                            options = listOf(
+                                "Voluntary ethical training guidelines undertaken to cultivate non-harm, inner peace, and clarity of mind.",
+                                "Mandatory legal penalties enforced by a ruler",
+                                "Secret mantras reserved for solitary retreats",
+                                "Ancient calendars used for seasonal festivals"
+                            ),
+                            correctOptionIndex = 0,
+                            explanation = "Precepts are voluntary ethical training guidelines that cultivate non-harm, inner peace, and clarity of mind."
+                        ),
+                        Question(
+                            id = 17,
+                            text = "What characterizes an *Ascetic* in spiritual practice?",
+                            options = listOf(
+                                "Voluntarily renouncing worldly comforts and sensual indulgences to cultivate self-discipline and spiritual focus.",
+                                "Accumulating wealth to build large palaces",
+                                "Avoiding all forms of meditation and reflection",
+                                "Serving as a military commander in royal campaigns"
+                            ),
+                            correctOptionIndex = 0,
+                            explanation = "An ascetic voluntarily renounces worldly comforts and indulgences to cultivate self-discipline and spiritual focus."
+                        ),
+                        Question(
+                            id = 18,
+                            text = "Who is a *Monastic*?",
+                            options = listOf(
+                                "A merchant trading goods across distant borders",
+                                "A member of a dedicated religious community—such as a monk or nun—who lives a structured life of vows, study, and practice.",
+                                "A farmer tending crops outside the village",
+                                "A ruler governing a kingdom's tax collection"
+                            ),
+                            correctOptionIndex = 1,
+                            explanation = "A monastic is a member of a dedicated religious community—such as a monk or nun—living a structured life of vows, study, and practice."
+                        ),
+                        Question(
+                            id = 19,
+                            text = "What are *Alms* in the Buddhist tradition?",
+                            options = listOf(
+                                "Tax payments collected by local officials",
+                                "Food, clothing, or offerings generously given by laypeople to support monks, nuns, and mendicants.",
+                                "Ancient manuscripts stored in mountain caves",
+                                "Musical instruments used during festivals"
+                            ),
+                            correctOptionIndex = 1,
+                            explanation = "Alms are food, clothing, or offerings generously given by laypeople to support monks, nuns, and mendicants."
+                        ),
+                        Question(
+                            id = 20,
+                            text = "What is a *Mendicant*?",
+                            options = listOf(
+                                "A royal court advisor managing trade routes",
+                                "A wandering ascetic or monastic practitioner who relies on alms and lives a simple, non-possessive life.",
+                                "A temple architect who designs stupas",
+                                "A merchant who lends money at interest"
+                            ),
+                            correctOptionIndex = 1,
+                            explanation = "A mendicant is a wandering ascetic or monastic practitioner who relies on alms and lives simply without possessions."
                         )
                     )
                 )
