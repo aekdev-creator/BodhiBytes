@@ -321,10 +321,10 @@ fun LessonListScreen(
 
     val homeItems = remember {
         listOf(
-            HomeItem.RegularModule(LessonModule("Introduction", allLessons.filter { it.id in 1..7 })),
-            HomeItem.RegularModule(LessonModule("Emptiness", allLessons.filter { it.id in 8..13 })),
-            HomeItem.RegularModule(LessonModule("The Three Marks of Existence", allLessons.filter { it.id in 14..22 })),
-            HomeItem.RegularModule(LessonModule("Bodhicitta", allLessons.filter { it.id in 23..29 })),
+            HomeItem.RegularModule(LessonModule("Introduction", allLessons.filter { it.id in 1..8 })),
+            HomeItem.RegularModule(LessonModule("Emptiness", allLessons.filter { it.id in 9..14 })),
+            HomeItem.RegularModule(LessonModule("The Three Marks of Existence", allLessons.filter { it.id in 15..23 })),
+            HomeItem.RegularModule(LessonModule("Bodhicitta", allLessons.filter { it.id in 24..30 })),
             HomeItem.ParentGroup(
                 title = "General Reading",
                 subModules = listOf(

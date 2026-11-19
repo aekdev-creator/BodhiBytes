@@ -266,6 +266,103 @@ object LessonRepository {
             ),
             Lesson(
                 id = 3,
+                title = "The Five Moral Precepts",
+                summary = "Explore the foundational ethical training of the Five Precepts and how mindful restraint cultivates inner peace, trust, and clarity.",
+                content = """
+                    What Are the Five Moral Precepts?
+
+                    In Buddhism, the Five Moral Precepts form the foundational ethical framework for lay practitioners and beginners on the path. Rather than acting as rigid commandments imposed from outside, the precepts are voluntary training rules undertaken to free the mind from harm, guilt, and agitation.
+
+                    Ethical conduct stabilizes attention and supports meditative clarity and insight. When our actions do not create fear or regret, the mind naturally settles more easily.
+
+                    1. Abstaining from Taking Life
+                    Practicing non-harm and reverence for all living beings. This training cultivates kindness, patience, and compassion, moving away from cruelty, anger, and violence toward both people and other creatures.
+
+                    2. Abstaining from Taking What Is Not Given
+                    Practicing generosity, honesty, and respect for others' property and well-being. It means refraining from theft, fraud, manipulation, or taking advantage of others' vulnerabilities.
+
+                    3. Abstaining from Sexual Misconduct
+                    Practicing care, integrity, and respect in relationships and intimacy. It means avoiding harm, exploitation, deception, or breaking trust in ways that cause emotional or relational suffering.
+
+                    4. Abstaining from False Speech
+                    Practicing truthfulness, reliability, and wholesome communication. Beyond avoiding outright lies, this training encourages speech that is honest, helpful, timely, and free from harshness, gossip, or division.
+
+                    5. Abstaining from Intoxicants That Cloud the Mind
+                    Practicing mindfulness and clear awareness by avoiding alcohol and intoxicants that dull perception or weaken self-restraint. Because heedlessness makes it much easier to break the other four precepts, this fifth precept serves as a safeguard for overall mindfulness.
+
+                    Living the Precepts Skillfully
+
+                    The precepts are meant to be practiced with wisdom and self-compassion rather than perfectionism or judgment. If a precept is slipped on, reflecting honestly on what happened, learning from it, and renewing one's intention keeps the ethical path alive and constructive.
+                """.trimIndent(),
+                quiz = Quiz(
+                    id = 3,
+                    title = "Quiz: The Five Moral Precepts",
+                    questions = listOf(
+                        Question(
+                            id = 1,
+                            text = "In Buddhist practice, how are the Five Moral Precepts best understood?",
+                            options = listOf(
+                                "Punitive commandments enforced by a supreme judge",
+                                "Voluntary ethical training rules that support a calm, clear mind",
+                                "Advanced rituals reserved only for monastic scholars",
+                                "Strict rules that replace meditation and wisdom"
+                            ),
+                            correctOptionIndex = 1,
+                            explanation = "The precepts are voluntary training rules that reduce inner conflict and support concentration and wisdom."
+                        ),
+                        Question(
+                            id = 2,
+                            text = "What positive quality is cultivated by the first precept, abstaining from taking life?",
+                            options = listOf(
+                                "Non-harm, kindness, and compassion toward living beings",
+                                "Detached indifference toward all living things",
+                                "Strict debate over philosophical doctrines",
+                                "Material wealth and social status"
+                            ),
+                            correctOptionIndex = 0,
+                            explanation = "Abstaining from taking life nurtures non-harm, empathy, and goodwill toward all beings."
+                        ),
+                        Question(
+                            id = 3,
+                            text = "Which of the following is most aligned with the fourth precept (abstaining from false speech)?",
+                            options = listOf(
+                                "Staying completely silent at all times",
+                                "Speaking only to win arguments",
+                                "Cultivating truthfulness, trustworthiness, and helpful communication",
+                                "Repeating rumors so others stay informed"
+                            ),
+                            correctOptionIndex = 2,
+                            explanation = "The fourth precept encourages honest, reliable, and constructive speech while avoiding deception, harshness, and divisive talk."
+                        ),
+                        Question(
+                            id = 4,
+                            text = "Why is the fifth precept (abstaining from intoxicants that cloud the mind) especially important?",
+                            options = listOf(
+                                "It is the only precept mentioned in early Buddhist texts",
+                                "Clouding the mind weakens mindfulness and makes keeping the other precepts harder",
+                                "It requires avoiding all sweets and warm beverages",
+                                "It replaces the need for honest speech"
+                            ),
+                            correctOptionIndex = 1,
+                            explanation = "Intoxicants dull awareness and reduce restraint, which can easily lead to heedlessness and breaking the other precepts."
+                        ),
+                        Question(
+                            id = 5,
+                            text = "How does ethical conduct relate to the rest of the Buddhist path?",
+                            options = listOf(
+                                "It has no connection to meditation or insight",
+                                "It creates a steady, guilt-free foundation that supports meditation and wisdom",
+                                "It is only practiced after full enlightenment is achieved",
+                                "It focuses solely on outward appearances"
+                            ),
+                            correctOptionIndex = 1,
+                            explanation = "Steady ethical conduct reduces agitation and regret, making it easier to develop concentration and insight."
+                        )
+                    )
+                )
+            ),
+            Lesson(
+                id = 4,
                 title = "Koan Study: A Buddha",
                 summary = "Exploring Koan 13 from Zen Flesh, Zen Bones to understand how true practice transcends rigid rule-following and recognizes the inherent Buddha-nature in every moment.",
                 content = """
@@ -290,7 +387,7 @@ object LessonRepository {
                     The Essence of Practice: Precepts and rules are helpful training wheels, but treating them as a badge of superior identity creates a subtle ego. True realization does not cling to being "good" or "bad," "strict" or "lax"; it rests in the open, unconditioned nature of the mind.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 3,
+                    id = 4,
                     title = "Quiz: Koan Study: A Buddha",
                     questions = listOf(
                         Question(
@@ -321,7 +418,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 4,
+                id = 5,
                 title = "The Four Noble Truths",
                 summary = "Building upon the Middle Way, this lesson explores the foundational diagnosis of human suffering, its root cause, its cessation, and the path to freedom.",
                 content = """
@@ -336,7 +433,7 @@ object LessonRepository {
                     4. The Path to Cessation: Applying the practical treatment — the Noble Eightfold Path.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 4,
+                    id = 5,
                     title = "Quiz: The Four Noble Truths",
                     questions = listOf(
                         Question(
@@ -379,7 +476,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 5,
+                id = 6,
                 title = "The Noble Eightfold Path",
                 summary = "Exploring the eight practical factors of the path that guide ethical conduct, mental discipline, and wisdom.",
                 content = """
@@ -404,7 +501,7 @@ object LessonRepository {
                     - Right Thought: Cultivating intentions of renunciation, goodwill, and harmlessness.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 5,
+                    id = 6,
                     title = "Quiz: The Noble Eightfold Path",
                     questions = listOf(
                         Question(
@@ -435,7 +532,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 6,
+                id = 7,
                 title = "The Three Higher Trainings",
                 summary = "Engaging in the practical triad of higher ethics, higher concentration, and higher wisdom.",
                 content = """
@@ -450,7 +547,7 @@ object LessonRepository {
                     These three trainings reinforce one another: ethics supports calm concentration, and calm concentration empowers clear, liberating wisdom.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 6,
+                    id = 7,
                     title = "Quiz: The Three Higher Trainings",
                     questions = listOf(
                         Question(
@@ -481,7 +578,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 7,
+                id = 8,
                 title = "Koan Study: No Attachment to Dust",
                 summary = "Exploring Koan 77 from Zen Flesh, Zen Bones to learn the practical guidelines of a true Zen student for living in the world without being trapped by its illusions.",
                 content = """
@@ -518,7 +615,7 @@ object LessonRepository {
                     The Art of Non-Contention: Zengetsu counsels us to stop arguing over right and wrong, to focus entirely on self-reflection rather than criticizing others, and to let go of the desperate craving for immediate approval. True practice lives quietly in the present moment, indifferent to both shame and glory.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 7,
+                    id = 8,
                     title = "Quiz: Koan Study: No Attachment to Dust",
                     questions = listOf(
                         Question(
@@ -549,7 +646,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 8,
+                id = 9,
                 title = "Interdependence",
                 summary = "Exploring how all things are profoundly connected and arise in relation to one another.",
                 content = """
@@ -560,7 +657,7 @@ object LessonRepository {
                     Realizing interdependence dissolves feelings of absolute separation. It inspires a natural sense of care, shared responsibility, and harmony with the world around us.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 8,
+                    id = 9,
                     title = "Quiz: Interdependence",
                     questions = listOf(
                         Question(
@@ -591,7 +688,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 9,
+                id = 10,
                 title = "Thich Nhat Hanh and Interbeing",
                 summary = "Exploring the teachings of Zen master Thich Nhat Hanh on 'Interbeing,' discovering how every element of the universe is profoundly interconnected.",
                 content = """
@@ -602,7 +699,7 @@ object LessonRepository {
                     Living with Mindfulness and Compassion: Recognizing our interbeing transforms how we relate to the world and to one another. Because our actions, thoughts, and words ripple through the web of life, living mindfully becomes an act of deep reverence, urging us to cultivate compassion, reduce suffering, and foster global peace.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 9,
+                    id = 10,
                     title = "Quiz: Thich Nhat Hanh and Interbeing",
                     questions = listOf(
                         Question(
@@ -633,7 +730,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 10,
+                id = 11,
                 title = "Dependent Origination",
                 summary = "Understanding how events and experiences arise conditioned by preceding causes.",
                 content = """
@@ -644,7 +741,7 @@ object LessonRepository {
                     Seeing how this chain operates gives us the power to interrupt unwholesome cycles. By introducing awareness at the moment of contact, we break old reactionary habits and create new, peaceful possibilities.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 10,
+                    id = 11,
                     title = "Quiz: Dependent Origination",
                     questions = listOf(
                         Question(
@@ -675,7 +772,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 11,
+                id = 12,
                 title = "Emptiness",
                 summary = "Realizing that all phenomena are empty of a separate, permanent, or independent self-nature.",
                 content = """
@@ -686,7 +783,7 @@ object LessonRepository {
                     Understanding emptiness frees the mind from rigid labels and absolute boundaries. When we see that people, events, and objects are fluid and interconnected, we stop grasping, dissolve rigid mental barriers, and experience ultimate liberation.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 11,
+                    id = 12,
                     title = "Quiz: Emptiness",
                     questions = listOf(
                         Question(
@@ -717,7 +814,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 12,
+                id = 13,
                 title = "Nagarjuna and The Fundamental Wisdom of the Middle Way",
                 summary = "Exploring the foundational text of Madhyamaka philosophy by Nagarjuna, which demonstrates the emptiness of all phenomena through logical analysis.",
                 content = """
@@ -730,7 +827,7 @@ object LessonRepository {
                     The Purpose of Deconstruction: The logical deconstructions presented by Nagarjuna are not meant to foster skepticism or academic debate. Rather, they serve a therapeutic purpose: dismantling our deeply ingrained habit of reifying concepts, clinging to views, and building mental barriers, thereby freeing the mind to experience ultimate peace.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 12,
+                    id = 13,
                     title = "Quiz: Nagarjuna and The Fundamental Wisdom of the Middle Way",
                     questions = listOf(
                         Question(
@@ -761,7 +858,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 13,
+                id = 14,
                 title = "Āryadeva and The Four Hundred",
                 summary = "Exploring the masterpiece of the 3rd-century Madhyamaka master Āryadeva, The Four Hundred Verse Treatise on the Conduct of Bodhisattva Yogis.",
                 content = """
@@ -792,7 +889,7 @@ object LessonRepository {
                     By sequentially clearing away negative karma, dissolving the illusion of an inherent self, and finally letting go of all conceptual fixations on philosophical views, the mind rests completely free in ultimate truth.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 13,
+                    id = 14,
                     title = "Quiz: Āryadeva and The Four Hundred",
                     questions = listOf(
                         Question(
@@ -835,7 +932,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 14,
+                id = 15,
                 title = "The Three Marks of Existence",
                 summary = "Exploring the three fundamental characteristics shared by all things: impermanence, unsatisfactoriness, and non-self.",
                 content = """
@@ -850,7 +947,7 @@ object LessonRepository {
                     Recognizing these three marks cuts through illusion, dismantles mental clinging, and clears the path toward deep inner peace.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 14,
+                    id = 15,
                     title = "Quiz: The Three Marks of Existence",
                     questions = listOf(
                         Question(
@@ -881,7 +978,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 15,
+                id = 16,
                 title = "Impermanence",
                 summary = "Understanding that all conditioned phenomena are transient, shifting, and in constant flux.",
                 content = """
@@ -892,7 +989,7 @@ object LessonRepository {
                     Understanding impermanence liberates the mind. When we realize that both pleasant and painful experiences are fleeting, we stop clinging, cultivate deep equanimity, and uncover lasting inner peace.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 15,
+                    id = 16,
                     title = "Quiz: Impermanence",
                     questions = listOf(
                         Question(
@@ -923,7 +1020,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 16,
+                id = 17,
                 title = "Unsatisfactoriness",
                 summary = "Examining how grasping onto impermanence and trying to control changing conditions leads to friction and distress.",
                 content = """
@@ -934,7 +1031,7 @@ object LessonRepository {
                     Recognizing unsatisfactoriness is not meant to be pessimistic, but rather profoundly liberating. It helps us release unrealistic expectations, stop striving for permanent control over changing conditions, and find a deeper peace independent of external circumstances.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 16,
+                    id = 17,
                     title = "Quiz: Unsatisfactoriness",
                     questions = listOf(
                         Question(
@@ -965,7 +1062,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 17,
+                id = 18,
                 title = "Non-Self",
                 summary = "Discovering that at the core of human experience there is no static, permanent, or isolated ego.",
                 content = """
@@ -976,7 +1073,7 @@ object LessonRepository {
                     Realizing non-self dissolves the heavy burden of guarding a fixed ego. Without a rigid self to defend, the mind opens up to boundless empathy, humility, and effortless freedom.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 17,
+                    id = 18,
                     title = "Quiz: Non-Self",
                     questions = listOf(
                         Question(
@@ -1007,7 +1104,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 18,
+                id = 19,
                 title = "Koan Study: Is That So?",
                 summary = "Exploring Koan 3 from Zen Flesh, Zen Bones to learn how to maintain equanimity, non-attachment, and emotional freedom in the face of false accusations and praise alike.",
                 content = """
@@ -1034,7 +1131,7 @@ object LessonRepository {
                     The Nature of Non-Attachment: True practice does not scramble to defend the ego's reputation or react with anger to injustice. By meeting both slander and apology with the exact same response — "Is That So?" — Hakuin reveals a mind that accepts unfolding reality without grasping or resistance.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 18,
+                    id = 19,
                     title = "Quiz: Koan Study: Is That So?",
                     questions = listOf(
                         Question(
@@ -1065,7 +1162,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 19,
+                id = 20,
                 title = "Sutta Nipāta Book 4: How Opinion & Thought Contaminate the Mind",
                 summary = "Exploring 'How Opinion & Thought Contaminate the Mind' from Book IV of the Sutta-Nipāta to understand how letting go of rigid beliefs, arguments, and pride leads to inner stillness.",
                 content = """
@@ -1088,7 +1185,7 @@ object LessonRepository {
                     The wise see your failings if you blow your own trumpet, skite about your virtue and awareness but they acknowledge your virtue if you're calm, don't brag, are selfless and unworldly.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 19,
+                    id = 20,
                     title = "Quiz: How Opinion & Thought Contaminate the Mind",
                     questions = listOf(
                         Question(
@@ -1131,7 +1228,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 20,
+                id = 21,
                 title = "Koan Study: A Cup of Tea",
                 summary = "Exploring Koan 1 from Zen Flesh, Zen Bones to learn how an overactive, opinionated mind prevents the reception of true understanding.",
                 content = """
@@ -1148,7 +1245,7 @@ object LessonRepository {
                     "Like this cup," Nan-in said, "you are full of your own opinions and speculations. How can I show you Zen unless you first empty your cup?"
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 20,
+                    id = 21,
                     title = "Quiz: Koan Study: A Cup of Tea",
                     questions = listOf(
                         Question(
@@ -1179,7 +1276,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 21,
+                id = 22,
                 title = "Impermanence and Death",
                 summary = "Contemplating the transience of life and physical existence to overcome worldly attachment and prioritize meaningful practice.",
                 content = """
@@ -1190,7 +1287,7 @@ object LessonRepository {
                     Instead of causing despair, meditating on impermanence brings a liberating clarity, helping us let go of petty grievances and invest our energy into what truly matters.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 21,
+                    id = 22,
                     title = "Quiz: Impermanence and Death",
                     questions = listOf(
                         Question(
@@ -1221,7 +1318,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 22,
+                id = 23,
                 title = "Koan Study: Finding a Diamond on a Muddy Road",
                 summary = "Exploring Koan 2 from Zen Flesh, Zen Bones to understand how true spiritual practice meets suffering with unconditional compassion and recognizes the impermanence of worldly attachments.",
                 content = """
@@ -1270,7 +1367,7 @@ object LessonRepository {
                     The Awakening of Impermanence: Gudo’s concise reminder that life is brief and impermanent cuts through the illusions of destructive habits. Awakening is not found in an abstract realm, but right on the muddy roads of daily existence, turning despair into a dedicated path of transformation.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 22,
+                    id = 23,
                     title = "Quiz: Koan Study: Finding a Diamond on a Muddy Road",
                     questions = listOf(
                         Question(
@@ -1301,7 +1398,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 23,
+                id = 24,
                 title = "Karma (Cause and Effect)",
                 summary = "Understanding how intentional actions yield corresponding ethical and psychological results in human experience.",
                 content = """
@@ -1312,7 +1409,7 @@ object LessonRepository {
                     Understanding karma places personal responsibility squarely in our own hands. By observing our intentions and choosing constructive actions, we actively shape our future state of mind and well-being.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 23,
+                    id = 24,
                     title = "Quiz: Karma (Cause and Effect)",
                     questions = listOf(
                         Question(
@@ -1343,7 +1440,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 24,
+                id = 25,
                 title = "Koan Study: The Tunnel",
                 summary = "Exploring Koan 60 from Zen Flesh, Zen Bones to examine how intentional action, remorse, and dedicated service can transform past karma and reconcile even the deepest enmities.",
                 content = """
@@ -1374,7 +1471,7 @@ object LessonRepository {
                     The Dissolution of Hatred: The vengeful son arrives seeking blood, yet encounters a man utterly transformed by unselfish dedication. Through shared labor and steadfast purpose, hatred melts into profound respect and discipleship, showing that true spiritual practice heals even the deepest cycles of retaliation.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 24,
+                    id = 25,
                     title = "Quiz: Koan Study: The Tunnel",
                     questions = listOf(
                         Question(
@@ -1405,7 +1502,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 25,
+                id = 26,
                 title = "Developing Bodhicitta",
                 summary = "Cultivating universal love, compassion, and the altruistic aspiration to attain full awakening for the benefit of all.",
                 content = """
@@ -1416,7 +1513,7 @@ object LessonRepository {
                     Cultivating bodhicitta transforms ordinary daily actions into a powerful path of universal service, infusing every task with warmth, purpose, and profound altruism.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 25,
+                    id = 26,
                     title = "Quiz: Developing Bodhicitta",
                     questions = listOf(
                         Question(
@@ -1447,7 +1544,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 26,
+                id = 27,
                 title = "Engaging in the Bodhisattva Practices",
                 summary = "Practicing the six perfections of generosity, ethics, patience, joyous effort, concentration, and wisdom.",
                 content = """
@@ -1468,7 +1565,7 @@ object LessonRepository {
                     Mastering these perfections integrates deep insight with compassionate action in daily life.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 26,
+                    id = 27,
                     title = "Quiz: Engaging in the Bodhisattva Practices",
                     questions = listOf(
                         Question(
@@ -1499,7 +1596,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 27,
+                id = 28,
                 title = "Tsongkhapa and The Six Perfections",
                 summary = "Explore the life and teachings of Je Tsongkhapa, founder of the Gelug school, and how he synthesized rigorous study with the practice of the six perfections.",
                 content = """
@@ -1532,7 +1629,7 @@ object LessonRepository {
                     Tsongkhapa detailed how the six perfections—generosity, ethics, patience, joyous effort, concentration, and wisdom—must be practiced not just as isolated virtues, but as a unified lifestyle of awakening, where each perfection supports and purifies the others.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 27,
+                    id = 28,
                     title = "Quiz: Tsongkhapa and The Six Perfections",
                     questions = listOf(
                         Question(
@@ -1575,7 +1672,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 28,
+                id = 29,
                 title = "Koan Study: Reciting Sutras",
                 summary = "Exploring Koan 24 from Zen Flesh, Zen Bones to examine how spiritual practice encompasses all living beings rather than harboring petty exclusions.",
                 content = """
@@ -1596,7 +1693,7 @@ object LessonRepository {
                     Universal Compassion: The priest's teaching underscores that true spiritual practice cannot be partitioned or doled out exclusively. Awakening and dedication to the welfare of others embrace the entire web of existence without petty exclusions.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 28,
+                    id = 29,
                     title = "Quiz: Koan Study: Reciting Sutras",
                     questions = listOf(
                         Question(
@@ -1627,7 +1724,7 @@ object LessonRepository {
                 )
             ),
             Lesson(
-                id = 29,
+                id = 30,
                 title = "Śāntideva and Bodhicitta",
                 summary = "Explore the life and teachings of the 8th-century master Śāntideva, focusing on how true bodhicitta transforms the mind and overcomes self-cherishing.",
                 content = """
@@ -1660,7 +1757,7 @@ object LessonRepository {
                     True practice requires joyous effort—not a grim, exhausting struggle, but an uplifting enthusiasm born from recognizing the immense value of living a compassionate life.
                 """.trimIndent(),
                 quiz = Quiz(
-                    id = 29,
+                    id = 30,
                     title = "Quiz: Śāntideva and Bodhicitta",
                     questions = listOf(
                         Question(
