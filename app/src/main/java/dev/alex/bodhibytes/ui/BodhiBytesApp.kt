@@ -1,6 +1,8 @@
 package dev.alex.bodhibytes.ui
 
 import android.app.Activity
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -803,7 +805,20 @@ fun FeedbackScreen(onBackClick: () -> Unit) {
 fun AboutScreen(
     onBackClick: () -> Unit
 ) {
+    val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
+    val versionName = remember(context) {
+        val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.packageManager.getPackageInfo(
+                context.packageName,
+                PackageManager.PackageInfoFlags.of(0)
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            context.packageManager.getPackageInfo(context.packageName, 0)
+        }
+        packageInfo.versionName ?: "Unknown"
+    }
 
     Scaffold(
         topBar = {
@@ -843,7 +858,7 @@ fun AboutScreen(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Version 1.0.0",
+                text = "Version $versionName",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
