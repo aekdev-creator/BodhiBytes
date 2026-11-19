@@ -54,250 +54,66 @@ object LessonRepository {
                     Alms: Food, clothing, or offerings generously given by laypeople to support monks, nuns, and mendicants.
 
                     Mendicant: A wandering ascetic or monastic practitioner who relies on alms and lives a simple, non-possessive life.
+
+                    Phenomena: What you observe with your senses, observable events.
+
+                    Concept / Conceptual: A memory or thought about something.
+
+                    Dependent Origination / Dependent Arising: Everything observable is a result only of its causes and conditions, not supernatural power.
+
+                    Ignorance: Grasping phenomena as more than dependent origination / dependent arising.
                 """.trimIndent(),
                 quiz = Quiz(
                     id = 1,
                     title = "Quiz: Buddhist Words and Their Meanings",
                     questions = listOf(
                         Question(
-                            id = 1,
-                            text = "What is the definition of *Sentient Beings* in this curriculum?",
+                            id = 21,
+                            text = "How is *Phenomena* defined in this curriculum?",
                             options = listOf(
-                                "Living creatures who view the world through their senses.",
-                                "Spiritual beings who have attained full enlightenment.",
-                                "Entities that exist outside of physical reality.",
-                                "Monastic teachers who guide the community."
+                                "What you observe with your senses, observable events.",
+                                "A fixed eternal soul beyond experience.",
+                                "A strict monastic vow of silence.",
+                                "A ritual offering made at a stupa."
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Sentient beings are defined as living creatures who view the world through their senses."
+                            explanation = "Phenomena is defined as what you observe with your senses, observable events."
                         ),
                         Question(
-                            id = 2,
-                            text = "How is *Equanimity* defined in Buddhist practice?",
+                            id = 22,
+                            text = "What does *Concept / Conceptual* mean in this lesson?",
                             options = listOf(
-                                "Extreme emotional swings during meditation",
-                                "An unshakeable emotional balance undisturbed by fluctuating life conditions.",
-                                "The rejection of all physical sensations",
-                                "An intense attachment to pleasant outcomes"
+                                "A physical temple structure",
+                                "A memory or thought about something.",
+                                "The complete cessation of all perception",
+                                "A wandering mendicant practitioner"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Equanimity is unshakeable emotional balance undisturbed by fluctuating life conditions."
+                            explanation = "Concept / Conceptual is defined as a memory or thought about something."
                         ),
                         Question(
-                            id = 3,
-                            text = "What does the term *Dharma* specifically represent in Buddhist practice?",
+                            id = 23,
+                            text = "What does *Dependent Origination / Dependent Arising* mean in this curriculum?",
                             options = listOf(
-                                "Ancient architectural temple designs",
-                                "The teachings and doctrine expounded by the Buddha.",
-                                "The system of monastic taxation",
-                                "Physical health and bodily postures"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "Dharma refers to the teachings and doctrine expounded by the Buddha."
-                        ),
-                        Question(
-                            id = 4,
-                            text = "What is *Nirvana* described as?",
-                            options = listOf(
-                                "A temporary state of deep sleep",
-                                "The ultimate state of liberation and release from suffering, craving, and rebirth.",
-                                "The physical journey to sacred shrines",
-                                "An emotional reaction to loss"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "Nirvana is the ultimate state of liberation and release from suffering, craving, and rebirth."
-                        ),
-                        Question(
-                            id = 5,
-                            text = "What does *Bodhicitta* mean?",
-                            options = listOf(
-                                "The intellectual study of ancient texts",
-                                "The altruistic aspiration to attain full enlightenment for all beings.",
-                                "The physical endurance of hardship",
-                                "A strict set of dietary rules"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "Bodhicitta is the altruistic aspiration to attain full enlightenment for all beings."
-                        ),
-                        Question(
-                            id = 6,
-                            text = "Who or what comprises the *Sangha*?",
-                            options = listOf(
-                                "Only the historical figures of early Buddhism",
-                                "The community of monks, nuns, and practitioners walking the path together.",
-                                "The collection of sacred scriptures",
-                                "The lay merchants who fund temples"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "Sangha is the community of monks, nuns, and practitioners walking the path together."
-                        ),
-                        Question(
-                            id = 7,
-                            text = "How is *Samsara* defined?",
-                            options = listOf(
-                                "The peaceful state of final liberation",
-                                "The ongoing, repetitive cycle of birth, existence, and dying.",
-                                "A specialized breathing technique",
-                                "The moral law of cause and effect"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "Samsara is the ongoing, repetitive cycle of birth, existence, and dying."
-                        ),
-                        Question(
-                            id = 8,
-                            text = "What does *Prajna* signify?",
-                            options = listOf(
-                                "Physical strength and agility",
-                                "Transcendent wisdom and intuitive insight into reality and emptiness.",
-                                "Strict adherence to daily rituals",
-                                "Emotional attachment to family"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "Prajna is transcendent wisdom and intuitive insight into reality and emptiness."
-                        ),
-                        Question(
-                            id = 9,
-                            text = "What is *Metta*?",
-                            options = listOf(
-                                "Boundless loving-kindness and goodwill toward all living beings.",
-                                "A rigorous form of physical fasting",
-                                "The avoidance of all social contact",
-                                "Financial contribution to monasteries"
+                                "Everything observable is a result only of its causes and conditions, not supernatural power.",
+                                "Events happen randomly without any preceding causes or conditions.",
+                                "A fixed eternal essence that never changes across time.",
+                                "A ceremonial offering made at a monastery shrine."
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Metta is boundless loving-kindness and goodwill toward all living beings."
+                            explanation = "Dependent Origination / Dependent Arising means everything observable is a result only of its causes and conditions, not supernatural power."
                         ),
                         Question(
-                            id = 10,
-                            text = "Who or what is a *Kalyana-mitra*?",
+                            id = 24,
+                            text = "How is *Ignorance* defined in this lesson?",
                             options = listOf(
-                                "A fierce opponent in debate",
-                                "A spiritual friend, mentor, or guide along the path.",
-                                "A sacred text written on palm leaves",
-                                "An ancient meditation hall"
+                                "Living simply without material possessions",
+                                "Grasping phenomena as more than dependent origination / dependent arising.",
+                                "Cultivating loving-kindness toward all beings",
+                                "Observing events solely through causes and conditions"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "A kalyana-mitra is a spiritual friend, mentor, or guide along the path."
-                        ),
-                        Question(
-                            id = 11,
-                            text = "What does *Upaya* mean?",
-                            options = listOf(
-                                "Rigid dogma that cannot be questioned",
-                                "Skillful means or adaptive strategies used to guide practice.",
-                                "An inescapable karmic punishment",
-                                "The complete cessation of thought"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "Upaya refers to skillful means or adaptive strategies used to guide practice."
-                        ),
-                        Question(
-                            id = 12,
-                            text = "How is an *Epithet* defined in this lesson?",
-                            options = listOf(
-                                "A strict rule forbidding speech during meals",
-                                "A descriptive title or honorary phrase used to characterize a figure or quality, such as a title of the Buddha.",
-                                "A type of seated breathing meditation",
-                                "A cycle of rebirth in the conditioned world"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "An epithet is a descriptive title or honorary phrase used to characterize a figure or quality."
-                        ),
-                        Question(
-                            id = 13,
-                            text = "What is the meaning of the epithet *Tathagata*?",
-                            options = listOf(
-                                "One who rules over kingdoms",
-                                "An epithet for the Buddha, meaning one who has realized ultimate truth.",
-                                "A wanderer lost in the forest",
-                                "A creator of physical matter"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "Tathagata is an epithet for the Buddha, meaning one who has realized ultimate truth."
-                        ),
-                        Question(
-                            id = 14,
-                            text = "What does the epithet *Sugata* mean?",
-                            options = listOf(
-                                "One who wanders without a fixed destination",
-                                "A student still debating foundational doctrines",
-                                "An epithet for the Buddha meaning 'Well-Gone' or 'One Who Has Blissfully Gone,' signifying complete awakening and liberation.",
-                                "A guardian spirit of mountain passes"
-                            ),
-                            correctOptionIndex = 2,
-                            explanation = "Sugata is an epithet for the Buddha meaning 'Well-Gone' or 'One Who Has Blissfully Gone,' signifying complete awakening and liberation."
-                        ),
-                        Question(
-                            id = 15,
-                            text = "What does the school of *Madhyamaka* demonstrate?",
-                            options = listOf(
-                                "The permanent existence of physical atoms",
-                                "The 'Middle Way' school demonstrating the emptiness of all phenomena.",
-                                "The strict hierarchy of monastic life",
-                                "The predictability of future rebirths"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "Madhyamaka is the 'Middle Way' school demonstrating the emptiness of all phenomena."
-                        ),
-                        Question(
-                            id = 16,
-                            text = "How are *Precepts* best understood in this curriculum?",
-                            options = listOf(
-                                "Voluntary ethical training guidelines undertaken to cultivate non-harm, inner peace, and clarity of mind.",
-                                "Mandatory legal penalties enforced by a ruler",
-                                "Secret mantras reserved for solitary retreats",
-                                "Ancient calendars used for seasonal festivals"
-                            ),
-                            correctOptionIndex = 0,
-                            explanation = "Precepts are voluntary ethical training guidelines that cultivate non-harm, inner peace, and clarity of mind."
-                        ),
-                        Question(
-                            id = 17,
-                            text = "What characterizes an *Ascetic* in spiritual practice?",
-                            options = listOf(
-                                "Voluntarily renouncing worldly comforts and sensual indulgences to cultivate self-discipline and spiritual focus.",
-                                "Accumulating wealth to build large palaces",
-                                "Avoiding all forms of meditation and reflection",
-                                "Serving as a military commander in royal campaigns"
-                            ),
-                            correctOptionIndex = 0,
-                            explanation = "An ascetic voluntarily renounces worldly comforts and indulgences to cultivate self-discipline and spiritual focus."
-                        ),
-                        Question(
-                            id = 18,
-                            text = "Who is a *Monastic*?",
-                            options = listOf(
-                                "A merchant trading goods across distant borders",
-                                "A member of a dedicated religious community—such as a monk or nun—who lives a structured life of vows, study, and practice.",
-                                "A farmer tending crops outside the village",
-                                "A ruler governing a kingdom's tax collection"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "A monastic is a member of a dedicated religious community—such as a monk or nun—living a structured life of vows, study, and practice."
-                        ),
-                        Question(
-                            id = 19,
-                            text = "What are *Alms* in the Buddhist tradition?",
-                            options = listOf(
-                                "Tax payments collected by local officials",
-                                "Food, clothing, or offerings generously given by laypeople to support monks, nuns, and mendicants.",
-                                "Ancient manuscripts stored in mountain caves",
-                                "Musical instruments used during festivals"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "Alms are food, clothing, or offerings generously given by laypeople to support monks, nuns, and mendicants."
-                        ),
-                        Question(
-                            id = 20,
-                            text = "What is a *Mendicant*?",
-                            options = listOf(
-                                "A royal court advisor managing trade routes",
-                                "A wandering ascetic or monastic practitioner who relies on alms and lives a simple, non-possessive life.",
-                                "A temple architect who designs stupas",
-                                "A merchant who lends money at interest"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "A mendicant is a wandering ascetic or monastic practitioner who relies on alms and lives simply without possessions."
+                            explanation = "Ignorance is defined as grasping phenomena as more than dependent origination / dependent arising."
                         )
                     )
                 )
@@ -576,9 +392,9 @@ object LessonRepository {
             Lesson(
                 id = 6,
                 title = "The Noble Eightfold Path",
-                summary = "Exploring the eight practical factors of the path that guide ethical conduct, mental discipline, and wisdom.",
+                summary = "Exploring the eight practical factors of the path that guide ethics, concentration, and wisdom.",
                 content = """
-                    The Noble Eightfold Path is the practical guide designed to lead away from suffering and toward awakening. It is categorized into three essential areas: ethical conduct, mental discipline, and wisdom.
+                    The Noble Eightfold Path is the practical guide designed to lead away from suffering and toward awakening. It is categorized into three essential areas: Ethics, concentration, and wisdom.
 
                     The eight factors are:
                     
@@ -606,13 +422,13 @@ object LessonRepository {
                             id = 1,
                             text = "Into what core areas are the eight factors generally grouped?",
                             options = listOf(
-                                "Wisdom, ethical conduct, and mental discipline",
+                                "Ethics, concentration, and wisdom",
                                 "History, philosophy, and geography",
                                 "Wealth, health, and status",
                                 "Ritual, prayer, and sacrifice"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "The path encompasses factors related to wisdom, ethical conduct, and mental discipline."
+                            explanation = "The path encompasses factors related to ethics, concentration, and wisdom."
                         ),
                         Question(
                             id = 2,
@@ -706,7 +522,7 @@ object LessonRepository {
 
                     Some things, though right, were considered wrong for generations. Since the value of righteousness may be recognized after centuries, there is no need to crave immediate appreciation.
 
-                    Live with cause and leave results to the great law of the universe. Pass each day in peaceful contemplation."
+                    Live with cause and leave results to the great law of the universe. Pass each day in peaceful contemplation.
 
                     Transcending the World While Living Within It: This text emphasizes that true Zen practice is not about escaping society, but about maintaining inner clarity and non-attachment amidst daily life. By guarding our character when alone just as we would in public, we build a steady foundation of genuine virtue.
 
