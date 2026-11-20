@@ -1702,6 +1702,92 @@ object LessonRepository {
                         )
                     )
                 )
+            ),
+            Lesson(
+                id = 31,
+                title = "The Three Principal Aspects of the Path",
+                summary = "Je Tsongkhapa's classic 14-verse synthesis of the entire Buddhist path into three core realizations: renunciation, bodhicitta, and the wisdom realizing emptiness.",
+                content = """
+                    Reverence to the venerable, noble teachers!
+
+                    To the best of my ability, I shall explain the essential meaning of all the Buddhas’ scriptures, the path praised by the noble bodhisattvas, and the gateway for fortunate ones wishing for liberation.
+
+                    Those who are not attached to the pleasures of cyclic existence, who strive to make their freedoms and endowments meaningful, and who place their trust in the path that pleases the Buddhas—fortunate ones, listen with a clear mind!
+
+                    I. The Determination to Be Free (Renunciation)
+
+                    Without pure renunciation, there is no way to pacify the pursuit of pleasurable results in the ocean of existence. Moreover, embodied beings are thoroughly bound by craving for existence; therefore, seek renunciation from the very start.
+
+                    Freedoms and endowments are difficult to find, and life has no time to spare—by habituating to this, reverse attachment to this life. Repeatedly contemplate the infallible effects of karma and the sufferings of cyclic existence—by habituating to this, reverse attachment to future lives.
+
+                    When, through meditating in this way, admiration does not arise even for an instant for the marvels of cyclic existence, and an attitude seeking liberation arises day and night, at that time, renunciation has been generated.
+
+                    II. The Awakening Mind (Bodhicitta)
+
+                    However, if that renunciation is not embraced by the generation of a pure awakening mind, it will not become a cause for the perfect bliss of unsurpassed enlightenment; therefore, the wise generate the supreme awakening mind.
+
+                    Swept along by the currents of birth, aging, sickness, and death, tightly bound by the cords of karma so hard to undo, caught inside the iron cage of grasping at a self, and completely enveloped in the thick darkness of ignorance—taking birth in limitless cyclic existence again and again, unceasingly tormented by the three sufferings: contemplating the condition of your mothers who have reached such a state, generate the supreme awakening mind.
+
+                    III. The Correct View (Wisdom of Emptiness)
+
+                    If you lack the wisdom realizing the mode of being, even though you have habituated to renunciation and the awakening mind, you will be unable to cut the root of cyclic existence; therefore, make effort in the methods for realizing dependent origination.
+
+                    Whoever sees that cause and effect are unfailing for all phenomena of cyclic existence and nirvana, and for whom all objects of conceptual apprehension have collapsed, has entered the path that pleases the Buddhas.
+
+                    As long as the two—the understanding of unfailing dependent appearance and the understanding of emptiness free from assertions—appear to you as separate, you have still not realized the intent of the Able One.
+
+                    When these two occur simultaneously, not alternating, and from merely seeing unfailing dependent origination, certainty is born that completely destroys all modes of apprehending objects, at that time, the analysis of the view is complete.
+
+                    Furthermore, when appearance dispels the extreme of existence, and emptiness dispels the extreme of non-existence, and you know the way emptiness dawns as cause and effect, you will not be stolen away by views that grasp at extremes.
+
+                    Conclusion & Closing Note
+
+                    When you have understood the key points of the three principal aspects of the path just as they are, rely on solitude, dear disciple, and generate the power of joyous perseverance—swiftly accomplish your ultimate aspiration!
+
+                    This instruction was given by the extensively learned monk Lobzang Drakpai Pal (Tsongkhapa) to Tsakho Önpo Ngawang Drakpa.
+                """.trimIndent(),
+                quiz = Quiz(
+                    id = 31,
+                    title = "Quiz: The Three Principal Aspects of the Path",
+                    questions = listOf(
+                        Question(
+                            id = 1,
+                            text = "What are the three principal aspects of the path outlined by Je Tsongkhapa?",
+                            options = listOf(
+                                "Renunciation, the Awakening Mind (Bodhicitta), and the Correct View of Emptiness",
+                                "Generosity, ethical discipline, and physical asceticism",
+                                "Ritual chanting, pilgrimage, and monastic debate",
+                                "Wealth, longevity, and rebirth in celestial realms"
+                            ),
+                            correctOptionIndex = 0,
+                            explanation = "Tsongkhapa distills the entire path into three essentials: the determination to be free (renunciation), the awakening mind (bodhicitta), and the correct view realizing emptiness."
+                        ),
+                        Question(
+                            id = 2,
+                            text = "According to the text, what happens if you cultivate renunciation and the awakening mind without the wisdom realizing emptiness?",
+                            options = listOf(
+                                "You immediately achieve unsurpassed enlightenment",
+                                "You will be unable to cut the root of cyclic existence",
+                                "You no longer need to practice ethical conduct",
+                                "You automatically master all meditative states"
+                            ),
+                            correctOptionIndex = 1,
+                            explanation = "Without the wisdom realizing the mode of being (emptiness), one cannot sever the root of cyclic existence."
+                        ),
+                        Question(
+                            id = 3,
+                            text = "When is the analysis of the correct view considered complete?",
+                            options = listOf(
+                                "When appearance and emptiness are understood separately in alternating sessions",
+                                "When dependent appearance and emptiness dawn simultaneously, destroying all grasping at extremes",
+                                "When one rejects all cause and effect as non-existent",
+                                "When one memorizes all philosophical treatises"
+                            ),
+                            correctOptionIndex = 1,
+                            explanation = "The view is complete when unfailing dependent origination and emptiness free from assertions occur simultaneously rather than alternating."
+                        )
+                    )
+                )
             )
         )
     }

@@ -55,6 +55,7 @@ data class LessonModule(
 sealed interface HomeItem {
     data class RegularModule(val module: LessonModule) : HomeItem
     data class ParentGroup(val title: String, val subModules: List<LessonModule>) : HomeItem
+    data class StandaloneLesson(val lesson: Lesson) : HomeItem
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -322,23 +323,29 @@ fun LessonListScreen(
     }
 
     val topLesson = remember(allLessons) { allLessons.find { it.id == 1 } }
+    val threeAspectsLesson = remember(allLessons) { allLessons.find { it.id == 31 } }
 
-    val homeItems = remember {
-        listOf(
-            HomeItem.RegularModule(LessonModule("The Path", allLessons.filter { it.id in 2..8 })),
-            HomeItem.RegularModule(LessonModule("The Three Marks of Existence", allLessons.filter { it.id in 15..23 })),
-            HomeItem.RegularModule(LessonModule("Wisdom (Emptiness)", allLessons.filter { it.id in 9..14 })),
-            HomeItem.RegularModule(LessonModule("Compassion (Bodhicitta)", allLessons.filter { it.id in 24..30 })),
-            HomeItem.ParentGroup(
-                title = "General Reading",
-                subModules = listOf(
-                    LessonModule(
-                        title = "Zen Koans (101)",
-                        lessons = allKoans
-                    )
-                ) + santidevaModules
+    val homeItems = remember(allLessons, allKoans, santidevaModules, threeAspectsLesson) {
+        buildList {
+            add(HomeItem.RegularModule(LessonModule("The Path", allLessons.filter { it.id in 2..8 })))
+            add(HomeItem.RegularModule(LessonModule("The Three Marks of Existence", allLessons.filter { it.id in 15..23 })))
+            add(HomeItem.RegularModule(LessonModule("Compassion (Bodhicitta)", allLessons.filter { it.id in 24..30 })))
+            add(HomeItem.RegularModule(LessonModule("Wisdom (Emptiness)", allLessons.filter { it.id in 9..14 })))
+            if (threeAspectsLesson != null) {
+                add(HomeItem.StandaloneLesson(threeAspectsLesson))
+            }
+            add(
+                HomeItem.ParentGroup(
+                    title = "General Reading",
+                    subModules = listOf(
+                        LessonModule(
+                            title = "Zen Koans (101)",
+                            lessons = allKoans
+                        )
+                    ) + santidevaModules
+                )
             )
-        )
+        }
     }
 
     val listState = rememberLazyListState(
@@ -498,6 +505,31 @@ fun LessonListScreen(
                                         lesson = lesson,
                                         showSummary = true,
                                         onClick = { onLessonSelected(lesson) }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    is HomeItem.StandaloneLesson -> {
+                        val lesson = item.lesson
+                        item(key = "standalone_lesson_${lesson.id}") {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onLessonSelected(lesson) },
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Text(
+                                        text = lesson.title,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
                                     )
                                 }
                             }
