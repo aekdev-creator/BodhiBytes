@@ -71,7 +71,7 @@ fun BodhiBytesApp() {
     var lessonListScrollIndex by remember { mutableStateOf(0) }
     var lessonListScrollOffset by remember { mutableStateOf(0) }
     var lessonListExpandedKeys by remember { mutableStateOf(emptySet<String>()) }
-    
+
     var bookmarksScrollIndex by remember { mutableStateOf(0) }
     var bookmarksScrollOffset by remember { mutableStateOf(0) }
 
@@ -93,7 +93,7 @@ fun BodhiBytesApp() {
 
     val allLessons = remember { LessonRepository.getCurriculum() }
     val allKoans = remember { KoanRepository.getKoans() }
-    
+
     val santidevaLessons = remember {
         SantidevaRepository.generalReadingModules.flatMapIndexed { moduleIndex, module ->
             module.lessons.mapIndexed { lessonIndex, sLesson ->
@@ -108,7 +108,18 @@ fun BodhiBytesApp() {
         }
     }
 
-    val combinedLessons = remember { allLessons + allKoans + santidevaLessons }
+    val orderedLessons = remember(allLessons, allKoans, santidevaLessons) {
+        buildList {
+            allLessons.find { it.id == 1 }?.let { add(it) }
+            addAll(allLessons.filter { it.id in 2..8 })
+            addAll(allLessons.filter { it.id in 15..23 })
+            addAll(allLessons.filter { it.id in 24..30 })
+            addAll(allLessons.filter { it.id in 9..14 })
+            allLessons.find { it.id == 31 }?.let { add(it) }
+            addAll(allKoans)
+            addAll(santidevaLessons)
+        }
+    }
 
     MaterialTheme(
         colorScheme = if (isDarkMode) darkColorScheme() else lightColorScheme()
@@ -137,7 +148,7 @@ fun BodhiBytesApp() {
                         )
                     }
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                    
+
                     NavigationDrawerItem(
                         icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
                         label = { Text("Home / Curriculum") },
@@ -236,12 +247,12 @@ fun BodhiBytesApp() {
                                 bookmarkedLessonIds + screen.lesson.id
                             }
                             sharedPreferences.edit().putStringSet(
-                                "bookmarked_ids", 
+                                "bookmarked_ids",
                                 bookmarkedLessonIds.map { it.toString() }.toSet()
                             ).apply()
                         },
                         onBackClick = { currentScreen = AppScreen.List },
-                        onQuizClick = { 
+                        onQuizClick = {
                             screen.lesson.quiz?.let { quiz ->
                                 currentScreen = AppScreen.QuizScreenState(quiz, screen.lesson)
                             }
@@ -249,17 +260,28 @@ fun BodhiBytesApp() {
                     )
                 }
                 is AppScreen.QuizScreenState -> {
+                    val currentIndex = orderedLessons.indexOfFirst { it.id == screen.lesson.id }
+                    val nextLesson = if (currentIndex != -1 && currentIndex + 1 < orderedLessons.size) {
+                        orderedLessons[currentIndex + 1]
+                    } else {
+                        null
+                    }
+
                     QuizScreen(
                         quiz = screen.quiz,
                         lesson = screen.lesson,
+                        nextLesson = nextLesson,
                         onBackClick = { currentScreen = AppScreen.Detail(screen.lesson) },
-                        onHomeClick = { currentScreen = AppScreen.List }
+                        onHomeClick = { currentScreen = AppScreen.List },
+                        onNextLessonClick = { targetLesson ->
+                            currentScreen = AppScreen.Detail(targetLesson)
+                        }
                     )
                 }
                 is AppScreen.Bookmarks -> {
                     BookmarksScreen(
                         bookmarkedIds = bookmarkedLessonIds,
-                        allLessons = combinedLessons,
+                        allLessons = orderedLessons,
                         initialIndex = bookmarksScrollIndex,
                         initialOffset = bookmarksScrollOffset,
                         onScrollChanged = { index, offset ->
@@ -363,7 +385,7 @@ fun LessonListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -899,7 +921,7 @@ fun AboutScreen(
                 text = "BodhiBytes is your companion for exploring foundational Buddhist teachings, traditional terminology, Zen koans, and insights into wisdom and compassion.",
                 style = MaterialTheme.typography.bodyLarge
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
             HorizontalDivider()
             Spacer(modifier = Modifier.height(4.dp))
@@ -910,7 +932,7 @@ fun AboutScreen(
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary
             )
-            
+
             Text(
                 text = "Built with Jetpack Compose & Kotlin",
                 style = MaterialTheme.typography.bodyMedium,
@@ -1029,7 +1051,7 @@ fun LessonDetailScreen(
                     ) {
                         Text("Back", style = MaterialTheme.typography.labelLarge)
                     }
-                    
+
                     if (lesson.quiz != null) {
                         Button(
                             onClick = onQuizClick,
@@ -1076,8 +1098,10 @@ fun LessonDetailScreen(
 fun QuizScreen(
     quiz: Quiz,
     lesson: Lesson,
+    nextLesson: Lesson?,
     onBackClick: () -> Unit,
-    onHomeClick: () -> Unit
+    onHomeClick: () -> Unit,
+    onNextLessonClick: (Lesson) -> Unit
 ) {
     var currentQuestionIndex by remember { mutableStateOf(0) }
     var selectedOptionIndex by remember { mutableStateOf<Int?>(null) }
@@ -1135,6 +1159,12 @@ fun QuizScreen(
                 Button(onClick = onHomeClick) {
                     Text("Return to Home", style = MaterialTheme.typography.labelLarge)
                 }
+                if (nextLesson != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedButton(onClick = { onNextLessonClick(nextLesson) }) {
+                        Text("Next Lesson", style = MaterialTheme.typography.labelLarge)
+                    }
+                }
             }
         } else if (question != null) {
             LazyColumn(
@@ -1167,7 +1197,7 @@ fun QuizScreen(
                     OutlinedCard(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { 
+                            .clickable {
                                 if (!isCorrect) {
                                     selectedOptionIndex = index
                                     feedbackMessage = null
@@ -1185,7 +1215,7 @@ fun QuizScreen(
                         ) {
                             RadioButton(
                                 selected = isSelected,
-                                onClick = { 
+                                onClick = {
                                     if (!isCorrect) {
                                         selectedOptionIndex = index
                                         feedbackMessage = null

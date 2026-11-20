@@ -15,15 +15,23 @@ object LessonRepository {
                 content = """
                     Understanding the foundational terminology of Buddhism opens a clearer window into the philosophy and meditative traditions. 
 
+                    Dharma: The Buddha's teachings.
+
+                    Nirvana: Extinguishment of attachment and grasping, resulting in peace.
+
+                    Bodhi: Enlightenment.
+                    
+                    Citta: Mind.
+
+                    Bodhicitta: The enlightened mind.
+
+                    Sattva: Living beings.
+
+                    Bodhisattva: A person on the path to enlightenment out of compassion for all beings.
+
                     Sentient Beings: Living creatures who view the world through their senses.
 
                     Equanimity: Unshakeable emotional balance undisturbed by fluctuating life conditions.
-
-                    Dharma: The teachings and doctrine expounded by the Buddha.
-
-                    Nirvana: The ultimate state of liberation and release from suffering, craving, and rebirth.
-
-                    Bodhicitta: The altruistic aspiration to attain full enlightenment for all beings.
 
                     Sangha: The community of monks, nuns, and practitioners walking the path together.
 
@@ -57,65 +65,77 @@ object LessonRepository {
 
                     Sutta / Sutra: A text that conveys great meaning with few words.
 
-                    Phenomena: What you observe with your senses, observable events.
-
                     Concept / Conceptual: A memory or thought about something.
 
-                    Dependent Origination / Dependent Arising: Everything observable is a result only of its causes and conditions, not supernatural power.
+                    Phenomena: What you observe with your senses, observable events.
 
-                    Ignorance: Grasping phenomena as more than dependent origination / dependent arising.
+                    Dependent Origination (Dependent Arising): Everything observable results only from its causes and conditions, not supernatural power.
+
+                    Ignorance: Giving meaning to what you observe as more than dependent arising.
                 """.trimIndent(),
                 quiz = Quiz(
                     id = 1,
                     title = "Quiz: Buddhist Words and Their Meanings",
                     questions = listOf(
                         Question(
-                            id = 21,
-                            text = "How is *Phenomena* defined in this curriculum?",
+                            id = 1,
+                            text = "What does *Concept / Conceptual* mean in Lesson 1?",
                             options = listOf(
-                                "What you observe with your senses, observable events.",
-                                "A fixed eternal soul beyond experience.",
-                                "A strict monastic vow of silence.",
-                                "A ritual offering made at a stupa."
+                                "A memory or thought about something",
+                                "What you observe with your senses, observable events",
+                                "Everything observable results only from its causes and conditions, not supernatural power",
+                                "Giving meaning to what you observe as more than dependent arising"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Phenomena is defined as what you observe with your senses, observable events."
+                            explanation = "Lesson 1 defines Concept / Conceptual as a memory or thought about something."
                         ),
                         Question(
-                            id = 22,
-                            text = "What does *Concept / Conceptual* mean in this lesson?",
+                            id = 2,
+                            text = "How is *Phenomena* defined in Lesson 1?",
                             options = listOf(
-                                "A physical temple structure",
-                                "A memory or thought about something.",
-                                "The complete cessation of all perception",
-                                "A wandering mendicant practitioner"
+                                "A memory or thought about something",
+                                "What you observe with your senses, observable events",
+                                "Everything observable results only from its causes and conditions, not supernatural power",
+                                "Giving meaning to what you observe as more than dependent arising"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Concept / Conceptual is defined as a memory or thought about something."
+                            explanation = "Lesson 1 defines Phenomena as what you observe with your senses, observable events."
                         ),
                         Question(
-                            id = 23,
-                            text = "What does *Dependent Origination / Dependent Arising* mean in this curriculum?",
+                            id = 3,
+                            text = "What does *Dependent Origination (Dependent Arising)* mean in Lesson 1?",
                             options = listOf(
-                                "Everything observable is a result only of its causes and conditions, not supernatural power.",
-                                "Events happen randomly without any preceding causes or conditions.",
-                                "A fixed eternal essence that never changes across time.",
-                                "A ceremonial offering made at a monastery shrine."
+                                "A memory or thought about something",
+                                "What you observe with your senses, observable events",
+                                "Everything observable results only from its causes and conditions, not supernatural power",
+                                "Giving meaning to what you observe as more than dependent arising"
+                            ),
+                            correctOptionIndex = 2,
+                            explanation = "Lesson 1 states that Dependent Origination (Dependent Arising) means everything observable results only from its causes and conditions, not supernatural power."
+                        ),
+                        Question(
+                            id = 4,
+                            text = "How is *Ignorance* defined in Lesson 1?",
+                            options = listOf(
+                                "A memory or thought about something",
+                                "What you observe with your senses, observable events",
+                                "Everything observable results only from its causes and conditions, not supernatural power",
+                                "Giving meaning to what you observe as more than dependent arising"
+                            ),
+                            correctOptionIndex = 3,
+                            explanation = "Lesson 1 defines Ignorance as giving meaning to what you observe as more than dependent arising."
+                        ),
+                        Question(
+                            id = 5,
+                            text = "What are *Precepts* according to Lesson 1?",
+                            options = listOf(
+                                "Voluntary ethical training guidelines undertaken to cultivate non-harm, inner peace, and clarity of mind",
+                                "A text that conveys great meaning with few words",
+                                "A wandering ascetic or monastic practitioner who relies on alms",
+                                "An epithet for the Buddha meaning Well-Gone"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Dependent Origination / Dependent Arising means everything observable is a result only of its causes and conditions, not supernatural power."
-                        ),
-                        Question(
-                            id = 24,
-                            text = "How is *Ignorance* defined in this lesson?",
-                            options = listOf(
-                                "Living simply without material possessions",
-                                "Grasping phenomena as more than dependent origination / dependent arising.",
-                                "Cultivating loving-kindness toward all beings",
-                                "Observing events solely through causes and conditions"
-                            ),
-                            correctOptionIndex = 1,
-                            explanation = "Ignorance is defined as grasping phenomena as more than dependent origination / dependent arising."
+                            explanation = "Lesson 1 defines Precepts as voluntary ethical training guidelines undertaken to cultivate non-harm, inner peace, and clarity of mind."
                         )
                     )
                 )
