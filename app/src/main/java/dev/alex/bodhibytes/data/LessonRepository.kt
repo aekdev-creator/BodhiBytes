@@ -1672,9 +1672,7 @@ object LessonRepository {
                     
                     To test him and force him to leave, the monks asked him to give a public discourse from the high teaching throne. They expected him to humiliate himself. 
                     
-                    Instead, Śāntideva sat down and delivered the "Bodhicaryāvatāra" (Engaging in the Bodhisattva's Deeds)—a masterpiece of philosophy and poetry that left the assembly utterly transfixed. 
-                    
-                    As he reached the wisdom chapter on emptiness, he levitated into the air and vanished, leaving behind only his voice chanting the final verses.
+                    Instead, Śāntideva sat down and delivered the "Bodhicaryāvatāra" (Engaging in the Bodhisattva's Deeds)—a masterpiece of philosophy and poetry that left the assembly utterly transfixed.
 
                     The Core Message: 
                     
