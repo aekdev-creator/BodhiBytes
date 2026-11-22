@@ -79,7 +79,7 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What does *Concept / Conceptual* mean in Lesson 1?",
+                            text = "What does *Concept / Conceptual* mean in this lesson?",
                             options = listOf(
                                 "A memory or thought about something",
                                 "What you observe with your senses, observable events",
@@ -87,11 +87,11 @@ object LessonRepository {
                                 "Giving meaning to what you observe as more than dependent arising"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Lesson 1 defines Concept / Conceptual as a memory or thought about something."
+                            explanation = "This lesson defines Concept / Conceptual as a memory or thought about something."
                         ),
                         Question(
                             id = 2,
-                            text = "How is *Phenomena* defined in Lesson 1?",
+                            text = "How is *Phenomena* defined in this lesson?",
                             options = listOf(
                                 "A memory or thought about something",
                                 "What you observe with your senses, observable events",
@@ -99,11 +99,11 @@ object LessonRepository {
                                 "Giving meaning to what you observe as more than dependent arising"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Lesson 1 defines Phenomena as what you observe with your senses, observable events."
+                            explanation = "This lesson defines Phenomena as what you observe with your senses, observable events."
                         ),
                         Question(
                             id = 3,
-                            text = "What does *Dependent Origination (Dependent Arising)* mean in Lesson 1?",
+                            text = "What does *Dependent Origination (Dependent Arising)* mean in this lesson?",
                             options = listOf(
                                 "A memory or thought about something",
                                 "What you observe with your senses, observable events",
@@ -111,11 +111,11 @@ object LessonRepository {
                                 "Giving meaning to what you observe as more than dependent arising"
                             ),
                             correctOptionIndex = 2,
-                            explanation = "Lesson 1 states that Dependent Origination (Dependent Arising) means everything observable results only from its causes and conditions, not supernatural power."
+                            explanation = "This lesson states that Dependent Origination (Dependent Arising) means everything observable results only from its causes and conditions, not supernatural power."
                         ),
                         Question(
                             id = 4,
-                            text = "How is *Ignorance* defined in Lesson 1?",
+                            text = "How is *Ignorance* defined in this lesson?",
                             options = listOf(
                                 "A memory or thought about something",
                                 "What you observe with your senses, observable events",
@@ -123,19 +123,19 @@ object LessonRepository {
                                 "Giving meaning to what you observe as more than dependent arising"
                             ),
                             correctOptionIndex = 3,
-                            explanation = "Lesson 1 defines Ignorance as giving meaning to what you observe as more than dependent arising."
+                            explanation = "This lesson defines Ignorance as giving meaning to what you observe as more than dependent arising."
                         ),
                         Question(
                             id = 5,
-                            text = "What are *Precepts* according to Lesson 1?",
+                            text = "What are *Precepts* according to this lesson?",
                             options = listOf(
                                 "Voluntary ethical training guidelines undertaken to cultivate non-harm, inner peace, and clarity of mind",
                                 "A text that conveys great meaning with few words",
                                 "A wandering ascetic or monastic practitioner who relies on alms",
-                                "An epithet for the Buddha meaning Well-Gone"
+                                "An epithet for the Buddha meaning \"Well-Gone\" or \"One Who Has Blissfully Gone\""
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Lesson 1 defines Precepts as voluntary ethical training guidelines undertaken to cultivate non-harm, inner peace, and clarity of mind."
+                            explanation = "This lesson defines Precepts as voluntary ethical training guidelines undertaken to cultivate non-harm, inner peace, and clarity of mind."
                         )
                     )
                 )
@@ -183,7 +183,7 @@ object LessonRepository {
                                 "Activity and laziness"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "The Buddha explicitly warned against addiction to over indulgence and self-denial."
+                            explanation = "The Buddha explicitly warned against over indulgence and self-denial."
                         ),
                         Question(
                             id = 3,
@@ -244,7 +244,7 @@ object LessonRepository {
                                 "Strict rules that replace meditation and wisdom"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "The precepts are voluntary training rules that reduce inner conflict and support concentration and wisdom."
+                            explanation = "The precepts are voluntary training rules that free the mind from harm, guilt, and agitation."
                         ),
                         Question(
                             id = 2,
@@ -256,7 +256,7 @@ object LessonRepository {
                                 "Material wealth and social status"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Abstaining from taking life nurtures non-harm, empathy, and goodwill toward all beings."
+                            explanation = "Abstaining from taking life cultivates non-harm, kindness, patience, and compassion toward living beings."
                         ),
                         Question(
                             id = 3,
@@ -264,35 +264,35 @@ object LessonRepository {
                             options = listOf(
                                 "Staying completely silent at all times",
                                 "Speaking only to win arguments",
-                                "Cultivating truthfulness, trustworthiness, and helpful communication",
+                                "Cultivating truthfulness, reliability, and wholesome communication",
                                 "Repeating rumors so others stay informed"
                             ),
                             correctOptionIndex = 2,
-                            explanation = "The fourth precept encourages honest, reliable, and constructive speech while avoiding deception, harshness, and divisive talk."
+                            explanation = "The fourth precept encourages truthfulness, reliability, and wholesome communication while avoiding lies, harshness, gossip, or division."
                         ),
                         Question(
                             id = 4,
                             text = "Why is the fifth precept (abstaining from intoxicants that cloud the mind) especially important?",
                             options = listOf(
                                 "It is the only precept mentioned in early Buddhist texts",
-                                "Clouding the mind weakens mindfulness and makes keeping the other precepts harder",
+                                "Clouding the mind dulls perception and makes breaking the other precepts much easier",
                                 "It requires avoiding all sweets and warm beverages",
                                 "It replaces the need for honest speech"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Intoxicants dull awareness and reduce restraint, which can easily lead to heedlessness and breaking the other precepts."
+                            explanation = "Intoxicants dull perception or weaken self-restraint, and heedlessness makes it much easier to break the other four precepts."
                         ),
                         Question(
                             id = 5,
                             text = "How does ethical conduct relate to the rest of the Buddhist path?",
                             options = listOf(
                                 "It has no connection to meditation or insight",
-                                "It creates a steady, guilt-free foundation that supports meditation and wisdom",
+                                "It stabilizes attention and supports meditative clarity and insight",
                                 "It is only practiced after full enlightenment is achieved",
                                 "It focuses solely on outward appearances"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Steady ethical conduct reduces agitation and regret, making it easier to develop concentration and insight."
+                            explanation = "Ethical conduct stabilizes attention and supports meditative clarity and insight."
                         )
                     )
                 )
@@ -336,11 +336,11 @@ object LessonRepository {
                                 "He spent his entire day composing poetry and playing the harp"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Unsho was known for keeping the precepts very strictly."
+                            explanation = "Unsho kept Buddha's precepts scrupulously, avoiding intoxicants and not eating after eleven o'clock in the morning."
                         ),
                         Question(
                             id = 2,
-                            text = "What was Tanzan's startling response when an angry Unsho asked what he was if he wasn't human?",
+                            text = "What was Tanzan's response when an angry Unsho asked what he was if he wasn't human?",
                             options = listOf(
                                 "An ordinary person",
                                 "A Buddha",
@@ -348,7 +348,7 @@ object LessonRepository {
                                 "A sleeping scholar"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Tanzan answered, 'A Buddha'."
+                            explanation = "Tanzan answered, \"A Buddha.\""
                         )
                     )
                 )
@@ -382,19 +382,19 @@ object LessonRepository {
                                 "A map of historical trade routes"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "They function like a physician's diagnosis: identifying the symptom, finding the cause, confirming a cure, and prescribing treatment."
+                            explanation = "They act like a physician's diagnosis: identifying the condition, finding its root cause, determining whether a cure is possible, and prescribing the treatment."
                         ),
                         Question(
                             id = 2,
                             text = "What is identified as the root origin of suffering in the second truth?",
                             options = listOf(
                                 "Lack of formal education",
-                                "Craving and passionate greed",
+                                "Craving, attachment, and passionate greed",
                                 "Physical exhaustion",
                                 "Environmental changes"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "The origin of suffering is identified as craving and passionate greed."
+                            explanation = "The origin of suffering is traced back to craving, attachment, and passionate greed."
                         ),
                         Question(
                             id = 3,
@@ -406,7 +406,7 @@ object LessonRepository {
                                 "Enduring hardship without complaint"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "The path leading to the cessation of suffering is the Noble Eightfold Path."
+                            explanation = "The path to cessation is the Noble Eightfold Path."
                         )
                     )
                 )
@@ -442,7 +442,7 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "Into what core areas are the eight factors generally grouped?",
+                            text = "Into what three essential areas is the Noble Eightfold Path categorized?",
                             options = listOf(
                                 "Ethics, concentration, and wisdom",
                                 "History, philosophy, and geography",
@@ -450,11 +450,11 @@ object LessonRepository {
                                 "Ritual, prayer, and sacrifice"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "The path encompasses factors related to ethics, concentration, and wisdom."
+                            explanation = "The path is categorized into three essential areas: Ethics, concentration, and wisdom."
                         ),
                         Question(
                             id = 2,
-                            text = "Which factor involves abstaining from false, harsh, or divisive speech?",
+                            text = "Which factor involves abstaining from false, harsh, divisive, or idle speech?",
                             options = listOf(
                                 "Right Action",
                                 "Right Speech",
@@ -462,7 +462,7 @@ object LessonRepository {
                                 "Right Effort"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Right Speech guides practitioners to avoid harmful and dishonest communication."
+                            explanation = "Right Speech is abstaining from false, harsh, divisive, or idle speech."
                         )
                     )
                 )
@@ -496,19 +496,19 @@ object LessonRepository {
                                 "Prayer, ritual, and sacrifice"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "The framework consists of higher ethics, concentration, and wisdom."
+                            explanation = "The Three Higher Trainings are Higher Ethics (Morality), Higher Concentration (Meditation), and Higher Wisdom."
                         ),
                         Question(
                             id = 2,
-                            text = "How do the three trainings interact with each other?",
+                            text = "How do the three trainings reinforce one another?",
                             options = listOf(
                                 "They operate completely independently without overlap",
-                                "Ethics supports concentration, which empowers clear wisdom",
+                                "Ethics supports calm concentration, and calm concentration empowers clear, liberating wisdom",
                                 "Wisdom replaces the need for ethical conduct entirely",
                                 "Concentration is only useful for physical exercise"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "They reinforce each other, forming a cohesive progressive structure."
+                            explanation = "Ethics supports calm concentration, and calm concentration empowers clear, liberating wisdom."
                         )
                     )
                 )
@@ -556,19 +556,19 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "According to Zengetsu's advice, how should a practitioner handle the actions of others?",
+                            text = "According to Zengetsu's advice, how should a practitioner respond to the actions of others?",
                             options = listOf(
                                 "Publicly correct everyone's mistakes immediately",
-                                "Imitate good actions and avoid emulating mistaken ones",
+                                "Follow the example of good actions and advise yourself not to emulate mistaken ones",
                                 "Ignore everyone and isolate completely from society",
                                 "Judge others based on traditional cultural norms"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Zengetsu advised encouraging yourself to follow good examples and choosing not to emulate mistakes."
+                            explanation = "Zengetsu wrote to encourage yourself to follow another's good action and advise yourself not to emulate a mistaken action."
                         ),
                         Question(
                             id = 2,
-                            text = "What does Zengetsu recommend regarding blame and judgment?",
+                            text = "What does Zengetsu recommend regarding blame and discussing right and wrong?",
                             options = listOf(
                                 "Censure yourself, never another, and do not discuss right and wrong",
                                 "Strictly judge your neighbors to keep the community honest",
@@ -576,7 +576,7 @@ object LessonRepository {
                                 "Seek immediate appreciation for your good deeds"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "The teaching explicitly states to censure yourself, never another, and avoid discussing right and wrong."
+                            explanation = "Zengetsu advises to censure yourself, never another, and not discuss right and wrong."
                         )
                     )
                 )
@@ -598,27 +598,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What does the principle of interdependence teach about existence?",
+                            text = "What does the principle of interdependence reveal about existence?",
                             options = listOf(
                                 "That everything exists in complete isolation",
-                                "That all things arise in connection with a vast web of conditions",
+                                "That everything arises in connection with a vast web of conditions",
                                 "That only human actions matter in the universe",
                                 "That physical objects are entirely permanent"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Interdependence teaches that everything arises in connection with a vast web of conditions."
+                            explanation = "Interdependence reveals that nothing exists in total isolation and everything arises in connection with a vast web of conditions."
                         ),
                         Question(
                             id = 2,
-                            text = "What does realizing interdependence naturally inspire in a person?",
+                            text = "What does realizing interdependence naturally inspire?",
                             options = listOf(
-                                "A sense of shared responsibility and care for the whole",
+                                "A sense of care, shared responsibility, and harmony with the world",
                                 "Indifference toward social and environmental issues",
                                 "A desire to isolate completely from society",
                                 "Competition and rivalry with others"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Recognizing our connection to everything inspires shared responsibility and care."
+                            explanation = "Realizing interdependence dissolves feelings of absolute separation and inspires care, shared responsibility, and harmony."
                         )
                     )
                 )
@@ -640,27 +640,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What does the term 'Interbeing' describe in Thich Nhat Hanh's teachings?",
+                            text = "What does the term \"Interbeing\" describe in Thich Nhat Hanh's teachings?",
                             options = listOf(
                                 "That objects exist entirely in complete isolation from one another",
-                                "That nothing exists separately and everything is composed of the rest of the universe",
+                                "That nothing exists separately and everything is composed of everything else in the universe",
                                 "That physical matter is permanent and unchanging",
                                 "That individual human choices have no effect on others"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Interbeing expresses that all things are interconnected and composed of everything else."
+                            explanation = "Thich Nhat Hanh coined \"Interbeing\" to describe that nothing exists separately, but is composed of everything else in the universe."
                         ),
                         Question(
                             id = 2,
-                            text = "According to the lesson, what does recognizing interbeing inspire a practitioner to do?",
+                            text = "According to this lesson, what does recognizing interbeing urge us to cultivate?",
                             options = listOf(
-                                "Cultivate compassion, reduce suffering, and foster global peace",
-                                "Withdraw from society into complete isolation",
-                                "Ignore the consequences of daily actions",
-                                "Compete aggressively with others for resources"
+                                "Compassion, reducing suffering, and fostering global peace",
+                                "Withdrawal from society into complete isolation",
+                                "Ignoring the consequences of daily actions",
+                                "Competing aggressively with others for resources"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Recognizing our profound connection to all life inspires compassion and active peace-building."
+                            explanation = "Living mindfully with interbeing urges us to cultivate compassion, reduce suffering, and foster global peace."
                         )
                     )
                 )
@@ -682,7 +682,7 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What does dependent origination state about events and experiences?",
+                            text = "What does dependent origination teach about every physical and mental state?",
                             options = listOf(
                                 "They happen entirely by random chance",
                                 "They arise conditioned by preceding causes",
@@ -690,19 +690,19 @@ object LessonRepository {
                                 "They exist independently of the mind"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Dependent origination teaches that everything arises conditioned by preceding causes."
+                            explanation = "Every physical and mental state arises conditioned by preceding causes."
                         ),
                         Question(
                             id = 2,
-                            text = "How can a practitioner break unwholesome cycles according to this teaching?",
+                            text = "How can we interrupt unwholesome cycles according to this lesson?",
                             options = listOf(
-                                "By introducing awareness at the moment of contact to stop automatic reactions",
+                                "By introducing awareness at the moment of contact to break old reactionary habits",
                                 "By ignoring sensory experiences entirely",
                                 "By forcing the mind to dwell on the past",
                                 "By avoiding all social interactions"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Introducing awareness breaks the automatic link between contact and unwholesome reaction."
+                            explanation = "Introducing awareness at the moment of contact helps break old reactionary habits."
                         )
                     )
                 )
@@ -724,27 +724,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What does emptiness mean in this philosophy?",
+                            text = "What does emptiness mean in this lesson?",
                             options = listOf(
                                 "That the world is a total illusion and nothing exists at all",
-                                "That phenomena are empty of a separate, permanent, or independent self-nature",
+                                "That nothing exists independently, permanently, or by its own separate power",
                                 "That physical objects are entirely rigid and unchanging",
                                 "That human actions have no consequences"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Emptiness means things lack a separate, independent self-nature because they rely on conditions."
+                            explanation = "Emptiness means nothing exists independently, permanently, or by its own separate power because things are made of non-self elements and shifting conditions."
                         ),
                         Question(
                             id = 2,
-                            text = "What does the realization of emptiness help a practitioner achieve?",
+                            text = "What happens when we understand emptiness and see things as fluid and interconnected?",
                             options = listOf(
-                                "Rigid control over everyone around them",
-                                "Freedom from absolute boundaries, leading to ultimate liberation",
-                                "Cold emotional detachment from reality",
-                                "Permanent social isolation"
+                                "We gain rigid control over everyone around us",
+                                "We stop grasping, dissolve rigid mental barriers, and experience ultimate liberation",
+                                "We become coldly detached from reality",
+                                "We withdraw into permanent isolation"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Realizing emptiness dissolves rigid mental barriers and brings ultimate liberation."
+                            explanation = "Understanding emptiness frees the mind from rigid labels and boundaries, helping us stop grasping and experience ultimate liberation."
                         )
                     )
                 )
@@ -768,27 +768,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What is the central thesis demonstrated by Nagarjuna in the Mūlamadhyamakakārikā?",
+                            text = "What did Nagarjuna demonstrate through logical analysis in the Mūlamadhyamakakārikā?",
                             options = listOf(
                                 "That all phenomena possess an unchanging, eternal essence",
-                                "That nothing possesses intrinsic, independent existence (svabhāva) and all things are empty",
+                                "That nothing possesses an intrinsic, independent essence (svabhāva) and dependent origination and emptiness are synonymous",
                                 "That the physical world is a permanent creation of distinct atoms",
                                 "That logic and reasoning have no place in spiritual practice"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Nagarjuna demonstrated that all phenomena are empty of inherent existence because they arise dependently."
+                            explanation = "Nagarjuna demonstrated that nothing possesses an intrinsic, independent essence (svabhāva) and that dependent origination and emptiness are synonymous."
                         ),
                         Question(
                             id = 2,
-                            text = "How does Nagarjuna's philosophy avoid the extremes of eternalism and nihilism?",
+                            text = "What is the therapeutic purpose of Nagarjuna's logical deconstructions?",
                             options = listOf(
-                                "By proving that the world is a total illusion and nothing functions at all",
-                                "By demonstrating that dependent origination means things are empty yet functionally operational",
-                                "By establishing strict rules for ritual sacrifices and moral codes",
-                                "By asserting that a permanent soul exists behind every mental state"
+                                "To foster skepticism and academic debate",
+                                "To dismantle our habit of reifying concepts, clinging to views, and building mental barriers",
+                                "To establish strict rules for ritual sacrifices",
+                                "To assert a permanent soul behind every mental state"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Emptiness as dependent origination bridges existence and non-existence, avoiding both absolute permanence and total nothingness."
+                            explanation = "Their purpose is to dismantle our habit of reifying concepts, clinging to views, and building mental barriers, freeing the mind to experience ultimate peace."
                         )
                     )
                 )
@@ -830,7 +830,7 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "Who was Āryadeva's primary teacher and founder of the Madhyamaka tradition?",
+                            text = "Who was Āryadeva's primary teacher and founder of the Madhyamaka school?",
                             options = listOf(
                                 "Asanga",
                                 "Nāgārjuna",
@@ -838,31 +838,31 @@ object LessonRepository {
                                 "Vasubandhu"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Āryadeva was the principal heart-disciple and successor to Nāgārjuna."
+                            explanation = "Āryadeva was the chief spiritual disciple and heart-son of Nāgārjuna, founder of the Madhyamaka school."
                         ),
                         Question(
                             id = 2,
-                            text = "What is the structural focus of the first half (chapters 1 through 8) of The Four Hundred?",
+                            text = "What is the structural focus of the first eight chapters of The Four Hundred?",
                             options = listOf(
                                 "Detailed calculations of historical rebirth timelines",
                                 "Architectural guidelines for building monastic debate halls",
-                                "Abandoning the four perverted views of permanence, pleasure, cleanliness, and self",
+                                "Abandoning the four fundamental distortions of permanence, pleasure, cleanliness, and self",
                                 "Strict rules regarding dietary restrictions for monks"
                             ),
                             correctOptionIndex = 2,
-                            explanation = "The first eight chapters target conventional reality, helping practitioners overcome foundational cognitive errors regarding the body and world."
+                            explanation = "The first eight chapters focus on abandoning the four fundamental distortions of reality using the body and everyday life as meditation objects."
                         ),
                         Question(
                             id = 3,
-                            text = "According to Āryadeva's progressive advice on practice, what should be addressed last?",
+                            text = "According to Āryadeva's instruction on the gradual progression of practice, what is the full order?",
                             options = listOf(
-                                "Preventing demeritorious actions",
-                                "Overcoming physical sickness",
-                                "Preventing views of all kinds",
-                                "Accumulating material wealth for charity"
+                                "First prevent the demeritorious, next prevent self, later prevent views of all kinds",
+                                "First prevent views of all kinds, next prevent self, later prevent the demeritorious",
+                                "First prevent self, next prevent the demeritorious, later prevent views of all kinds",
+                                "Prevent views of all kinds while keeping demeritorious actions"
                             ),
-                            correctOptionIndex = 2,
-                            explanation = "Āryadeva instructs to first stop negative actions, next prevent the ego/self, and finally let go of all conceptual views."
+                            correctOptionIndex = 0,
+                            explanation = "Āryadeva instructs: first prevent the demeritorious, next prevent self, later prevent views of all kinds."
                         )
                     )
                 )
@@ -896,19 +896,19 @@ object LessonRepository {
                                 "Joy, sorrow, and indifference"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "All conditioned things share the marks of impermanence, unsatisfactoriness, and non-self."
+                            explanation = "Everything in the physical and mental universe shares impermanence, unsatisfactoriness, and non-self."
                         ),
                         Question(
                             id = 2,
-                            text = "What does recognizing the mark of non-self help dissolve?",
+                            text = "What does recognizing the mark of non-self reveal?",
                             options = listOf(
-                                "The illusion of a static, isolated ego or permanent self",
-                                "The physical body's natural need for rest",
-                                "The ability to experience emotions altogether",
-                                "The necessity of ethical conduct"
+                                "That there is no static, permanent, or isolated ego at the core of our experience",
+                                "That the physical body has no need for rest",
+                                "That emotions should be eliminated altogether",
+                                "That ethics are unnecessary"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Recognizing non-self dissolves the illusion of a fixed, permanent ego."
+                            explanation = "Non-self means there is no static, permanent, or isolated ego at the core of our experience."
                         )
                     )
                 )
@@ -930,19 +930,19 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "Why do conditioned phenomena inevitably lead to dissatisfaction if clung to?",
+                            text = "Why does grasping onto temporary things as if they are permanent deepen distress?",
                             options = listOf(
-                                "Because they are inherently rigid and unchanging",
-                                "Because they are transient, shifting, and in constant flux",
-                                "Because they are entirely disconnected from human action",
+                                "Because conditioned phenomena are inherently rigid and unchanging",
+                                "Because all conditioned phenomena are transient, shifting, and in constant flux",
+                                "Because they are disconnected from human action",
                                 "Because they require constant financial investment"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "All conditioned phenomena are impermanent, transient, and in constant flux."
+                            explanation = "All conditioned phenomena are transient, shifting, and in constant flux."
                         ),
                         Question(
                             id = 2,
-                            text = "What mental state is cultivated by truly recognizing the fleeting nature of experiences?",
+                            text = "What do we cultivate when we realize both pleasant and painful experiences are fleeting and stop clinging?",
                             options = listOf(
                                 "Equanimity and lasting inner peace",
                                 "Indifference and emotional numbness",
@@ -950,7 +950,7 @@ object LessonRepository {
                                 "Rigid attachment to routine"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Understanding impermanence helps us stop clinging, cultivating equanimity and inner peace."
+                            explanation = "Realizing that experiences are fleeting helps us stop clinging, cultivate deep equanimity, and uncover lasting inner peace."
                         )
                     )
                 )
@@ -972,27 +972,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What is the primary root cause of unsatisfactoriness described in this lesson?",
+                            text = "How does inner tension and distress arise according to this lesson?",
                             options = listOf(
-                                "The complete absence of physical motion",
-                                "Clinging to temporary things as if they can provide permanent security",
-                                "Strict adherence to the Noble Eightfold Path",
-                                "A lack of formal philosophical training"
+                                "From the complete absence of physical motion",
+                                "From expecting temporary states to remain stable or treating them as sources of ultimate security",
+                                "From practicing the Noble Eightfold Path",
+                                "From a lack of formal philosophical training"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Unsatisfactoriness arises when we expect changing, impermanence things to provide permanent security."
+                            explanation = "Expecting temporary, shifting states to remain stable or treating them as ultimate security creates inner tension and distress."
                         ),
                         Question(
                             id = 2,
-                            text = "What is the practical benefit of recognizing unsatisfactoriness?",
+                            text = "What does recognizing unsatisfactoriness help us do?",
                             options = listOf(
-                                "It helps us release unrealistic expectations and stop striving for permanent control",
-                                "It forces us to withdraw completely from all social relationships",
-                                "It teaches us how to manipulate external events permanently",
-                                "It guarantees complete physical immortality"
+                                "Release unrealistic expectations, stop striving for permanent control, and find deeper peace",
+                                "Withdraw completely from all social relationships",
+                                "Manipulate external events permanently",
+                                "Achieve physical immortality"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Recognizing it helps us stop trying to control changing conditions, freeing us from friction."
+                            explanation = "Recognizing unsatisfactoriness helps us release unrealistic expectations, stop striving for permanent control over changing conditions, and find deeper peace."
                         )
                     )
                 )
@@ -1014,27 +1014,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What does the teaching of non-self reveal about human existence?",
+                            text = "What does close observation reveal about our thoughts, emotions, and physical bodies?",
                             options = listOf(
-                                "That there is a permanent, unchanging soul hidden within",
-                                "That there is no static, permanent, or isolated ego at the center of our experience",
-                                "That human beings are entirely separate from nature",
-                                "That thoughts and emotions never change"
+                                "That they form an unchanging core identity",
+                                "That they are a fluid, interdependent process changing from moment to moment",
+                                "That they are separate from nature",
+                                "That they never change"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Non-self reveals that our experience consists of fluid, changing processes rather than a static ego."
+                            explanation = "Close observation shows that thoughts, emotions, and physical bodies are a fluid, interdependent process changing from moment to moment."
                         ),
                         Question(
                             id = 2,
-                            text = "What mental shift occurs when a practitioner realizes non-self?",
+                            text = "What opens up when realizing non-self dissolves the burden of guarding a fixed ego?",
                             options = listOf(
-                                "The heavy burden of defending a fixed ego is dissolved, bringing freedom",
-                                "The individual becomes entirely emotionless and cold",
-                                "External circumstances begin to obey personal commands",
-                                "Memory and physical awareness are permanently erased"
+                                "Boundless empathy, humility, and effortless freedom",
+                                "Cold emotional detachment",
+                                "Control over external events",
+                                "Loss of memory and awareness"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Releasing the illusion of a fixed ego frees the mind from constant defense and struggle."
+                            explanation = "Without a rigid self to defend, the mind opens up to boundless empathy, humility, and effortless freedom."
                         )
                     )
                 )
@@ -1072,27 +1072,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "How did Hakuin initially respond when the angry parents accused him of fathering their daughter's child?",
+                            text = "How did Hakuin respond when the angry parents accused him of fathering their daughter's child?",
                             options = listOf(
                                 "He angrily denied the accusation and threatened legal action",
-                                "'Is that so?' was all he would say",
+                                "\"Is that so?\" was all he would say",
                                 "He immediately confessed and begged for mercy",
                                 "He refused to speak to them and locked his door"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Hakuin calmly replied only with 'Is that so?', showing complete detachment from public opinion."
+                            explanation = "When the angry parents came to him, \"Is that so?\" was all he would say."
                         ),
                         Question(
                             id = 2,
-                            text = "What did Hakuin say when the parents returned to apologize and take the child back?",
+                            text = "What did Hakuin say when the parents returned to apologize and get the child back?",
                             options = listOf(
                                 "He scolded them severely for their previous harsh judgment",
                                 "He refused to give the child back until they paid for the milk",
-                                "He simply said 'Is that so?' and willingly yielded the child",
+                                "In yielding the child, all he said was: \"Is that so?\"",
                                 "He explained a long philosophical discourse on truth"
                             ),
                             correctOptionIndex = 2,
-                            explanation = "True to his equanimity, Hakuin yielded the child with the exact same response: 'Is that so?'"
+                            explanation = "Hakuin was willing and, in yielding the child, all he said was: \"Is that so?\""
                         )
                     )
                 )
@@ -1126,7 +1126,7 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "How do the wise respond when others engage in malicious or honest debates?",
+                            text = "How do the wise act when others debate maliciously or honestly?",
                             options = listOf(
                                 "They argue passionately to prove their own view is superior",
                                 "They are silent, stand back from arguments, and keep the mind open",
@@ -1134,11 +1134,11 @@ object LessonRepository {
                                 "They boast about their own awareness and virtue"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "The text states that 'the wise are silent, stand back from arguments, keep the mind open.'"
+                            explanation = "The text says: \"But the wise are silent, stand back from arguments, keep the mind open.\""
                         ),
                         Question(
                             id = 2,
-                            text = "How does the text describe the benefit of relying on rational thought or fantasy?",
+                            text = "How does the text describe the benefit of crediting anything based on rational thought or fantasy?",
                             options = listOf(
                                 "Permanent and completely reliable",
                                 "Shaky, built on sand, and part of the conditioned world",
@@ -1146,19 +1146,19 @@ object LessonRepository {
                                 "Essential for defending one's beliefs"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Rational thought and fantasy are part of the conditioned world, and 'the benefit they give is shaky, built on sand.'"
+                            explanation = "Rational thought and fantasy are part of the conditioned world, and \"the benefit they give is shaky, built on sand.\""
                         ),
                         Question(
                             id = 3,
-                            text = "What qualities do the wise acknowledge as genuine virtue according to the final stanza?",
+                            text = "When do the wise acknowledge your virtue according to the final stanza?",
                             options = listOf(
-                                "Blowing your own trumpet and skiting about your awareness",
-                                "Being calm, not bragging, and being selfless and unworldly",
-                                "Winning debates and defending set beliefs",
-                                "Asserting views about what is or what is not"
+                                "When you blow your own trumpet and skite about your awareness",
+                                "When you're calm, don't brag, and are selfless and unworldly",
+                                "When you win debates and defend set beliefs",
+                                "When you assert views about what is or what is not"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "The wise acknowledge your virtue 'if you're calm, don't brag, are selfless and unworldly.'"
+                            explanation = "The wise acknowledge your virtue \"if you're calm, don't brag, are selfless and unworldly.\""
                         )
                     )
                 )
@@ -1186,27 +1186,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What did Nan-in do when he poured tea for the visiting professor?",
+                            text = "What did Nan-in do when serving tea to the visiting professor?",
                             options = listOf(
                                 "He stopped pouring right before the cup was full",
-                                "He poured the visitor's cup full, and then kept on pouring",
+                                "He poured his visitor's cup full, and then kept on pouring",
                                 "He spilled the tea intentionally on the floor",
                                 "He drank the tea himself without offering any to the professor"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Nan-in filled the professor's cup completely and then continued pouring until it overflowed."
+                            explanation = "Nan-in poured his visitor's cup full, and then kept on pouring until it overflowed."
                         ),
                         Question(
                             id = 2,
-                            text = "What lesson did Nan-in impart through the overflowing cup?",
+                            text = "What did Nan-in say the professor was full of?",
                             options = listOf(
-                                "That tea must always be served piping hot",
-                                "That the professor was full of his own opinions and speculations and needed to empty his cup to learn Zen",
-                                "That university professors make poor students",
-                                "That the teacup was broken and needed replacement"
+                                "Only hot tea",
+                                "His own opinions and speculations",
+                                "Questions about Japanese history",
+                                "Silence and patience"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Nan-in compared the professor's mind, full of opinions and speculations, to the overfull cup."
+                            explanation = "Nan-in said: \"Like this cup, you are full of your own opinions and speculations. How can I show you Zen unless you first empty your cup?\""
                         )
                     )
                 )
@@ -1228,27 +1228,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What is the primary psychological benefit of contemplating impermanence and death?",
+                            text = "How does acknowledging that life is fleeting help us in daily practice?",
                             options = listOf(
-                                "Creating persistent anxiety about the future",
-                                "Helping us cut through distractions and prioritize meaningful practice",
-                                "Encouraging total isolation from community life",
-                                "Promoting endless accumulation of material wealth"
+                                "By creating persistent anxiety about the future",
+                                "By helping cut through superficial distractions and idle pursuits",
+                                "By encouraging total isolation from community life",
+                                "By promoting endless accumulation of material wealth"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Contemplating transience cuts through trivial distractions and inspires meaningful focus."
+                            explanation = "Acknowledging that life is fleeting helps cut through superficial distractions and idle pursuits."
                         ),
                         Question(
                             id = 2,
-                            text = "How should meditating on the fleeting nature of life affect daily actions?",
+                            text = "What does confronting the reality of death honestly inspire?",
                             options = listOf(
-                                "It should inspire urgency to invest energy into kindness and wisdom",
-                                "It should make a person indifferent to the well-being of others",
-                                "It should encourage strict attachment to fixed routines",
-                                "It should eliminate all emotional responses entirely"
+                                "A strong sense of urgency to focus on meaningful inner development, kindness, and wisdom",
+                                "Indifference toward the well-being of others",
+                                "Strict attachment to fixed routines",
+                                "Eliminating all emotional responses"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "It creates a healthy urgency to cultivate positive qualities and inner growth."
+                            explanation = "It inspires a strong sense of urgency to focus our lives on meaningful inner development, kindness, and wisdom."
                         )
                     )
                 )
@@ -1308,27 +1308,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "How did the Zen master Gudo initially respond to the family's distress over the husband's behavior?",
+                            text = "How did Gudo offer to help the family when he learned about the husband's gambling and drinking?",
                             options = listOf(
                                 "He scolded the husband harshly for his lack of discipline",
-                                "He offered money to buy food and wine, sitting in meditation to help him",
+                                "He gave money to buy wine and food, welcomed the husband home, and meditated beside him",
                                 "He advised the wife to leave her husband immediately",
                                 "He ignored their problems and focused solely on his own shelter"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Gudo offered money for food and wine, welcomed the husband warmly, and meditated beside him through the night."
+                            explanation = "Gudo gave money to get wine and food, greeted the husband when he came home drunk, and sat in meditation beside him."
                         ),
                         Question(
                             id = 2,
-                            text = "What core realization prompted the husband to completely change his life the next morning?",
+                            text = "What did Gudo explain to the husband in the morning that awakened his perception?",
                             options = listOf(
-                                "A severe punishment enforced by local authorities",
-                                "The realization that life is impermanent and brief, leaving no time to waste on suffering",
-                                "The fear of being reported to the emperor",
-                                "A formal lecture on traditional moral philosophy"
+                                "That local authorities would punish him",
+                                "That everything in this life is impermanent and life is very brief",
+                                "That he had broken an imperial law",
+                                "That he must study scripture for years before changing"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Gudo gently explained that everything is impermanent and life is brief, awakening the man from his destructive patterns."
+                            explanation = "Gudo explained that everything in this life is impermanent and life is very brief, so continuing to gamble and drink leaves no time to accomplish anything else and causes his family to suffer."
                         )
                     )
                 )
@@ -1350,27 +1350,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What is the core principle governing karma?",
+                            text = "What is the core principle of karma described in this lesson?",
                             options = listOf(
                                 "Random luck and unpredictable fortune",
-                                "Intentional actions bearing corresponding psychological and ethical results",
+                                "Every intentional action of body, speech, and mind leaves an impression and bears fruit in corresponding experiences",
                                 "Strict predetermination by external authorities",
                                 "Complete independence from personal choices"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Karma is the principle that intentional actions generate corresponding consequences."
+                            explanation = "Karma is the principle that every intentional action of body, speech, and mind leaves an impression and bears fruit in corresponding experiences."
                         ),
                         Question(
                             id = 2,
-                            text = "How does understanding karma empower a practitioner?",
+                            text = "Where does understanding karma place responsibility?",
                             options = listOf(
-                                "By placing personal responsibility on their own intentions and actions",
-                                "By guaranteeing immunity from physical sickness",
-                                "By allowing them to control external weather patterns",
-                                "By removing the need for mindfulness"
+                                "In our own hands by observing our intentions and choosing constructive actions",
+                                "On external circumstances and luck",
+                                "On others' opinions of our actions",
+                                "Outside our ability to influence"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "It emphasizes personal accountability, showing that our choices shape our well-being."
+                            explanation = "Understanding karma places personal responsibility in our own hands through our intentions and constructive actions."
                         )
                     )
                 )
@@ -1412,27 +1412,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "How did Zenkai choose to atone for the misdeeds of his past?",
+                            text = "How did Zenkai work to atone for his past?",
                             options = listOf(
                                 "By surrendering immediately to local authorities",
-                                "By resolving to cut a massive tunnel through a dangerous mountain road to help travelers",
+                                "By begging food by day and digging a 2,280-foot tunnel through a mountain by night",
                                 "By becoming a wealthy merchant and donating gold to temples",
                                 "By wandering the country in absolute silence"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Zenkai dedicated decades to digging a 2,280-foot tunnel to protect travelers from a dangerous cliffside road."
+                            explanation = "Zenkai begged food in the daytime and worked at night digging a tunnel 2,280 feet long, 20 feet high, and 30 feet wide through the mountain."
                         ),
                         Question(
                             id = 2,
-                            text = "What ultimately happened when the son of the slain official found Zenkai to exact revenge?",
+                            text = "What happened after the vengeful son helped with the digging for more than a year?",
                             options = listOf(
                                 "Zenkai defeated him in a sword duel",
-                                "The son joined him in digging the tunnel and eventually came to view him as a teacher",
+                                "He came to admire Zenkai's strong will and character and asked how he could cut off his own teacher's head",
                                 "Local villagers intervened and drove the son away",
-                                "Zenkai fled the province before the son could reach him"
+                                "Zenkai fled the province before the tunnel was finished"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "After waiting and eventually helping with the work, the son grew to admire Zenkai's character and refused to kill him."
+                            explanation = "After helping for more than a year, the son came to admire Zenkai's strong will and character and could not kill his teacher."
                         )
                     )
                 )
@@ -1454,27 +1454,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What is the core definition of bodhicitta?",
+                            text = "What is bodhicitta according to this lesson?",
                             options = listOf(
                                 "The desire for personal fame and spiritual status",
-                                "The altruistic aspiration to attain awakening for the benefit of all beings",
+                                "The heartfelt aspiration to achieve complete awakening specifically to help all living beings overcome distress",
                                 "The strict avoidance of all community engagement",
                                 "The practice of physical endurance"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Bodhicitta is the altruistic intention to awaken for the welfare of everyone."
+                            explanation = "Bodhicitta is the heartfelt aspiration to achieve complete awakening specifically for the purpose of helping all living beings overcome distress."
                         ),
                         Question(
                             id = 2,
-                            text = "How does developing bodhicitta change a practitioner's perspective?",
+                            text = "How does cultivating bodhicitta shift our focus?",
                             options = listOf(
-                                "It shifts focus from isolated self-interest to universal care",
-                                "It encourages cold emotional detachment",
-                                "It makes daily life more rigid and stressful",
-                                "It eliminates the need for ethical conduct"
+                                "Away from isolated self-interest toward universal service and empathy",
+                                "Toward cold emotional detachment",
+                                "Toward making daily life more rigid",
+                                "Away from ethical conduct"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "It expands compassion outward, transforming personal practice into universal service."
+                            explanation = "It shifts focus away from isolated self-interest and expands the heart through boundless loving-kindness and deep empathy."
                         )
                     )
                 )
@@ -1506,7 +1506,7 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "Which of the following is included among the six perfections?",
+                            text = "Which of the following are included among the six perfections?",
                             options = listOf(
                                 "Generosity, patience, and joyous effort",
                                 "Competition, speed, and luxury",
@@ -1514,19 +1514,19 @@ object LessonRepository {
                                 "Doubt, skepticism, and debate"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Generosity, patience, and joyous effort form part of the six perfections."
+                            explanation = "The six perfections are generosity, ethical conduct, patience, joyous effort, meditative concentration, and wisdom."
                         ),
                         Question(
                             id = 2,
-                            text = "What is the overarching purpose of practicing the six perfections?",
+                            text = "What does mastering the six perfections integrate?",
                             options = listOf(
-                                "To integrate deep insight with compassionate action in daily life",
-                                "To accumulate personal praise and status",
-                                "To avoid all physical labor",
-                                "To win arguments against opponents"
+                                "Deep insight with compassionate action in daily life",
+                                "Personal praise and status",
+                                "Avoiding all physical labor",
+                                "Winning arguments against opponents"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "They bridge inner wisdom with active compassion for the world."
+                            explanation = "Mastering these perfections integrates deep insight with compassionate action in daily life."
                         )
                     )
                 )
@@ -1570,39 +1570,39 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What major Buddhist tradition did Je Tsongkhapa found in Tibet?",
+                            text = "What major Tibetan Buddhist tradition did Je Tsongkhapa found?",
                             options = listOf(
-                                "The Gelug ('Virtuous') tradition",
+                                "The Gelug (\"Virtuous\") tradition",
                                 "The Zen school of sudden awakening",
                                 "The Shingon esoteric lineage",
                                 "The Theravada forest tradition"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Tsongkhapa founded the Gelug school, emphasizing rigorous study, ethics, and meditation."
+                            explanation = "Je Tsongkhapa founded the Gelug (\"Virtuous\") tradition."
                         ),
                         Question(
                             id = 2,
-                            text = "What is the core focus of Tsongkhapa's famous work, the Lamrim Chenmo?",
+                            text = "What does Tsongkhapa's \"Lamrim Chenmo\" do?",
                             options = listOf(
                                 "A military history of medieval Tibet",
-                                "Structuring the entire path to enlightenment into clear, progressive stages",
+                                "Structures the entire Buddhist path into stages suitable for practitioners of varying capacities",
                                 "A collection of short folk tales and poetry",
                                 "Strict architectural designs for monastic temples"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "The Lamrim Chenmo outlines the graded stages of the path to awakening for practitioners."
+                            explanation = "The Lamrim Chenmo structures the entire Buddhist path into stages suitable for practitioners of varying capacities."
                         ),
                         Question(
                             id = 3,
-                            text = "According to Tsongkhapa's teachings, what two elements must be unified in practice?",
+                            text = "What is central to Tsongkhapa's teaching on practice?",
                             options = listOf(
                                 "Wealth and political power",
-                                "Method (compassion/perfections) and wisdom (emptiness)",
+                                "The indivisibility of method (compassion, bodhicitta, and the six perfections) and wisdom (emptiness)",
                                 "Physical endurance and fasting",
                                 "Ancient ritual and modern science"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Tsongkhapa emphasized the indispensable union of method (compassion) and wisdom (emptiness)."
+                            explanation = "Central to Tsongkhapa's teaching is the indivisibility of method and wisdom."
                         )
                     )
                 )
@@ -1634,27 +1634,27 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What was the farmer's main concern after the priest recited sutras for his deceased wife?",
+                            text = "Why did the farmer first ask the priest to recite sutras just for his deceased wife?",
                             options = listOf(
-                                "That the priest charged too much money for the ceremony",
-                                "That other sentient beings might take advantage of his wife and get the benefit instead",
-                                "That the priest used the wrong scripture",
-                                "That his wife would not remember him in the next life"
+                                "Because the priest charged too much money for the ceremony",
+                                "Because he worried his wife was weak and others would take advantage of her and get the benefit",
+                                "Because the priest used the wrong scripture",
+                                "Because his wife would not remember him in the next life"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "The farmer worried that other beings would take advantage of his wife and dilute the merit she was supposed to receive."
+                            explanation = "The farmer worried that his wife might be very weak and others would take advantage of her, getting the benefit she should have."
                         ),
                         Question(
                             id = 2,
-                            text = "What exception did the farmer finally ask the priest to make regarding the recitation?",
+                            text = "What one exception did the farmer finally ask the priest to make?",
                             options = listOf(
-                                "To exclude his troublesome and mean neighbor from the benefit",
+                                "To exclude his neighbor who is rough and mean to him from all sentient beings",
                                 "To recite the sutras twice as loud",
                                 "To refund half of his donation",
                                 "To include his farm animals in the prayers"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "The farmer asked the priest to make an exception and exclude his rough neighbor from all sentient beings."
+                            explanation = "The farmer asked the priest to exclude his neighbor who is rough and mean to him from all those sentient beings."
                         )
                     )
                 )
@@ -1696,7 +1696,7 @@ object LessonRepository {
                     questions = listOf(
                         Question(
                             id = 1,
-                            text = "What text did Śāntideva famously compose and deliver at Nalanda Monastery?",
+                            text = "What work did Śāntideva deliver from the teaching throne at Nalanda?",
                             options = listOf(
                                 "The Dhammapada",
                                 "The Bodhicaryāvatāra (Engaging in the Bodhisattva's Deeds)",
@@ -1704,19 +1704,19 @@ object LessonRepository {
                                 "The Lamrim Chenmo"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Śāntideva delivered the Bodhicaryāvatāra, a timeless guide to the Bodhisattva's path."
+                            explanation = "Śāntideva delivered the \"Bodhicaryāvatāra\" (Engaging in the Bodhisattva's Deeds)."
                         ),
                         Question(
                             id = 2,
-                            text = "According to Śāntideva's teachings, what is identified as the root source of worldly suffering?",
+                            text = "According to Śāntideva's teachings noted in this lesson, where does all suffering in the world come from?",
                             options = listOf(
                                 "External weather events",
-                                "Self-cherishing and ego-driven focus",
+                                "Seeking happiness for oneself",
                                 "A lack of physical exercise",
                                 "Unavoidable bad luck"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Śāntideva emphasized that self-cherishing drives our emotional friction and distress."
+                            explanation = "Śāntideva noted that all the suffering in the world comes from seeking happiness for oneself, while all joy comes from wishing happiness for others."
                         )
                     )
                 )
@@ -1772,17 +1772,17 @@ object LessonRepository {
                             id = 1,
                             text = "What are the three principal aspects of the path outlined by Je Tsongkhapa?",
                             options = listOf(
-                                "Renunciation, the Awakening Mind (Bodhicitta), and the Correct View of Emptiness",
+                                "Renunciation (determination to be free), the Awakening Mind (bodhicitta), and the Correct View (wisdom of emptiness)",
                                 "Generosity, ethical discipline, and physical asceticism",
                                 "Ritual chanting, pilgrimage, and monastic debate",
                                 "Wealth, longevity, and rebirth in celestial realms"
                             ),
                             correctOptionIndex = 0,
-                            explanation = "Tsongkhapa distills the entire path into three essentials: the determination to be free (renunciation), the awakening mind (bodhicitta), and the correct view realizing emptiness."
+                            explanation = "Tsongkhapa outlines I. The Determination to Be Free (Renunciation), II. The Awakening Mind (Bodhicitta), and III. The Correct View (Wisdom of Emptiness)."
                         ),
                         Question(
                             id = 2,
-                            text = "According to the text, what happens if you cultivate renunciation and the awakening mind without the wisdom realizing emptiness?",
+                            text = "According to the text, what happens if you lack the wisdom realizing the mode of being despite habituating to renunciation and the awakening mind?",
                             options = listOf(
                                 "You immediately achieve unsurpassed enlightenment",
                                 "You will be unable to cut the root of cyclic existence",
@@ -1790,19 +1790,19 @@ object LessonRepository {
                                 "You automatically master all meditative states"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "Without the wisdom realizing the mode of being (emptiness), one cannot sever the root of cyclic existence."
+                            explanation = "Without the wisdom realizing the mode of being, even with renunciation and the awakening mind, you will be unable to cut the root of cyclic existence."
                         ),
                         Question(
                             id = 3,
-                            text = "When is the analysis of the correct view considered complete?",
+                            text = "When is the analysis of the correct view complete?",
                             options = listOf(
                                 "When appearance and emptiness are understood separately in alternating sessions",
-                                "When dependent appearance and emptiness dawn simultaneously, destroying all grasping at extremes",
+                                "When unfailing dependent appearance and emptiness free from assertions occur simultaneously, not alternating",
                                 "When one rejects all cause and effect as non-existent",
                                 "When one memorizes all philosophical treatises"
                             ),
                             correctOptionIndex = 1,
-                            explanation = "The view is complete when unfailing dependent origination and emptiness free from assertions occur simultaneously rather than alternating."
+                            explanation = "The analysis of the view is complete when unfailing dependent appearance and emptiness free from assertions occur simultaneously, not alternating."
                         )
                     )
                 )

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
@@ -17,8 +18,11 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,16 +30,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dev.alex.bodhibytes.R
 import dev.alex.bodhibytes.data.KoanRepository
 import dev.alex.bodhibytes.data.LessonRepository
 import dev.alex.bodhibytes.model.Lesson
 import dev.alex.bodhibytes.model.Quiz
 import dev.alex.santideva.repository.SantidevaRepository
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+
+private val AppCardShape = RoundedCornerShape(16.dp)
 
 sealed interface AppScreen {
     object List : AppScreen
@@ -49,13 +60,48 @@ sealed interface AppScreen {
 
 data class LessonModule(
     val title: String,
-    val lessons: List<Lesson>
+    val lessons: List<Lesson>,
+    val summary: String = ""
 )
 
 sealed interface HomeItem {
     data class RegularModule(val module: LessonModule) : HomeItem
     data class ParentGroup(val title: String, val subModules: List<LessonModule>) : HomeItem
     data class StandaloneLesson(val lesson: Lesson) : HomeItem
+}
+
+private fun buildBriefSummary(content: String, fallbackTitle: String, maxChars: Int = 150): String {
+    val normalized = content
+        .lineSequence()
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .joinToString(" ")
+        .replace(Regex("\\s+"), " ")
+        .trim()
+
+    if (normalized.isEmpty()) return fallbackTitle
+    if (normalized.length <= maxChars) return normalized
+
+    val truncated = normalized.take(maxChars)
+    val lastSpace = truncated.lastIndexOf(' ')
+    val cleanCut = if (lastSpace > 60) truncated.substring(0, lastSpace) else truncated
+    return "$cleanCut…"
+}
+
+private fun buildModuleSummary(
+    title: String,
+    lessons: List<Lesson>,
+    explicitSummary: String = ""
+): String {
+    if (explicitSummary.isNotBlank()) return explicitSummary
+    if (lessons.isEmpty()) return "No lessons in $title yet."
+
+    if (title == "A Guide to the Bodhisattva's Way of Life") {
+        return "Śāntideva's classic Mahāyāna guide on cultivating bodhicitta, ethical conduct, patience, meditative concentration, and wisdom."
+    }
+
+    val countLabel = if (lessons.size == 1) "1 reading" else "${lessons.size} readings"
+    return "$countLabel in $title."
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,7 +146,7 @@ fun BodhiBytesApp() {
                 Lesson(
                     id = 300 + (moduleIndex * 100) + lessonIndex + 1,
                     title = sLesson.title,
-                    summary = sLesson.content.lineSequence().firstOrNull { it.isNotBlank() } ?: sLesson.title,
+                    summary = buildBriefSummary(sLesson.content, sLesson.title),
                     content = sLesson.content,
                     quiz = null
                 )
@@ -113,9 +159,9 @@ fun BodhiBytesApp() {
             allLessons.find { it.id == 1 }?.let { add(it) }
             addAll(allLessons.filter { it.id in 2..8 })
             addAll(allLessons.filter { it.id in 15..23 })
+            allLessons.find { it.id == 31 }?.let { add(it) }
             addAll(allLessons.filter { it.id in 24..30 })
             addAll(allLessons.filter { it.id in 9..14 })
-            allLessons.find { it.id == 31 }?.let { add(it) }
             addAll(allKoans)
             addAll(santidevaLessons)
         }
@@ -327,6 +373,16 @@ fun LessonListScreen(
     val allLessons = remember { LessonRepository.getCurriculum() }
     val allKoans = remember { KoanRepository.getKoans() }
 
+    val welcomeLesson = remember {
+        Lesson(
+            id = 0,
+            title = "Welcome to BodhiBytes",
+            summary = "Ignorance grasps phenomena as more than dependent arising.",
+            content = "Ignorance grasps phenomena as more than dependent arising.",
+            quiz = null
+        )
+    }
+
     val santidevaModules = remember {
         SantidevaRepository.generalReadingModules.mapIndexed { moduleIndex, sModule ->
             LessonModule(
@@ -335,7 +391,7 @@ fun LessonListScreen(
                     Lesson(
                         id = 300 + (moduleIndex * 100) + lessonIndex + 1,
                         title = sLesson.title,
-                        summary = sLesson.content.lineSequence().firstOrNull { it.isNotBlank() } ?: sLesson.title,
+                        summary = buildBriefSummary(sLesson.content, sLesson.title),
                         content = sLesson.content,
                         quiz = null
                     )
@@ -344,27 +400,63 @@ fun LessonListScreen(
         }
     }
 
-    val topLesson = remember(allLessons) { allLessons.find { it.id == 1 } }
+    val wordsAndMeaningsLesson = remember(allLessons) { allLessons.find { it.id == 1 } }
     val threeAspectsLesson = remember(allLessons) { allLessons.find { it.id == 31 } }
 
-    val homeItems = remember(allLessons, allKoans, santidevaModules, threeAspectsLesson) {
+    val homeItems = remember(allLessons, allKoans, santidevaModules, wordsAndMeaningsLesson, threeAspectsLesson) {
         buildList {
-            add(HomeItem.RegularModule(LessonModule("The Path", allLessons.filter { it.id in 2..8 })))
-            add(HomeItem.RegularModule(LessonModule("The Three Marks of Existence", allLessons.filter { it.id in 15..23 })))
-            add(HomeItem.RegularModule(LessonModule("Compassion (Bodhicitta)", allLessons.filter { it.id in 24..30 })))
-            add(HomeItem.RegularModule(LessonModule("Wisdom (Emptiness)", allLessons.filter { it.id in 9..14 })))
-            if (threeAspectsLesson != null) {
-                add(HomeItem.StandaloneLesson(threeAspectsLesson))
+            val pathLessons = buildList {
+                if (wordsAndMeaningsLesson != null) {
+                    add(wordsAndMeaningsLesson)
+                }
+                addAll(allLessons.filter { it.id in 2..8 })
+                addAll(allLessons.filter { it.id in 15..23 })
+                if (threeAspectsLesson != null) {
+                    add(threeAspectsLesson)
+                }
+            }
+            add(
+                HomeItem.RegularModule(
+                    LessonModule(
+                        title = "The Path",
+                        lessons = pathLessons,
+                        summary = "Foundational terms, stages of the path, and core principles guiding practice."
+                    )
+                )
+            )
+            add(
+                HomeItem.RegularModule(
+                    LessonModule(
+                        title = "Compassion (Bodhicitta)",
+                        lessons = allLessons.filter { it.id in 24..30 },
+                        summary = "Cultivating universal compassion and the awakening mind for the benefit of all beings."
+                    )
+                )
+            )
+            add(
+                HomeItem.RegularModule(
+                    LessonModule(
+                        title = "Wisdom (Emptiness)",
+                        lessons = allLessons.filter { it.id in 9..14 },
+                        summary = "Insight into emptiness, interdependent origination, and seeing reality clearly."
+                    )
+                )
+            )
+            val generalReadingSubModules = listOf(
+                LessonModule(
+                    title = "Zen Koans (101)",
+                    lessons = allKoans,
+                    summary = "Classic Zen koans for contemplative inquiry and non-conceptual insight."
+                )
+            ) + santidevaModules.map { sMod ->
+                sMod.copy(
+                    summary = buildModuleSummary(sMod.title, sMod.lessons, sMod.summary)
+                )
             }
             add(
                 HomeItem.ParentGroup(
                     title = "General Reading",
-                    subModules = listOf(
-                        LessonModule(
-                            title = "Zen Koans (101)",
-                            lessons = allKoans
-                        )
-                    ) + santidevaModules
+                    subModules = generalReadingSubModules
                 )
             )
         }
@@ -418,55 +510,11 @@ fun LessonListScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = "Welcome to BodhiBytes",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Explore foundational teachings, traditional terminology, Zen koans, and profound insights into wisdom and compassion at your own pace.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-
-            if (topLesson != null) {
-                item(key = "top_lesson_${topLesson.id}") {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onLessonSelected(topLesson) },
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                        ) {
-                            Text(
-                                text = topLesson.title,
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
+            item(key = "welcome_lesson_card") {
+                WelcomeCard(
+                    lesson = welcomeLesson,
+                    onClick = { onLessonSelected(welcomeLesson) }
+                )
             }
 
             homeItems.forEachIndexed { index, item ->
@@ -475,6 +523,7 @@ fun LessonListScreen(
                         val module = item.module
                         val key = "regular_$index"
                         val isExpanded = expandedKeys.contains(key)
+                        val moduleSummary = buildModuleSummary(module.title, module.lessons, module.summary)
 
                         item(key = key) {
                             Card(
@@ -485,6 +534,7 @@ fun LessonListScreen(
                                             if (isExpanded) expandedKeys - key else expandedKeys + key
                                         )
                                     },
+                                shape = AppCardShape,
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
                                 )
@@ -502,17 +552,18 @@ fun LessonListScreen(
                                             style = MaterialTheme.typography.titleLarge,
                                             fontWeight = FontWeight.Bold
                                         )
-                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Spacer(modifier = Modifier.height(4.dp))
                                         Text(
-                                            text = "${module.lessons.size} lessons",
+                                            text = moduleSummary,
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
                                         )
                                     }
+                                    Spacer(modifier = Modifier.width(12.dp))
                                     Icon(
-                                        painter = painterResource(
-                                            id = if (isExpanded) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
-                                        ),
+                                        imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                                         contentDescription = if (isExpanded) "Collapse Module" else "Expand Module",
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -534,11 +585,15 @@ fun LessonListScreen(
                     }
                     is HomeItem.StandaloneLesson -> {
                         val lesson = item.lesson
+                        val cardSummary = lesson.summary.ifBlank {
+                            buildBriefSummary(lesson.content, lesson.title)
+                        }
                         item(key = "standalone_lesson_${lesson.id}") {
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { onLessonSelected(lesson) },
+                                shape = AppCardShape,
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
                                 )
@@ -553,6 +608,16 @@ fun LessonListScreen(
                                         style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold
                                     )
+                                    if (cardSummary.isNotBlank()) {
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = cardSummary,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -560,6 +625,17 @@ fun LessonListScreen(
                     is HomeItem.ParentGroup -> {
                         val groupKey = "group_$index"
                         val isGroupExpanded = expandedKeys.contains(groupKey)
+                        val allGroupLessons = item.subModules.flatMap { it.lessons }
+                        val groupSummary = buildAnnotatedString {
+                            append("${item.subModules.size} collections (${allGroupLessons.size} readings):\n")
+                            withStyle(
+                                style = ParagraphStyle(
+                                    textIndent = TextIndent(firstLine = 12.sp, restLine = 12.sp)
+                                )
+                            ) {
+                                append(item.subModules.joinToString("\n") { "• ${it.title}" })
+                            }
+                        }
 
                         item(key = groupKey) {
                             Card(
@@ -570,6 +646,7 @@ fun LessonListScreen(
                                             if (isGroupExpanded) expandedKeys - groupKey else expandedKeys + groupKey
                                         )
                                     },
+                                shape = AppCardShape,
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
                                 )
@@ -587,17 +664,17 @@ fun LessonListScreen(
                                             style = MaterialTheme.typography.titleLarge,
                                             fontWeight = FontWeight.Bold
                                         )
-                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Spacer(modifier = Modifier.height(4.dp))
                                         Text(
-                                            text = "${item.subModules.size} section(s)",
+                                            text = groupSummary,
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            overflow = TextOverflow.Clip
                                         )
                                     }
+                                    Spacer(modifier = Modifier.width(12.dp))
                                     Icon(
-                                        painter = painterResource(
-                                            id = if (isGroupExpanded) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
-                                        ),
+                                        imageVector = if (isGroupExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                                         contentDescription = if (isGroupExpanded) "Collapse Group" else "Expand Group",
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -609,7 +686,8 @@ fun LessonListScreen(
                             item.subModules.forEachIndexed { subIndex, subModule ->
                                 val subKey = "submodule_${index}_$subIndex"
                                 val isSubExpanded = expandedKeys.contains(subKey)
-                                val isSantidevaModule = santidevaModules.any { it.title == subModule.title }
+                                val subSummary = buildModuleSummary(subModule.title, subModule.lessons, subModule.summary)
+                                val showLessonSummaries = subModule.title != "A Guide to the Bodhisattva's Way of Life"
 
                                 item(key = subKey) {
                                     Box(modifier = Modifier.padding(start = 12.dp)) {
@@ -621,6 +699,7 @@ fun LessonListScreen(
                                                         if (isSubExpanded) expandedKeys - subKey else expandedKeys + subKey
                                                     )
                                                 },
+                                            shape = AppCardShape,
                                             colors = CardDefaults.cardColors(
                                                 containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                                             )
@@ -638,17 +717,16 @@ fun LessonListScreen(
                                                         style = MaterialTheme.typography.titleLarge,
                                                         fontWeight = FontWeight.Bold
                                                     )
-                                                    Spacer(modifier = Modifier.height(2.dp))
+                                                    Spacer(modifier = Modifier.height(4.dp))
                                                     Text(
-                                                        text = "${subModule.lessons.size} lessons",
+                                                        text = subSummary,
                                                         style = MaterialTheme.typography.bodyMedium,
                                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
                                                 }
+                                                Spacer(modifier = Modifier.width(12.dp))
                                                 Icon(
-                                                    painter = painterResource(
-                                                        id = if (isSubExpanded) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
-                                                    ),
+                                                    imageVector = if (isSubExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                                                     contentDescription = if (isSubExpanded) "Collapse SubModule" else "Expand SubModule",
                                                     tint = MaterialTheme.colorScheme.primary
                                                 )
@@ -662,7 +740,7 @@ fun LessonListScreen(
                                         Box(modifier = Modifier.padding(start = 24.dp)) {
                                             LessonCard(
                                                 lesson = lesson,
-                                                showSummary = !isSantidevaModule,
+                                                showSummary = showLessonSummaries,
                                                 onClick = { onLessonSelected(lesson) }
                                             )
                                         }
@@ -961,15 +1039,81 @@ fun AboutScreen(
 }
 
 @Composable
+fun WelcomeCard(
+    lesson: Lesson,
+    onClick: () -> Unit
+) {
+    val displaySummary = lesson.summary.ifBlank {
+        buildBriefSummary(lesson.content, lesson.title)
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = AppCardShape,
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                    tint = MaterialTheme.colorScheme.secondary
+                )
+                Text(
+                    text = "WELCOME",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.2.sp,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = lesson.title,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            if (displaySummary.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = displaySummary,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.9f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun LessonCard(
     lesson: Lesson,
     showSummary: Boolean = true,
     onClick: () -> Unit
 ) {
+    val displaySummary = lesson.summary.ifBlank {
+        buildBriefSummary(lesson.content, lesson.title)
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
+        shape = AppCardShape,
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -985,11 +1129,13 @@ fun LessonCard(
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
-            if (showSummary) {
+            if (showSummary && displaySummary.isNotBlank()) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = lesson.summary,
-                    style = MaterialTheme.typography.bodyLarge
+                    text = displaySummary,
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -1203,6 +1349,7 @@ fun QuizScreen(
                                     feedbackMessage = null
                                 }
                             },
+                        shape = AppCardShape,
                         colors = CardDefaults.outlinedCardColors(
                             containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface
                         )
