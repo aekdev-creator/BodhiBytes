@@ -3,13 +3,16 @@ package dev.alex.bodhibytes.ui
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
@@ -24,9 +27,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -97,6 +106,47 @@ private fun buildModuleSummary(
 
     val countLabel = if (lessons.size == 1) "1 reading" else "${lessons.size} readings"
     return "$countLabel in $title."
+}
+
+@Composable
+private fun ExpandChevronIcon(
+    expanded: Boolean,
+    contentDescription: String,
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    val rotation by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        label = "expand_chevron_rotation"
+    )
+    Canvas(
+        modifier = modifier
+            .size(24.dp)
+            .graphicsLayer { rotationZ = rotation }
+            .semantics { this.contentDescription = contentDescription }
+    ) {
+        val strokeWidth = 2.2.dp.toPx()
+        val horizontalInset = size.width * 0.26f
+        val topY = size.height * 0.36f
+        val bottomY = size.height * 0.64f
+        val midX = size.width * 0.5f
+        val rightX = size.width - horizontalInset
+
+        drawLine(
+            color = tint,
+            start = Offset(horizontalInset, topY),
+            end = Offset(midX, bottomY),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = tint,
+            start = Offset(midX, bottomY),
+            end = Offset(rightX, topY),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -372,8 +422,8 @@ fun LessonListScreen(
         Lesson(
             id = 0,
             title = "Welcome to BodhiBytes",
-            summary = "Ignorance grasps phenomena as more than dependent arising.",
-            content = "Ignorance grasps phenomena as more than dependent arising.",
+            summary = "Buddhist teachings, foundational terms, Zen koans, and classic readings.",
+            content = "Buddhist teachings, foundational terms, Zen koans, and classic readings.",
             quiz = null
         )
     }
@@ -503,13 +553,10 @@ fun LessonListScreen(
                 .fillMaxSize()
                 .padding(innerPadding),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item(key = "welcome_lesson_card") {
-                WelcomeCard(
-                    lesson = welcomeLesson,
-                    onClick = { onLessonSelected(welcomeLesson) }
-                )
+                WelcomeCard(lesson = welcomeLesson)
             }
 
             homeItems.forEachIndexed { index, item ->
@@ -529,8 +576,9 @@ fun LessonListScreen(
                                             if (isExpanded) expandedKeys - key else expandedKeys + key
                                         )
                                     },
+                                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.42f)
                                 )
                             ) {
                                 Row(
@@ -540,7 +588,11 @@ fun LessonListScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Column(modifier = Modifier.weight(1f)) {
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(end = 8.dp)
+                                    ) {
                                         Text(
                                             text = module.title,
                                             style = MaterialTheme.typography.titleLarge,
@@ -551,14 +603,13 @@ fun LessonListScreen(
                                             text = moduleSummary,
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            maxLines = 2,
+                                            maxLines = 3,
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     }
-                                    Icon(
-                                        painter = painterResource(
-                                            id = if (isExpanded) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
-                                        ),
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    ExpandChevronIcon(
+                                        expanded = isExpanded,
                                         contentDescription = if (isExpanded) "Collapse Module" else "Expand Module",
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -572,6 +623,7 @@ fun LessonListScreen(
                                     LessonCard(
                                         lesson = lesson,
                                         showSummary = true,
+                                        isExpandedLesson = true,
                                         onClick = { onLessonSelected(lesson) }
                                     )
                                 }
@@ -588,8 +640,9 @@ fun LessonListScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { onLessonSelected(lesson) },
+                                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.42f)
                                 )
                             ) {
                                 Column(
@@ -640,8 +693,9 @@ fun LessonListScreen(
                                             if (isGroupExpanded) expandedKeys - groupKey else expandedKeys + groupKey
                                         )
                                     },
+                                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.42f)
                                 )
                             ) {
                                 Row(
@@ -666,10 +720,8 @@ fun LessonListScreen(
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Icon(
-                                        painter = painterResource(
-                                            id = if (isGroupExpanded) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
-                                        ),
+                                    ExpandChevronIcon(
+                                        expanded = isGroupExpanded,
                                         contentDescription = if (isGroupExpanded) "Collapse Group" else "Expand Group",
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -694,8 +746,9 @@ fun LessonListScreen(
                                                         if (isSubExpanded) expandedKeys - subKey else expandedKeys + subKey
                                                     )
                                                 },
+                                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                                             colors = CardDefaults.cardColors(
-                                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.26f)
                                             )
                                         ) {
                                             Row(
@@ -708,7 +761,7 @@ fun LessonListScreen(
                                                 Column(modifier = Modifier.weight(1f)) {
                                                     Text(
                                                         text = subModule.title,
-                                                        style = MaterialTheme.typography.titleLarge,
+                                                        style = MaterialTheme.typography.titleMedium,
                                                         fontWeight = FontWeight.Bold
                                                     )
                                                     Spacer(modifier = Modifier.height(4.dp))
@@ -718,10 +771,9 @@ fun LessonListScreen(
                                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
                                                 }
-                                                Icon(
-                                                    painter = painterResource(
-                                                        id = if (isSubExpanded) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
-                                                    ),
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                ExpandChevronIcon(
+                                                    expanded = isSubExpanded,
                                                     contentDescription = if (isSubExpanded) "Collapse SubModule" else "Expand SubModule",
                                                     tint = MaterialTheme.colorScheme.primary
                                                 )
@@ -736,6 +788,7 @@ fun LessonListScreen(
                                             LessonCard(
                                                 lesson = lesson,
                                                 showSummary = showLessonSummaries,
+                                                isExpandedLesson = true,
                                                 onClick = { onLessonSelected(lesson) }
                                             )
                                         }
@@ -815,6 +868,7 @@ fun BookmarksScreen(
                     LessonCard(
                         lesson = lesson,
                         showSummary = true,
+                        isExpandedLesson = false,
                         onClick = { onLessonSelected(lesson) }
                     )
                 }
@@ -1035,24 +1089,17 @@ fun AboutScreen(
 
 @Composable
 fun WelcomeCard(
-    lesson: Lesson,
-    onClick: () -> Unit
+    lesson: Lesson
 ) {
     val displaySummary = lesson.summary.ifBlank {
         buildBriefSummary(lesson.content, lesson.title)
     }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        border = BorderStroke(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f)
-        ),
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.42f),
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         )
     ) {
@@ -1061,14 +1108,6 @@ fun WelcomeCard(
                 .fillMaxWidth()
                 .padding(20.dp)
         ) {
-            Text(
-                text = "WELCOME",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.2.sp,
-                color = MaterialTheme.colorScheme.secondary
-            )
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = lesson.title,
                 style = MaterialTheme.typography.headlineSmall,
@@ -1087,42 +1126,145 @@ fun WelcomeCard(
 }
 
 @Composable
+private fun LessonMetadataBadge(
+    label: String,
+    containerColor: Color,
+    contentColor: Color
+) {
+    Box(
+        modifier = Modifier
+            .background(color = containerColor, shape = RoundedCornerShape(6.dp))
+            .padding(horizontal = 8.dp, vertical = 2.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Medium,
+            color = contentColor,
+            maxLines = 1,
+            softWrap = false
+        )
+    }
+}
+
+@Composable
 fun LessonCard(
     lesson: Lesson,
     showSummary: Boolean = true,
+    isExpandedLesson: Boolean = false,
     onClick: () -> Unit
 ) {
     val displaySummary = lesson.summary.ifBlank {
         buildBriefSummary(lesson.content, lesson.title)
     }
+    val isKoan = lesson.id in 101..201
+    val hasQuiz = lesson.quiz != null
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        )
-    ) {
+    if (isExpandedLesson) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .clickable(onClick = onClick)
         ) {
-            Text(
-                text = lesson.title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = lesson.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp)
+                    )
+                    if (hasQuiz) {
+                        LessonMetadataBadge(
+                            label = "Quiz",
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    } else if (isKoan) {
+                        LessonMetadataBadge(
+                            label = "Koan",
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                if (showSummary && displaySummary.isNotBlank()) {
+                    Text(
+                        text = displaySummary,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+            HorizontalDivider(
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)
             )
-            if (showSummary && displaySummary.isNotBlank()) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = displaySummary,
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
+        }
+    } else {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = lesson.title,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp)
+                    )
+                    if (hasQuiz) {
+                        LessonMetadataBadge(
+                            label = "Quiz",
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    } else if (isKoan) {
+                        LessonMetadataBadge(
+                            label = "Koan",
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                if (showSummary && displaySummary.isNotBlank()) {
+                    Text(
+                        text = displaySummary,
+                        style = MaterialTheme.typography.bodyLarge,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }

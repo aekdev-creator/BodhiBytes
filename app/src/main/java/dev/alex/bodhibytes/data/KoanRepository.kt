@@ -25,7 +25,7 @@ object KoanRepository {
                 title = "Finding a Diamond on a Muddy Road",
                 summary = "Gudo transforms a gambler's life through compassion and calm presence, giving rise to a revered lineage.",
                 content = """
-                    Gudo was the emperor's teacher of his time. Nevertheless, he used to travel alone as a wandering mendicant. Once when he was on his was to Edo, the cultural and political center of the shogunate, he approached a little village named Takenaka. It was evening and a heavy rain was falling. Gudo was thoroughly wet. His straw sandals were in pieces. At a farmhouse near the village he noticed four or five pairs of sandals in the window and decided to buy some dry ones.
+                    Gudo was the emperor's teacher of his time. Nevertheless, he used to travel alone as a wandering mendicant. Once when he was on his way to Edo, the cultural and political center of the shogunate, he approached a little village named Takenaka. It was evening and a heavy rain was falling. Gudo was thoroughly wet. His straw sandals were in pieces. At a farmhouse near the village he noticed four or five pairs of sandals in the window and decided to buy some dry ones.
 
                     The woman who offered him the sandals, seeing how wet he was, invited him in to remain for the night at her home. Gudo accepted, thanking her. He entered and recited a sutra before the family shrine. He then was introduced to the woman's mother, and to her children. Observing that the entire family was depressed, Gudo asked what was wrong.
 
@@ -167,13 +167,13 @@ object KoanRepository {
                 content = """
                     In the early days of the Meiji era there lived a well-known wrestler called O-nami, Great Waves.
 
-                    O-nami was immensly strong and knew the art of wresting. In his private bouts he defeated even his teacher, but in public was so bashful that his own pupils threw him.
+                    O-nami was immensely strong and knew the art of wrestling. In his private bouts he defeated even his teacher, but in public was so bashful that his own pupils threw him.
 
                     O-nami felt he should go to a Zen master for help. Hakuju, a wandering teacher, was stopping in a little temple nearby, so O-nami went to see him and told him of his great trouble.
 
                     "Great Waves is your name," the teacher advised, "so stay in this temple tonight. Imagine that you are those billows. You are no longer a wrestler who is afraid. You are those huge waves sweeping everything before them, swallowing all in their path. Do this and you will be the greatest wrestler in the land."
 
-                    The teacher retired. O-nami sat in meditation trying to imagine himself as waves. He thought of many different things. Then gradualy he turned more and more to the feeling of waves. As the night advanced the waves became larger and larger. They swept away the flowers in their vases. Even the Buddha in the shrine was inundated. Before dawn the temple was nothing but the ebb and flow of an immense sea.
+                    The teacher retired. O-nami sat in meditation trying to imagine himself as waves. He thought of many different things. Then gradually he turned more and more to the feeling of waves. As the night advanced the waves became larger and larger. They swept away the flowers in their vases. Even the Buddha in the shrine was inundated. Before dawn the temple was nothing but the ebb and flow of an immense sea.
 
                     In the morning the teacher found O-nami meditating, a faint smile on his face. He patted the wrestler's shoulder. "Now nothing can disturb you," he said. "You are those waves. You will sweep everything before you."
 
@@ -187,7 +187,7 @@ object KoanRepository {
                 content = """
                     Ryokan, a Zen master, lived the simplest kind of life in a little hut at the foot of a mountain. One evening a thief visited the hut only to discover there was nothing in it to steal.
 
-                    Ryokan returned and caught him. "You may have come a long way to visit me," he told the prowler, "and you shoud not return emptyhanded. Please take my clothes as a gift."
+                    Ryokan returned and caught him. "You may have come a long way to visit me," he told the prowler, "and you should not return emptyhanded. Please take my clothes as a gift."
 
                     The thief was bewildered. He took the clothes and slunk away.
 
@@ -232,7 +232,7 @@ object KoanRepository {
 
                     The poem was one line short of the customary four, so the disciple said: "Master, we are one line short."
 
-                    Hoshin, with the roar of a conquoring lion, shouted "Kaa!" and was gone.
+                    Hoshin, with the roar of a conquering lion, shouted "Kaa!" and was gone.
                 """.trimIndent()
             ),
             Lesson(
@@ -328,7 +328,7 @@ object KoanRepository {
 
                     Whenever Shoun went to a meditation hall he always took his mother with him. Since she accompanied him, when he visited monasteries he could not live with the monks. So he would build a little house and care for her there. He would copy sutras, Buddhist verses, and in this manner receive a few coins for food.
 
-                    When Shoun bought fish for his mother, the people would scoff at him, for a monk is not supposed to eat fish. But Shoun did not mind. His mother, however, was hurt to see the others laugh at her son. Finally she told Shoun: "I think I will become a nun. I can be a vegaterian too." She did, and they studied together.
+                    When Shoun bought fish for his mother, the people would scoff at him, for a monk is not supposed to eat fish. But Shoun did not mind. His mother, however, was hurt to see the others laugh at her son. Finally she told Shoun: "I think I will become a nun. I can be a vegetarian too." She did, and they studied together.
 
                     Shoun was fond of music and was a master of the harp, which his mother also played. On full-moon nights they used to play together.
 
@@ -356,15 +356,15 @@ object KoanRepository {
                 title = "Not Far from Buddhahood",
                 summary = "Master Gasan praises passages from the Christian Bible as enlightened teachings.",
                 content = """
-                    A university student while visiting Gasan asked him: "Have you even read the Christian Bible?"
+                    A university student while visiting Gasan asked him: "Have you ever read the Christian Bible?"
 
                     "No, read it to me," said Gasan.
 
                     The student opened the Bible and read from St. Matthew: "And why take ye thought for raiment? Consider the lilies of the field, how they grow. They toil not, neither do they spin, and yet I say unto you that even Solomon in all his glory was not arrayed like one of these... Take therefore no thought for the morrow, for the morrow shall take thought for the things of itself."
 
-                    Gasan said: "Whoever uttered those words I consider and enlightened man."
+                    Gasan said: "Whoever uttered those words I consider an enlightened man."
 
-                    The student continued reading: "Ask and it shall be given you, seek and ye shall find, knock and it shall be opened unto you. For everyone that asketh receiveth, and he that seeketh findeth, and to him that knocketh, is shall be opened."
+                    The student continued reading: "Ask and it shall be given you, seek and ye shall find, knock and it shall be opened unto you. For everyone that asketh receiveth, and he that seeketh findeth, and to him that knocketh, it shall be opened."
 
                     Gasan remarked: "That is excellent. Whoever said that is not far from Buddhahood."
                 """.trimIndent()
@@ -392,11 +392,11 @@ object KoanRepository {
 
                     With such a beginning, Kusuda lost his chance to test the master, so reluctantly he asked if he might receive Zen instruction.
 
-                    Nan-in said: "Zen is not a difficult task. If you are a physician, treat you patients with kindness. That is Zen."
+                    Nan-in said: "Zen is not a difficult task. If you are a physician, treat your patients with kindness. That is Zen."
 
-                    Kusuda visited Nan-in three times. Each time Nan-in told him the same thing. "A physician should not waste time around here. Go home and take care of you patients."
+                    Kusuda visited Nan-in three times. Each time Nan-in told him the same thing. "A physician should not waste time around here. Go home and take care of your patients."
 
-                    It was not yet clear to Kusuda how such teaching could remove the fear of death. So on his fourth visit he complained: "My friend told me when one learns Zen one loses the fear of death. Each time I come here all you tell me is to take care of my patients. I know that much. If that is your so-called Zen, I am not going to visit you any more."
+                    It was not yet clear to Kusuda how such teaching could remove the fear of death. So on his fourth visit he complained: "My friend told me when one learns Zen one loses the fear of death. Each time I come here all you tell me is to take care of your patients. I know that much. If that is your so-called Zen, I am not going to visit you any more."
 
                     Nan-in smiled and patted the doctor. "I have been too strict with you. Let me give you a koan." He presented Kusuda with Joshu's Mu to work over, which is the first mind enlightening problem in the book called The Gateless Gate.
 
@@ -436,7 +436,7 @@ object KoanRepository {
 
                     Kosen patiently wrote one sheet after another until eighty-four First Principles had been accumulated, still without the approval of the pupil.
 
-                    Then, when the young man stepped outside for a few moments, Kosen thought: "Now is my chance to escape his keen eye," and he wrote hurridly, with a mind free from disctraction. "The First Principle."
+                    Then, when the young man stepped outside for a few moments, Kosen thought: "Now is my chance to escape his keen eye," and he wrote hurriedly, with a mind free from distraction. "The First Principle."
 
                     "A masterpiece," pronounced the pupil.
                 """.trimIndent()
@@ -448,7 +448,7 @@ object KoanRepository {
                 content = """
                     Jiun, a Shogun master, was a well-known Sanskrit scholar of the Tokugawa era. When he was young he used to deliver lectures to his brother students.
 
-                    His mother heard about this and wrote him a letter.:
+                    His mother heard about this and wrote him a letter:
                     "Son, I do not think you became a devotee of the Buddha because you desired to turn into a walking dictionary for others. There is no end to information and commentation, glory and honor. I wish you would stop this lecture business. Shut yourself up in a little temple in a remote part of the mountain. Devote your time to meditation and in this way attain true realization."
                 """.trimIndent()
             ),
@@ -457,7 +457,7 @@ object KoanRepository {
                 title = "The Sound of One Hand",
                 summary = "Young Toyo spends a year struggling with the sound of one hand before realizing the soundless sound.",
                 content = """
-                    The master of Kennin temple was Mokurai, Silent Thunder. He had a little protégé named Toyo who was only twelve years old. Toyo saw the older disciples visit the master's room each morning and evening to receive instruction in sanzen or personal guidence in which they were given koans to stop mind-wandering.
+                    The master of Kennin temple was Mokurai, Silent Thunder. He had a little protégé named Toyo who was only twelve years old. Toyo saw the older disciples visit the master's room each morning and evening to receive instruction in sanzen or personal guidance in which they were given koans to stop mind-wandering.
 
                     Toyo wished to do sanzen also.
 
@@ -499,10 +499,10 @@ object KoanRepository {
                 content = """
                     Soyen Shaku, the first Zen teacher to come to America, said: "My heart burns like fire but my eyes are as cold as dead ashes." He made the following rules which he practiced every day of his life.
 
-                    In the morning before dressing, light incense and meditate.
+                    • In the morning before dressing, light incense and meditate.
                     • Retire at a regular hour. Partake of food at regular intervals. Eat with moderation and never to the point of satisfaction.
-                    Receive a guest with the same attitude you have when alone. When alone, maintain the same attitude you have in receiving guests.
-                    Watch what you say, and whatever you say, practice it.
+                    • Receive a guest with the same attitude you have when alone. When alone, maintain the same attitude you have in receiving guests.
+                    • Watch what you say, and whatever you say, practice it.
                     • When an opportunity comes do not let it pass you by, yet always think twice before acting.
                     • Do not regret the past. Look to the future.
                     • Have the fearless attitude of a hero and the loving heart of a child.
@@ -693,7 +693,7 @@ object KoanRepository {
 
                     "Deformed," replied the woman.
 
-                    The he opened his hand flat in her face and asked: "Suppose it were always like that. What then?"
+                    Then he opened his hand flat in her face and asked: "Suppose it were always like that. What then?"
 
                     "Another kind of deformity," said the wife.
 
@@ -707,7 +707,7 @@ object KoanRepository {
                 title = "A Smile in His Lifetime",
                 summary = "Encho wins his master Mokugen's robe and bowl by moving a medicine cup back and forth.",
                 content = """
-                    Mokugen was never known to smile until his last day on earth. When his time came to pass away he said to his faithful ones: "You have studied under me for more than ten years. Show me your real interpretation of Zen. Whoever expresses this most clearly shall by my successor and receive my robe and bowl."
+                    Mokugen was never known to smile until his last day on earth. When his time came to pass away he said to his faithful ones: "You have studied under me for more than ten years. Show me your real interpretation of Zen. Whoever expresses this most clearly shall be my successor and receive my robe and bowl."
 
                     Everyone watched Mokugen's severe face, but no one answered.
 
@@ -743,7 +743,7 @@ object KoanRepository {
 
                     "But I have not spoken of emptiness," said Subhuti.
 
-                    "You have not spoken of emptiness, we have not heard emptiness," responded the gods. "This is true emptiness." And blossoms showered upon Subhuto as rain.
+                    "You have not spoken of emptiness, we have not heard emptiness," responded the gods. "This is true emptiness." And blossoms showered upon Subhuti as rain.
                 """.trimIndent()
             ),
             Lesson(
@@ -771,7 +771,7 @@ object KoanRepository {
                 content = """
                     Gisho was ordained as a nun when she was ten years old. She received training just as the little boys did. When she reached the age of sixteen she traveled from one Zen master to another, studying with them all.
 
-                    She remained three years with Unzan, six years with Gukei, but was unable to obtained a clear vision. At last she went to the master Inzan.
+                    She remained three years with Unzan, six years with Gukei, but was unable to obtain a clear vision. At last she went to the master Inzan.
 
                     Inzan showed her no distinction at all on account of her sex. He scolded her like a thunderstorm. He cuffed her to awaken her inner nature.
 
@@ -928,7 +928,7 @@ object KoanRepository {
 
                     So on a certain day Gessen was called by the geisha. She was holding a feast for her patron.
 
-                    Gessen with fine brush work did the paining. When it was completed he asked the highest sum of his time.
+                    Gessen with fine brush work did the painting. When it was completed he asked the highest sum of his time.
 
                     He received his pay. Then the geisha turned to her patron saying: "All this artist wants is money. His paintings are fine but his mind is dirty; money has caused it to become muddy. Drawn by such a filthy mind, his work is not fit to exhibit. It is just about good enough for one of my petticoats."
 
@@ -953,7 +953,7 @@ object KoanRepository {
                 title = "Accurate Proportion",
                 summary = "Sen no Rikyu's immaculate sense of proportion identifies the exact spot on a column for a flower basket.",
                 content = """
-                    Sen no Rikyu, a tea-master, wished to hang a flower basket on a column. He asked a carpenter to help him, directing the man to place it a little higher or lower, to the right or left, until he had found exactly the right spot. "That's the place," said Sen no Rikya finally.
+                    Sen no Rikyu, a tea-master, wished to hang a flower basket on a column. He asked a carpenter to help him, directing the man to place it a little higher or lower, to the right or left, until he had found exactly the right spot. "That's the place," said Sen no Rikyu finally.
 
                     The carpenter, to test the master, marked the spot and then pretended he had forgotten. Was this the place? "Was this the place, perhaps?" the carpenter kept asking, pointing to various places on the column.
 
@@ -965,7 +965,7 @@ object KoanRepository {
                 title = "Black-Nosed Buddha",
                 summary = "A nun's exclusive funnel for her golden Buddha's incense turns its nose pitch black.",
                 content = """
-                    A nun who was searching for enlightenment made a statue of Buddha and covered it with gold leaf. Wherever she ent she carried this golden Buddha with her.
+                    A nun who was searching for enlightenment made a statue of Buddha and covered it with gold leaf. Wherever she went she carried this golden Buddha with her.
 
                     Years passed and, still carrying her Buddha, the nun came to live in a small temple in a country where there were many Buddhas, each one with its own particular shrine.
 
@@ -977,11 +977,11 @@ object KoanRepository {
                 title = "Ryonen's Clear Realization",
                 summary = "Ryonen burns her face with a hot iron to eliminate her beauty and gain admission to Zen training.",
                 content = """
-                    The Buddhist nun known as Ryonen was born in 1797. She was a graddaughter of the famous Japanese warrior Shingen. Her poetical genius and alluring beauty were such that at seventeen she was serving the empress as one of the ladies of the court. Even at such a youthful age fame awaited her.
+                    The Buddhist nun known as Ryonen was born in 1797. She was a granddaughter of the famous Japanese warrior Shingen. Her poetical genius and alluring beauty were such that at seventeen she was serving the empress as one of the ladies of the court. Even at such a youthful age fame awaited her.
 
                     The beloved empress died suddenly and Ryonen's hopeful dreams vanished. She became acutely aware of the impermanency of life in this world. It was then that she desired to study Zen.
 
-                    Her relatives disagreed, however, and practically forced her into marriage. With a promise that she might become a nun aftr she had borne three children, Ryonen assented. Before she was twenty-five she had accomplished this condition. Then her husband and relatives could no longer dissuade her from her desire. She shaved her head, took the name of Ryonen, which means to realize clearly, and started on her pilgrimage.
+                    Her relatives disagreed, however, and practically forced her into marriage. With a promise that she might become a nun after she had borne three children, Ryonen assented. Before she was twenty-five she had accomplished this condition. Then her husband and relatives could no longer dissuade her from her desire. She shaved her head, took the name of Ryonen, which means to realize clearly, and started on her pilgrimage.
 
                     She came to the city of Edo and asked Tetsugya to accept her as a disciple. At one glance the master rejected her because she was too beautiful.
 
@@ -1015,7 +1015,7 @@ object KoanRepository {
 
                     Finally in desperation an adherent called loudly to Bankei: "You may be all right, old teacher, but this young disciple here has to eat. He cannot go without food forever!"
 
-                    At that Bankei opened the door. He was smiling. He told Dairyo: "I insist on eating the same food as the least of my followers. Whe you become the teacher I do not want you to forget this."
+                    At that Bankei opened the door. He was smiling. He told Dairyo: "I insist on eating the same food as the least of my followers. When you become the teacher I do not want you to forget this."
                 """.trimIndent()
             ),
             Lesson(
@@ -1023,7 +1023,7 @@ object KoanRepository {
                 title = "Your Light May Go Out",
                 summary = "Gasan warns a departing Tendai student that speculative study requires constant meditation.",
                 content = """
-                    A student of Tendai, a philosophical school of Buddhism, came to the Zen abode of Gasan as a pupil. When he was departing a few years later, Gasan warned him: "Studying the truth speculatively is useful as a way of collecting preaching material. But remember that unless you meditate constantly you light of truth may go out."
+                    A student of Tendai, a philosophical school of Buddhism, came to the Zen abode of Gasan as a pupil. When he was departing a few years later, Gasan warned him: "Studying the truth speculatively is useful as a way of collecting preaching material. But remember that unless you meditate constantly your light of truth may go out."
                 """.trimIndent()
             ),
             Lesson(
@@ -1031,21 +1031,21 @@ object KoanRepository {
                 title = "The Giver Should Be Thankful",
                 summary = "Seisetsu startles a wealthy merchant by explaining that the giver should be thankful for the opportunity to give.",
                 content = """
-                    While Seietsu was the master of Engaku in Kamakura he required larger quarters, since those in which he was teaching were overcrowded. Umeza Seibei a merchant of Edo, decided to donate five hundred pieces of gold called ryo toward the construction of a more commodious school. This money he brought to the teacher.
+                    While Seisetsu was the master of Engaku in Kamakura he required larger quarters, since those in which he was teaching were overcrowded. Umezu Seibei, a merchant of Edo, decided to donate five hundred pieces of gold called ryo toward the construction of a more commodious school. This money he brought to the teacher.
 
                     Seisetsu said: "All right. I will take it."
 
                     Umezu gave Seisetsu the sack of gold, but he was dissatisfied with the attitude of the teacher. One might live a whole year on three ryo, and the merchant had not even been thanked for five hundred.
 
-                    "In that sack are five hundred ryo," hinted Umeza.
+                    "In that sack are five hundred ryo," hinted Umezu.
 
                     "You told me that before," replied Seisetsu.
 
                     "Even if I am a wealthy merchant, five hundred ryo is a lot of money," said Umezu.
 
-                    "Do you want me to thank you for it?" asked Seisetsi.
+                    "Do you want me to thank you for it?" asked Seisetsu.
 
-                    "You ought to," replied Umeza.
+                    "You ought to," replied Umezu.
 
                     "Why should I?" inquired Seisetsu. "The giver should be thankful."
                 """.trimIndent()
@@ -1066,7 +1066,7 @@ object KoanRepository {
                     Not born, not dead.
                     September first.
 
-                    P.S. The teaching of Buddha was mainly for the purpose of enlightening others. If you are dependent on any of ist methods, you are naught but an ignorant insect. There are 80,000 books on Buddhism and if you should read all of them and still not see your own nature, you will not understand even this letter. This is my will and testament.
+                    P.S. The teaching of Buddha was mainly for the purpose of enlightening others. If you are dependent on any of its methods, you are naught but an ignorant insect. There are 80,000 books on Buddhism and if you should read all of them and still not see your own nature, you will not understand even this letter. This is my will and testament.
                 """.trimIndent()
             ),
             Lesson(
@@ -1154,7 +1154,7 @@ object KoanRepository {
 
                     Gasan told his cook: "Let the officers have only the same simple fare we eat."
 
-                    This made the army men angry, as they wre used to very deferential treatment. One came to Gasan and said: "Who do you think we are? We are soldiers, sacrificing our lives for our country. Why don't you treat us accordingly?"
+                    This made the army men angry, as they were used to very deferential treatment. One came to Gasan and said: "Who do you think we are? We are soldiers, sacrificing our lives for our country. Why don't you treat us accordingly?"
 
                     Gasan answered sternly: "Who do you think we are? We are soldiers of humanity, aiming to save all sentient beings."
                 """.trimIndent()
@@ -1174,7 +1174,7 @@ object KoanRepository {
 
                     Two years before the work was completed, the son of the official he had slain, who was a skillful swordsman, found Zenkai out and came to kill him in revenge.
 
-                    "I will gived you my life willingly," said Zenkai. "Only let me finish this work. On the day it is completed, then you may kill me."
+                    "I will give you my life willingly," said Zenkai. "Only let me finish this work. On the day it is completed, then you may kill me."
 
                     So the son awaited the day. Several months passed and Zenkai kept digging. The son grew tired of doing nothing and began to help with the digging. After he had helped for more than a year, he came to admire Zenkai's strong will and character.
 
@@ -1252,11 +1252,11 @@ object KoanRepository {
 
                     Soon the wife passed away. The husband respected her last wish for the first three months, but then he met another woman and fell in love with her. They became engaged to be married.
 
-                    Immediately after the engagement a ghost appeared every night to the man, blaming him for not keeping his promise. The ghost was clever too. She told him exactly what has transpired between himself and his new sweetheart.
+                    Immediately after the engagement a ghost appeared every night to the man, blaming him for not keeping his promise. The ghost was clever too. She told him exactly what had transpired between himself and his new sweetheart.
 
                     Whenever he gave his fiancee a present, the ghost would describe it in detail. She would even repeat conversations, and it so annoyed the man that he could not sleep. Someone advised him to take his problem to a Zen master who lived close to the village. At length, in despair, the poor man went to him for help.
 
-                    "Your former wife became a ghost and knows everything you do," commented the master. "Whatever you do or say, whatever you give you beloved, she knows. She must be a very wise ghost. Really you should admire such a ghost. The next time she appears, bargain with her. Tell her that she knows so much you can hide nothing from her, and that if she will answer you one question, you promise to break your engagement and remain single."
+                    "Your former wife became a ghost and knows everything you do," commented the master. "Whatever you do or say, whatever you give your beloved, she knows. She must be a very wise ghost. Really you should admire such a ghost. The next time she appears, bargain with her. Tell her that she knows so much you can hide nothing from her, and that if she will answer you one question, you promise to break your engagement and remain single."
 
                     "What is the question I must ask her?" inquired the man.
 
@@ -1292,7 +1292,7 @@ object KoanRepository {
                 title = "What Are You Doing!",
                 summary = "Shoju immediately thrusts a precious lineage book into the fire when Mu-nan hands it to him.",
                 content = """
-                    In modern times a great deal of nonsense is talked about masters and disciples, and about the inheritance of a master's teaching by favorite pupils, entitling them to pass the truth on to their adherents. Of course Zen should be imparted in this way, from heart to heart, and in the past it was really accomplished. Silence and humility reigned rather than profession and assertion. The one who received such a teaching kept the matter hidden even after twenty years. Not until another discovered through his own need that a real master was at hand was it learned that the teching had been imparted, and even then the occasion arose quite naturally and the teaching made its way in its own right. Under no circumstance did the teacher even claim "I am the successor of So-and-so." Such a claim would prove quite the contrary.
+                    In modern times a great deal of nonsense is talked about masters and disciples, and about the inheritance of a master's teaching by favorite pupils, entitling them to pass the truth on to their adherents. Of course Zen should be imparted in this way, from heart to heart, and in the past it was really accomplished. Silence and humility reigned rather than profession and assertion. The one who received such a teaching kept the matter hidden even after twenty years. Not until another discovered through his own need that a real master was at hand was it learned that the teaching had been imparted, and even then the occasion arose quite naturally and the teaching made its way in its own right. Under no circumstance did the teacher even claim "I am the successor of So-and-so." Such a claim would prove quite the contrary.
 
                     The Zen master Mu-nan had only one successor. His name was Shoju. After Shoju had completed his study of Zen, Mu-nan called him into his room. "I am getting old," he said, "and as far as I know, Shoju, you are the only one who will carry on this teaching. Here is a book. It has been passed down from master to master for seven generations. I have also added many points according to my understanding. The book is very valuable, and I am giving it to you to represent your successorhip."
 
@@ -1318,7 +1318,7 @@ object KoanRepository {
 
                     The emperor heard about Kakua when he returned to Japan and asked him to preach Zen for his edification and that of his subjects.
 
-                    Kakua stood before the emperor in silence. He the produced a flute from the folds of his robe, and blew one short note. Bowing politely, he disappeared.
+                    Kakua stood before the emperor in silence. He then produced a flute from the folds of his robe, and blew one short note. Bowing politely, he disappeared.
                 """.trimIndent()
             ),
             Lesson(
@@ -1326,9 +1326,9 @@ object KoanRepository {
                 title = "Eating the Blame",
                 summary = "Cook Fukai eats a snake head included in soup rather than admit a mistake.",
                 content = """
-                    Circumstances arose one day which delayed preperation of the dinner of a Soto Zen master, Fukai, and his followers. In haste the cook went to the garden with his curved knife and cut off the tops of green vegetables, chopped them together and made soup, unaware that in his haste he had included a part of a snake in the vegetables.
+                    Circumstances arose one day which delayed preparation of the dinner of a Soto Zen master, Fukai, and his followers. In haste the cook went to the garden with his curved knife and cut off the tops of green vegetables, chopped them together and made soup, unaware that in his haste he had included a part of a snake in the vegetables.
 
-                    The followers of Fugai thought they never tasted such good soup. But when the master himself found the snake's head in his bowl, he summoned the cook. "What is this?" he demanded, holding yo the head of the snake.
+                    The followers of Fukai thought they never tasted such good soup. But when the master himself found the snake's head in his bowl, he summoned the cook. "What is this?" he demanded, holding up the head of the snake.
 
                     "Oh, thank you, master," replied the cook, taking the morsel and eating it quickly.
                 """.trimIndent()
@@ -1356,7 +1356,7 @@ object KoanRepository {
 
                     On the first day all were silent. Their meditation had begun auspiciously, but when night came and the oil lamps were growing dim one of the pupils could not help exclaiming to a servant: "Fix those lamps."
 
-                    The second pupils was surprised to hear the first one talk. "We are not supposed to say a word," he remarked.
+                    The second pupil was surprised to hear the first one talk. "We are not supposed to say a word," he remarked.
 
                     "You two are stupid. Why did you talk?" asked the third.
 
@@ -1396,7 +1396,7 @@ object KoanRepository {
                 title = "True Reformation",
                 summary = "Ryokan reforms his wayward nephew without a single word of scolding, using only a broken sandal string.",
                 content = """
-                    Ryokan devoted his life to the study of Zen. One day he heard that his nephew, despite the admonitions of relatives, was spending his money on a courtesan. Inasmuch as the nephew had taken Ryokan's place in managing the family estate and the property was in danger of being dissipated, the relatives asked Ryoken to do something about it.
+                    Ryokan devoted his life to the study of Zen. One day he heard that his nephew, despite the admonitions of relatives, was spending his money on a courtesan. Inasmuch as the nephew had taken Ryokan's place in managing the family estate and the property was in danger of being dissipated, the relatives asked Ryokan to do something about it.
 
                     Ryokan had to travel a long way to visit his nephew, whom he had not seen for many years. The nephew seemed pleased to meet his uncle again and invited him to remain overnight.
 
@@ -1566,7 +1566,7 @@ object KoanRepository {
                 title = "True Friends",
                 summary = "A Chinese musician cuts his harp strings forever after the death of his ideal listener, Ziqi.",
                 content = """
-                    A long time ago in China there were two friends, one who played the harp skilfully and one who listen skillfully.
+                    A long time ago in China there were two friends, one who played the harp skillfully and one who listened skillfully.
 
                     When the one played or sang about a mountain, the other would say: "I can see the mountain before us."
 
@@ -1730,7 +1730,7 @@ object KoanRepository {
                 content = """
                     Encho was a famous storyteller. His tales of love stirred the hearts of his listeners. When he narrated a story of war, it was as if the listeners themselves were in the field of battle.
 
-                    One day Encho met Yamaoka Tesshu, a layman who had almost embraced masterhood of Zen. "I understand," said Yamaoka, "you ar the best storyteller in out land and that you make people cry or laugh at will. Tell me my favorite story of the Peach Boy. When I was a little tot I used to sleep beside my mother, and she often related this legend. In the middle of the story I would fall asleep. Tell it to me just as my mother did."
+                    One day Encho met Yamaoka Tesshu, a layman who had almost embraced masterhood of Zen. "I understand," said Yamaoka, "you are the best storyteller in our land and that you make people cry or laugh at will. Tell me my favorite story of the Peach Boy. When I was a little tot I used to sleep beside my mother, and she often related this legend. In the middle of the story I would fall asleep. Tell it to me just as my mother did."
 
                     Encho dared not attempt this. He requested time to study. Several months later he went to Yamaoka and said: "Please give me the opportunity to tell you the story."
 
@@ -1766,7 +1766,7 @@ object KoanRepository {
                 content = """
                     Bassui wrote the following letter to one of his disciples who was about to die:
 
-                    "The essence of your mind is not born, so it will never die. It is not an existance, which is perishable. It is not an emptiness, which is a mere void. It has neither color nor form. It enjoys no pleasures and suffers no pains.
+                    "The essence of your mind is not born, so it will never die. It is not an existence, which is perishable. It is not an emptiness, which is a mere void. It has neither color nor form. It enjoys no pleasures and suffers no pains.
 
                     "I know you are very ill. Like a good Zen student, you are facing that sickness squarely. You may not know exactly who is suffering, but question yourself: What is the essence of this mind? Think only of this. You will need no more. Covet nothing. Your end which is endless is as a snowflake dissolving in the pure air."
                 """.trimIndent()
@@ -1830,7 +1830,8 @@ object KoanRepository {
                     Mr. Amida Buddha: This little room is quite narrow. I can let you remain as a transient. But don't think I am asking you to be reborn in your paradise.
                 """.trimIndent()
             ),
-            Lesson(200,
+            Lesson(
+                id = 200,
                 title = "The Silent Temple",
                 summary = "Shoichi maintains absolute silence throughout his temple until the day he passes away.",
                 content = """
