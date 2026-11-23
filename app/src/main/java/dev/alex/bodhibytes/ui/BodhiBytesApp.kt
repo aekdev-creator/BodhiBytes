@@ -55,6 +55,9 @@ import dev.alex.bodhibytes.model.Quiz
 import dev.alex.santideva.repository.SantidevaRepository
 import kotlinx.coroutines.launch
 
+private const val KEY_COMPLETED_QUIZ_LESSON_IDS = "completed_quiz_lesson_ids"
+private const val KEY_LAST_OPENED_LESSON_ID = "last_opened_lesson_id"
+
 enum class ReadingFontSize(
     val key: String,
     val label: String,
@@ -242,14 +245,12 @@ fun BodhiBytesApp() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Close the navigation drawer first when back is pressed while it is open
     BackHandler(enabled = drawerState.isOpen) {
         scope.launch {
             drawerState.close()
         }
     }
 
-    // Navigate back through sub-screens when the drawer is closed
     BackHandler(enabled = !drawerState.isOpen && currentScreen !is AppScreen.List) {
         currentScreen = when (val screen = currentScreen) {
             is AppScreen.QuizScreenState -> AppScreen.Detail(screen.lesson)
@@ -257,7 +258,6 @@ fun BodhiBytesApp() {
         }
     }
 
-    // Persistent state preservation across navigation pops/pushes
     var lessonListScrollIndex by remember { mutableStateOf(0) }
     var lessonListScrollOffset by remember { mutableStateOf(0) }
     var lessonListExpandedKeys by remember { mutableStateOf(emptySet<String>()) }
@@ -265,12 +265,10 @@ fun BodhiBytesApp() {
     var bookmarksScrollIndex by remember { mutableStateOf(0) }
     var bookmarksScrollOffset by remember { mutableStateOf(0) }
 
-    // Initialize SharedPreferences for persistent storage (bookmarks, reading positions, and preferences)
     val sharedPreferences = remember {
         context.getSharedPreferences("bodhibytes_prefs", android.content.Context.MODE_PRIVATE)
     }
 
-    // Load preferences
     var isDarkMode by remember {
         mutableStateOf(sharedPreferences.getBoolean("dark_mode", false))
     }
@@ -284,27 +282,36 @@ fun BodhiBytesApp() {
         mutableStateOf(sharedPreferences.getBoolean("keep_screen_awake", true))
     }
 
-    // Load saved bookmarks from local storage on startup
     var bookmarkedLessonIds by remember {
         val savedStringSet = sharedPreferences.getStringSet("bookmarked_ids", emptySet()) ?: emptySet()
         mutableStateOf(savedStringSet.mapNotNull { it.toIntOrNull() }.toSet())
     }
 
-    // Load saved reading positions per lesson
     var readingPositions by remember {
         mutableStateOf(loadReadingPositions(sharedPreferences))
     }
 
-    // Track most recently opened lesson for quick resumption on Home
+    var completedQuizLessonIds by remember {
+        val saved = sharedPreferences.getStringSet(KEY_COMPLETED_QUIZ_LESSON_IDS, emptySet()) ?: emptySet()
+        mutableStateOf(saved.mapNotNull { it.toIntOrNull() }.toSet())
+    }
+
     var lastOpenedLessonId by remember {
-        val savedId = sharedPreferences.getInt("last_opened_lesson_id", -1)
+        val savedId = sharedPreferences.getInt(KEY_LAST_OPENED_LESSON_ID, -1)
         mutableStateOf(if (savedId != -1) savedId else null)
+    }
+
+    val persistCompletedQuizIds: (Set<Int>) -> Unit = { updated ->
+        completedQuizLessonIds = updated
+        sharedPreferences.edit()
+            .putStringSet(KEY_COMPLETED_QUIZ_LESSON_IDS, updated.map { it.toString() }.toSet())
+            .apply()
     }
 
     val recordLastOpenedLesson: (Int) -> Unit = { lessonId ->
         if (lastOpenedLessonId != lessonId) {
             lastOpenedLessonId = lessonId
-            sharedPreferences.edit().putInt("last_opened_lesson_id", lessonId).apply()
+            sharedPreferences.edit().putInt(KEY_LAST_OPENED_LESSON_ID, lessonId).apply()
         }
     }
 
@@ -318,6 +325,40 @@ fun BodhiBytesApp() {
             }
             readingPositions = updated
             saveReadingPositions(sharedPreferences, updated)
+
+            // Re-reading with actual scroll progress clears prior quiz completion
+            // so the lesson can retrigger Continue Reading.
+            if (position.hasProgress() && completedQuizLessonIds.contains(lessonId)) {
+                persistCompletedQuizIds(completedQuizLessonIds - lessonId)
+                recordLastOpenedLesson(lessonId)
+            }
+        }
+    }
+
+    val clearContinueReadingLesson: (Int) -> Unit = { lessonId ->
+        if (readingPositions.containsKey(lessonId)) {
+            val updatedPositions = readingPositions - lessonId
+            readingPositions = updatedPositions
+            saveReadingPositions(sharedPreferences, updatedPositions)
+        }
+        if (lastOpenedLessonId == lessonId) {
+            lastOpenedLessonId = null
+            sharedPreferences.edit().remove(KEY_LAST_OPENED_LESSON_ID).apply()
+        }
+    }
+
+    val handleQuizCompleted: (Int) -> Unit = { completedLessonId ->
+        persistCompletedQuizIds(completedQuizLessonIds + completedLessonId)
+
+        if (readingPositions.containsKey(completedLessonId)) {
+            val updatedPositions = readingPositions - completedLessonId
+            readingPositions = updatedPositions
+            saveReadingPositions(sharedPreferences, updatedPositions)
+        }
+
+        if (lastOpenedLessonId == completedLessonId) {
+            lastOpenedLessonId = null
+            sharedPreferences.edit().remove(KEY_LAST_OPENED_LESSON_ID).apply()
         }
     }
 
@@ -351,13 +392,23 @@ fun BodhiBytesApp() {
         }
     }
 
-    val continueReadingLesson = remember(lastOpenedLessonId, readingPositions, orderedLessons) {
-        val lastLesson = lastOpenedLessonId?.let { id -> orderedLessons.find { it.id == id } }
+    val continueReadingLesson = remember(
+        lastOpenedLessonId,
+        readingPositions,
+        completedQuizLessonIds,
+        orderedLessons
+    ) {
+        val lastLesson = lastOpenedLessonId
+            ?.takeIf { id -> !completedQuizLessonIds.contains(id) }
+            ?.let { id -> orderedLessons.find { it.id == id } }
+
         if (lastLesson != null && readingPositions[lastLesson.id]?.hasProgress() == true) {
             return@remember lastLesson
         }
+
         orderedLessons.firstOrNull { lesson ->
-            readingPositions[lesson.id]?.hasProgress() == true
+            !completedQuizLessonIds.contains(lesson.id) &&
+                readingPositions[lesson.id]?.hasProgress() == true
         }
     }
 
@@ -478,6 +529,9 @@ fun BodhiBytesApp() {
                             recordLastOpenedLesson(lesson.id)
                             currentScreen = AppScreen.Detail(lesson)
                         },
+                        onClearContinueReading = { lesson ->
+                            clearContinueReadingLesson(lesson.id)
+                        },
                         onMenuClick = { scope.launch { drawerState.open() } }
                     )
                 }
@@ -527,6 +581,7 @@ fun BodhiBytesApp() {
                         quiz = screen.quiz,
                         lesson = screen.lesson,
                         nextLesson = nextLesson,
+                        onQuizCompleted = handleQuizCompleted,
                         onBackClick = { currentScreen = AppScreen.Detail(screen.lesson) },
                         onHomeClick = { currentScreen = AppScreen.List },
                         onNextLessonClick = { targetLesson ->
@@ -600,6 +655,7 @@ fun LessonListScreen(
     onExpandedKeysChanged: (Set<String>) -> Unit,
     onScrollChanged: (Int, Int) -> Unit,
     onLessonSelected: (Lesson) -> Unit,
+    onClearContinueReading: (Lesson) -> Unit = {},
     onMenuClick: () -> Unit
 ) {
     val allLessons = remember { LessonRepository.getCurriculum() }
@@ -750,7 +806,8 @@ fun LessonListScreen(
                 item(key = "continue_reading_card") {
                     ContinueReadingCard(
                         lesson = continueReadingLesson,
-                        onResumeClick = { onLessonSelected(continueReadingLesson) }
+                        onResumeClick = { onLessonSelected(continueReadingLesson) },
+                        onClearClick = { onClearContinueReading(continueReadingLesson) }
                     )
                 }
             }
@@ -1004,7 +1061,8 @@ fun LessonListScreen(
 @Composable
 fun ContinueReadingCard(
     lesson: Lesson,
-    onResumeClick: () -> Unit
+    onResumeClick: () -> Unit,
+    onClearClick: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
@@ -1033,17 +1091,35 @@ fun ContinueReadingCard(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                FilledTonalButton(
-                    onClick = onResumeClick,
-                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
-                    modifier = Modifier.height(32.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Resume",
-                        style = MaterialTheme.typography.labelMedium,
-                        maxLines = 1,
-                        softWrap = false
-                    )
+                    TextButton(
+                        onClick = onClearClick,
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        Text(
+                            text = "Clear",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
+                    FilledTonalButton(
+                        onClick = onResumeClick,
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        Text(
+                            text = "Resume",
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
                 }
             }
             Text(
@@ -1210,7 +1286,6 @@ fun SettingsScreen(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // 1. Reading Font Size
                 Text(
                     text = "Reading Font Size",
                     style = MaterialTheme.typography.bodyLarge,
@@ -1238,7 +1313,6 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // 2. Line Spacing
                 Text(
                     text = "Line Spacing",
                     style = MaterialTheme.typography.bodyLarge,
@@ -1266,7 +1340,6 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // 3. Keep Screen Awake While Reading
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1835,200 +1908,6 @@ fun LessonDetailScreen(
                                 text = paragraph,
                                 fontSize = readingFontSize.bodyFontSize,
                                 lineHeight = readingLineSpacing.lineHeight
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun QuizScreen(
-    quiz: Quiz,
-    lesson: Lesson,
-    nextLesson: Lesson?,
-    onBackClick: () -> Unit,
-    onHomeClick: () -> Unit,
-    onNextLessonClick: (Lesson) -> Unit
-) {
-    var currentQuestionIndex by remember { mutableStateOf(0) }
-    var selectedOptionIndex by remember { mutableStateOf<Int?>(null) }
-    var feedbackMessage by remember { mutableStateOf<String?>(null) }
-    var isCorrect by remember { mutableStateOf(false) }
-    var quizFinished by remember { mutableStateOf(false) }
-
-    val question = quiz.questions.getOrNull(currentQuestionIndex)
-
-    LaunchedEffect(currentQuestionIndex) {
-        selectedOptionIndex = null
-        feedbackMessage = null
-        isCorrect = false
-    }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-        }
-    ) { innerPadding ->
-        if (quizFinished) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Quiz Completed!",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "You have successfully completed the quiz for this lesson.",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Button(onClick = onHomeClick) {
-                    Text("Return to Home", style = MaterialTheme.typography.labelLarge)
-                }
-                if (nextLesson != null) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    OutlinedButton(onClick = { onNextLessonClick(nextLesson) }) {
-                        Text("Next Lesson", style = MaterialTheme.typography.labelLarge)
-                    }
-                }
-            }
-        } else if (question != null) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                item {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = "Question ${currentQuestionIndex + 1} of ${quiz.questions.size}",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = question.text,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                items(question.options.size) { index ->
-                    val option = question.options[index]
-                    val isSelected = selectedOptionIndex == index
-                    OutlinedCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                if (!isCorrect) {
-                                    selectedOptionIndex = index
-                                    feedbackMessage = null
-                                }
-                            },
-                        colors = CardDefaults.outlinedCardColors(
-                            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = isSelected,
-                                onClick = {
-                                    if (!isCorrect) {
-                                        selectedOptionIndex = index
-                                        feedbackMessage = null
-                                    }
-                                }
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = option,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    }
-                }
-
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 32.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        if (feedbackMessage != null) {
-                            Text(
-                                text = feedbackMessage!!,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = if (isCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                            )
-                        }
-
-                        Button(
-                            onClick = {
-                                if (!isCorrect) {
-                                    if (selectedOptionIndex != null) {
-                                        if (selectedOptionIndex == question.correctOptionIndex) {
-                                            isCorrect = true
-                                            feedbackMessage = "Correct! ${question.explanation}"
-                                        } else {
-                                            isCorrect = false
-                                            feedbackMessage = "Incorrect. ${question.explanation}"
-                                        }
-                                    }
-                                } else {
-                                    if (currentQuestionIndex < quiz.questions.size - 1) {
-                                        currentQuestionIndex++
-                                    } else {
-                                        quizFinished = true
-                                    }
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .navigationBarsPadding(),
-                            enabled = selectedOptionIndex != null
-                        ) {
-                            Text(
-                                text = if (!isCorrect) {
-                                    "Submit Answer"
-                                } else {
-                                    if (currentQuestionIndex < quiz.questions.size - 1) "Next Question" else "Finish Quiz"
-                                },
-                                style = MaterialTheme.typography.labelLarge
                             )
                         }
                     }
