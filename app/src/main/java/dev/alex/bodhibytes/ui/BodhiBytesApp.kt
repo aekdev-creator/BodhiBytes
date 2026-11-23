@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
 import android.view.WindowManager
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -240,6 +241,21 @@ fun BodhiBytesApp() {
     var currentScreen by remember { mutableStateOf<AppScreen>(AppScreen.List) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    // Close the navigation drawer first when back is pressed while it is open
+    BackHandler(enabled = drawerState.isOpen) {
+        scope.launch {
+            drawerState.close()
+        }
+    }
+
+    // Navigate back through sub-screens when the drawer is closed
+    BackHandler(enabled = !drawerState.isOpen && currentScreen !is AppScreen.List) {
+        currentScreen = when (val screen = currentScreen) {
+            is AppScreen.QuizScreenState -> AppScreen.Detail(screen.lesson)
+            else -> AppScreen.List
+        }
+    }
 
     // Persistent state preservation across navigation pops/pushes
     var lessonListScrollIndex by remember { mutableStateOf(0) }
