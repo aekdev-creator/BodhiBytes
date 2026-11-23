@@ -1,9 +1,10 @@
+
 import java.util.Properties
 import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.android.application)
-    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.3.21"
 }
 
 val keystorePropsFile = rootProject.file("release.properties")
@@ -20,19 +21,17 @@ val hasValidSigningProps = if (keystorePropsFile.exists()) {
 
 android {
     namespace = "dev.alex.bodhibytes"
-    compileSdk = 36 
-    
-    // Disable linter for release builds if needed
+    compileSdk = 36
+
     lint {
         checkReleaseBuilds = false
     }
 
-    // REQUIRED FOR F-DROID: Disables dependency metadata embedding
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
     }
-        
+
     signingConfigs {
         if (hasValidSigningProps) {
             create("release") {
@@ -46,19 +45,19 @@ android {
 
     defaultConfig {
         applicationId = "dev.alex.bodhibytes"
-        minSdk = 26 
-        targetSdk = 36  
+        minSdk = 27
+        targetSdk = 36
         versionCode = 2
         versionName = "1.0.1"
-        
-        vectorDrawables { 
+
+        vectorDrawables {
             useSupportLibrary = true
         }
     }
-    
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17 
-        targetCompatibility = JavaVersion.VERSION_17 
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     buildTypes {
@@ -67,7 +66,10 @@ android {
                 signingConfig = signingConfigs.getByName("release")
             }
             isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 
@@ -99,17 +101,17 @@ android {
             merges.add("nativeMain/default/manifest")
         }
     }
-    
+
     configurations.all {
         resolutionStrategy {
             force("org.jetbrains.kotlin:kotlin-stdlib:2.3.21")
             force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.3.21")
             force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.3.21")
-    
-            force("androidx.collection:collection:1.4.2")
+
+            // Do not force an older AndroidX Collection version.
+            // Compose requires OrderedScatterSet.
             force("androidx.annotation:annotation:1.8.1")
-            force("androidx.core:core-ktx:1.8.0")
-            force("androidx.collection:collection-ktx:1.4.2")
+            force("androidx.core:core-ktx:1.15.0")
         }
     }
 }
@@ -120,7 +122,9 @@ tasks.withType<JavaCompile> {
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget("17"))
+        jvmTarget.set(
+            org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget("17")
+        )
     }
 }
 
@@ -130,12 +134,16 @@ dependencies {
     implementation(libs.android.material)
     implementation(libs.androidx.startup.runtime)
     implementation(libs.androidx.interpolator)
+
     testImplementation(libs.junit)
 
     // Jetpack Compose Dependencies
-    implementation("androidx.activity:activity-compose:1.9.0")
-    
-    val composeBom = platform("androidx.compose:compose-bom:2024.04.01")
+    implementation("androidx.activity:activity-compose:1.10.1")
+
+    // FIX: AndroidX Collection version required by Compose
+    implementation("androidx.collection:collection:1.5.0")
+
+    val composeBom = platform("androidx.compose:compose-bom:2025.05.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
@@ -143,7 +151,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
-    
+
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

@@ -3,13 +3,13 @@ package dev.alex.bodhibytes.ui
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
@@ -18,11 +18,8 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -45,8 +42,6 @@ import dev.alex.bodhibytes.model.Lesson
 import dev.alex.bodhibytes.model.Quiz
 import dev.alex.santideva.repository.SantidevaRepository
 import kotlinx.coroutines.launch
-
-private val AppCardShape = RoundedCornerShape(16.dp)
 
 sealed interface AppScreen {
     object List : AppScreen
@@ -534,7 +529,6 @@ fun LessonListScreen(
                                             if (isExpanded) expandedKeys - key else expandedKeys + key
                                         )
                                     },
-                                shape = AppCardShape,
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
                                 )
@@ -561,9 +555,10 @@ fun LessonListScreen(
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     }
-                                    Spacer(modifier = Modifier.width(12.dp))
                                     Icon(
-                                        imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                        painter = painterResource(
+                                            id = if (isExpanded) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
+                                        ),
                                         contentDescription = if (isExpanded) "Collapse Module" else "Expand Module",
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -593,7 +588,6 @@ fun LessonListScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { onLessonSelected(lesson) },
-                                shape = AppCardShape,
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
                                 )
@@ -630,10 +624,10 @@ fun LessonListScreen(
                             append("${item.subModules.size} collections (${allGroupLessons.size} readings):\n")
                             withStyle(
                                 style = ParagraphStyle(
-                                    textIndent = TextIndent(firstLine = 12.sp, restLine = 12.sp)
+                                    textIndent = TextIndent(firstLine = 16.sp, restLine = 16.sp)
                                 )
                             ) {
-                                append(item.subModules.joinToString("\n") { "• ${it.title}" })
+                                append(item.subModules.joinToString("\n") { it.title })
                             }
                         }
 
@@ -646,7 +640,6 @@ fun LessonListScreen(
                                             if (isGroupExpanded) expandedKeys - groupKey else expandedKeys + groupKey
                                         )
                                     },
-                                shape = AppCardShape,
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
                                 )
@@ -672,9 +665,11 @@ fun LessonListScreen(
                                             overflow = TextOverflow.Clip
                                         )
                                     }
-                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
                                     Icon(
-                                        imageVector = if (isGroupExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                        painter = painterResource(
+                                            id = if (isGroupExpanded) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
+                                        ),
                                         contentDescription = if (isGroupExpanded) "Collapse Group" else "Expand Group",
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -699,7 +694,6 @@ fun LessonListScreen(
                                                         if (isSubExpanded) expandedKeys - subKey else expandedKeys + subKey
                                                     )
                                                 },
-                                            shape = AppCardShape,
                                             colors = CardDefaults.cardColors(
                                                 containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                                             )
@@ -724,9 +718,10 @@ fun LessonListScreen(
                                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
                                                 }
-                                                Spacer(modifier = Modifier.width(12.dp))
                                                 Icon(
-                                                    imageVector = if (isSubExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                                    painter = painterResource(
+                                                        id = if (isSubExpanded) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
+                                                    ),
                                                     contentDescription = if (isSubExpanded) "Collapse SubModule" else "Expand SubModule",
                                                     tint = MaterialTheme.colorScheme.primary
                                                 )
@@ -1051,44 +1046,36 @@ fun WelcomeCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = AppCardShape,
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f)
+        ),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 16.dp)
+                .padding(20.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
-                    tint = MaterialTheme.colorScheme.secondary
-                )
-                Text(
-                    text = "WELCOME",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.2.sp,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-            }
-            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "WELCOME",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.2.sp,
+                color = MaterialTheme.colorScheme.secondary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = lesson.title,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
             if (displaySummary.isNotBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = displaySummary,
                     style = MaterialTheme.typography.bodyLarge,
@@ -1113,7 +1100,6 @@ fun LessonCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = AppCardShape,
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -1349,7 +1335,6 @@ fun QuizScreen(
                                     feedbackMessage = null
                                 }
                             },
-                        shape = AppCardShape,
                         colors = CardDefaults.outlinedCardColors(
                             containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface
                         )
