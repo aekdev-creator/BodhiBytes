@@ -38,21 +38,15 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.ParagraphStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.alex.bodhibytes.R
-import dev.alex.bodhibytes.data.KoanRepository
 import dev.alex.bodhibytes.data.LessonRepository
 import dev.alex.bodhibytes.model.Lesson
 import dev.alex.bodhibytes.model.Quiz
-import dev.alex.santideva.repository.SantidevaRepository
 import kotlinx.coroutines.launch
 
 private const val KEY_COMPLETED_QUIZ_LESSON_IDS = "completed_quiz_lesson_ids"
@@ -131,7 +125,10 @@ data class LessonModule(
 
 sealed interface HomeItem {
     data class RegularModule(val module: LessonModule) : HomeItem
-    data class ParentGroup(val title: String, val subModules: List<LessonModule>) : HomeItem
+    data class NestedModule(
+        val module: LessonModule,
+        val subModules: List<LessonModule>
+    ) : HomeItem
     data class StandaloneLesson(val lesson: Lesson) : HomeItem
 }
 
@@ -160,10 +157,6 @@ private fun buildModuleSummary(
 ): String {
     if (explicitSummary.isNotBlank()) return explicitSummary
     if (lessons.isEmpty()) return "No lessons in $title yet."
-
-    if (title == "A Guide to the Bodhisattva's Way of Life") {
-        return "Śāntideva's classic Mahāyāna guide on cultivating bodhicitta, ethical conduct, patience, meditative concentration, and wisdom."
-    }
 
     val countLabel = if (lessons.size == 1) "1 reading" else "${lessons.size} readings"
     return "$countLabel in $title."
@@ -326,8 +319,6 @@ fun BodhiBytesApp() {
             readingPositions = updated
             saveReadingPositions(sharedPreferences, updated)
 
-            // Re-reading with actual scroll progress clears prior quiz completion
-            // so the lesson can retrigger Continue Reading.
             if (position.hasProgress() && completedQuizLessonIds.contains(lessonId)) {
                 persistCompletedQuizIds(completedQuizLessonIds - lessonId)
                 recordLastOpenedLesson(lessonId)
@@ -363,32 +354,15 @@ fun BodhiBytesApp() {
     }
 
     val allLessons = remember { LessonRepository.getCurriculum() }
-    val allKoans = remember { KoanRepository.getKoans() }
 
-    val santidevaLessons = remember {
-        SantidevaRepository.generalReadingModules.flatMapIndexed { moduleIndex, module ->
-            module.lessons.mapIndexed { lessonIndex, sLesson ->
-                Lesson(
-                    id = 300 + (moduleIndex * 100) + lessonIndex + 1,
-                    title = sLesson.title,
-                    summary = buildBriefSummary(sLesson.content, sLesson.title),
-                    content = sLesson.content,
-                    quiz = null
-                )
-            }
-        }
-    }
-
-    val orderedLessons = remember(allLessons, allKoans, santidevaLessons) {
+    val orderedLessons = remember(allLessons) {
         buildList {
             allLessons.find { it.id == 1 }?.let { add(it) }
-            addAll(allLessons.filter { it.id in 2..8 })
-            addAll(allLessons.filter { it.id in 15..23 })
-            allLessons.find { it.id == 31 }?.let { add(it) }
-            addAll(allLessons.filter { it.id in 24..30 })
-            addAll(allLessons.filter { it.id in 9..14 })
-            addAll(allKoans)
-            addAll(santidevaLessons)
+            addAll(allLessons.filter { it.id in 2..6 })
+            addAll(allLessons.filter { it.id in 13..17 })
+            addAll(allLessons.filter { it.id in 18..21 })
+            addAll(allLessons.filter { it.id in 7..12 })
+            addAll(allLessons.filter { it.id in 101..199 })
         }
     }
 
@@ -659,55 +633,29 @@ fun LessonListScreen(
     onMenuClick: () -> Unit
 ) {
     val allLessons = remember { LessonRepository.getCurriculum() }
-    val allKoans = remember { KoanRepository.getKoans() }
 
     val welcomeLesson = remember {
         Lesson(
             id = 0,
             title = "Welcome to BodhiBytes",
-            summary = "Buddhist teachings, foundational terms, Zen koans, and classic readings.",
-            content = "Buddhist teachings, foundational terms, Zen koans, and classic readings.",
+            summary = "",
+            content = "",
             quiz = null
         )
     }
 
-    val santidevaModules = remember {
-        SantidevaRepository.generalReadingModules.mapIndexed { moduleIndex, sModule ->
-            LessonModule(
-                title = sModule.title,
-                lessons = sModule.lessons.mapIndexed { lessonIndex, sLesson ->
-                    Lesson(
-                        id = 300 + (moduleIndex * 100) + lessonIndex + 1,
-                        title = sLesson.title,
-                        summary = buildBriefSummary(sLesson.content, sLesson.title),
-                        content = sLesson.content,
-                        quiz = null
-                    )
-                }
-            )
-        }
-    }
-
     val wordsAndMeaningsLesson = remember(allLessons) { allLessons.find { it.id == 1 } }
-    val threeAspectsLesson = remember(allLessons) { allLessons.find { it.id == 31 } }
 
-    val homeItems = remember(allLessons, allKoans, santidevaModules, wordsAndMeaningsLesson, threeAspectsLesson) {
+    val homeItems = remember(allLessons, wordsAndMeaningsLesson) {
         buildList {
-            val pathLessons = buildList {
-                if (wordsAndMeaningsLesson != null) {
-                    add(wordsAndMeaningsLesson)
-                }
-                addAll(allLessons.filter { it.id in 2..8 })
-                addAll(allLessons.filter { it.id in 15..23 })
-                if (threeAspectsLesson != null) {
-                    add(threeAspectsLesson)
-                }
+            if (wordsAndMeaningsLesson != null) {
+                add(HomeItem.StandaloneLesson(wordsAndMeaningsLesson))
             }
             add(
                 HomeItem.RegularModule(
                     LessonModule(
                         title = "The Path",
-                        lessons = pathLessons,
+                        lessons = allLessons.filter { it.id in 2..6 },
                         summary = "Foundational terms, stages of the path, and core principles guiding practice."
                     )
                 )
@@ -715,8 +663,17 @@ fun LessonListScreen(
             add(
                 HomeItem.RegularModule(
                     LessonModule(
+                        title = "The Three Marks of Existence",
+                        lessons = allLessons.filter { it.id in 13..17 },
+                        summary = "Exploring impermanence, unsatisfactoriness, and non-self across conditioned experience."
+                    )
+                )
+            )
+            add(
+                HomeItem.RegularModule(
+                    LessonModule(
                         title = "Compassion (Bodhicitta)",
-                        lessons = allLessons.filter { it.id in 24..30 },
+                        lessons = allLessons.filter { it.id in 18..21 },
                         summary = "Cultivating universal compassion and the awakening mind for the benefit of all beings."
                     )
                 )
@@ -725,26 +682,25 @@ fun LessonListScreen(
                 HomeItem.RegularModule(
                     LessonModule(
                         title = "Wisdom (Emptiness)",
-                        lessons = allLessons.filter { it.id in 9..14 },
+                        lessons = allLessons.filter { it.id in 7..12 },
                         summary = "Insight into emptiness, interdependent origination, and seeing reality clearly."
                     )
                 )
             )
-            val generalReadingSubModules = listOf(
-                LessonModule(
-                    title = "Zen Koans (101)",
-                    lessons = allKoans,
-                    summary = "Classic Zen koans for contemplative inquiry and non-conceptual insight."
-                )
-            ) + santidevaModules.map { sMod ->
-                sMod.copy(
-                    summary = buildModuleSummary(sMod.title, sMod.lessons, sMod.summary)
-                )
-            }
             add(
-                HomeItem.ParentGroup(
-                    title = "General Reading",
-                    subModules = generalReadingSubModules
+                HomeItem.NestedModule(
+                    module = LessonModule(
+                        title = "Library",
+                        lessons = emptyList(),
+                        summary = "Source texts and classical Buddhist works."
+                    ),
+                    subModules = listOf(
+                        LessonModule(
+                            title = "A Guide to the Bodhisattva's Way of Life by Śāntideva",
+                            lessons = allLessons.filter { it.id in 101..199 },
+                            summary = "Bodhicaryāvatāra — Chapter 1: The Benefits of the Awakening Mind."
+                        )
+                    )
                 )
             )
         }
@@ -884,6 +840,170 @@ fun LessonListScreen(
                             }
                         }
                     }
+                    is HomeItem.NestedModule -> {
+                        val module = item.module
+                        val parentKey = "nested_$index"
+                        val isParentExpanded = expandedKeys.contains(parentKey)
+                        val parentSummary = if (module.summary.isNotBlank()) {
+                            module.summary
+                        } else if (item.subModules.isEmpty()) {
+                            "No items in ${module.title} yet."
+                        } else {
+                            val subCount = item.subModules.size
+                            val subLabel = if (subCount == 1) "1 work" else "$subCount works"
+                            "$subLabel in ${module.title}."
+                        }
+
+                        item(key = parentKey) {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        onExpandedKeysChanged(
+                                            if (isParentExpanded) {
+                                                expandedKeys - parentKey
+                                            } else {
+                                                expandedKeys + parentKey
+                                            }
+                                        )
+                                    },
+                                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.42f)
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(end = 8.dp)
+                                    ) {
+                                        Text(
+                                            text = module.title,
+                                            style = MaterialTheme.typography.titleLarge,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = parentSummary,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 5,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    ExpandChevronIcon(
+                                        expanded = isParentExpanded,
+                                        contentDescription = if (isParentExpanded) "Collapse Module" else "Expand Module",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+
+                        if (isParentExpanded) {
+                            items(module.lessons, key = { "nested_${index}_lesson_${it.id}" }) { lesson ->
+                                Box(modifier = Modifier.padding(start = 12.dp)) {
+                                    LessonCard(
+                                        lesson = lesson,
+                                        hasSavedPosition = readingPositions[lesson.id]?.hasProgress() == true,
+                                        showSummary = true,
+                                        isExpandedLesson = true,
+                                        onClick = { onLessonSelected(lesson) }
+                                    )
+                                }
+                            }
+
+                            item.subModules.forEachIndexed { subIndex, subModule ->
+                                val subKey = "nested_${index}_sub_$subIndex"
+                                val isSubExpanded = expandedKeys.contains(subKey)
+                                val subSummary = buildModuleSummary(
+                                    subModule.title,
+                                    subModule.lessons,
+                                    subModule.summary
+                                )
+
+                                item(key = subKey) {
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 12.dp)
+                                            .clickable {
+                                                onExpandedKeysChanged(
+                                                    if (isSubExpanded) {
+                                                        expandedKeys - subKey
+                                                    } else {
+                                                        expandedKeys + subKey
+                                                    }
+                                                )
+                                            },
+                                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.42f)
+                                        )
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(16.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Column(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .padding(end = 8.dp)
+                                            ) {
+                                                Text(
+                                                    text = subModule.title,
+                                                    style = MaterialTheme.typography.titleLarge,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                Text(
+                                                    text = subSummary,
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    maxLines = 5,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            ExpandChevronIcon(
+                                                expanded = isSubExpanded,
+                                                contentDescription = if (isSubExpanded) "Collapse Module" else "Expand Module",
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    }
+                                }
+
+                                if (isSubExpanded) {
+                                    items(
+                                        subModule.lessons,
+                                        key = { "nested_${index}_sub_${subIndex}_lesson_${it.id}" }
+                                    ) { lesson ->
+                                        Box(modifier = Modifier.padding(start = 24.dp)) {
+                                            LessonCard(
+                                                lesson = lesson,
+                                                hasSavedPosition = readingPositions[lesson.id]?.hasProgress() == true,
+                                                showSummary = true,
+                                                isExpandedLesson = true,
+                                                onClick = { onLessonSelected(lesson) }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     is HomeItem.StandaloneLesson -> {
                         val lesson = item.lesson
                         val cardSummary = lesson.summary.ifBlank {
@@ -918,135 +1038,6 @@ fun LessonListScreen(
                                             maxLines = 5,
                                             overflow = TextOverflow.Ellipsis
                                         )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    is HomeItem.ParentGroup -> {
-                        val groupKey = "group_$index"
-                        val isGroupExpanded = expandedKeys.contains(groupKey)
-                        val allGroupLessons = item.subModules.flatMap { it.lessons }
-                        val groupSummary = buildAnnotatedString {
-                            append("${item.subModules.size} collections (${allGroupLessons.size} readings):\n")
-                            withStyle(
-                                style = ParagraphStyle(
-                                    textIndent = TextIndent(firstLine = 16.sp, restLine = 16.sp)
-                                )
-                            ) {
-                                append(item.subModules.joinToString("\n") { it.title })
-                            }
-                        }
-
-                        item(key = groupKey) {
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        onExpandedKeysChanged(
-                                            if (isGroupExpanded) expandedKeys - groupKey else expandedKeys + groupKey
-                                        )
-                                    },
-                                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.42f)
-                                )
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = item.title,
-                                            style = MaterialTheme.typography.titleLarge,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Text(
-                                            text = groupSummary,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            overflow = TextOverflow.Clip
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    ExpandChevronIcon(
-                                        expanded = isGroupExpanded,
-                                        contentDescription = if (isGroupExpanded) "Collapse Group" else "Expand Group",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                        }
-
-                        if (isGroupExpanded) {
-                            item.subModules.forEachIndexed { subIndex, subModule ->
-                                val subKey = "submodule_${index}_$subIndex"
-                                val isSubExpanded = expandedKeys.contains(subKey)
-                                val subSummary = buildModuleSummary(subModule.title, subModule.lessons, subModule.summary)
-                                val showLessonSummaries = subModule.title != "A Guide to the Bodhisattva's Way of Life"
-
-                                item(key = subKey) {
-                                    Box(modifier = Modifier.padding(start = 12.dp)) {
-                                        Card(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clickable {
-                                                    onExpandedKeysChanged(
-                                                        if (isSubExpanded) expandedKeys - subKey else expandedKeys + subKey
-                                                    )
-                                                },
-                                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                                            colors = CardDefaults.cardColors(
-                                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.26f)
-                                            )
-                                        ) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(16.dp),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Column(modifier = Modifier.weight(1f)) {
-                                                    Text(
-                                                        text = subModule.title,
-                                                        style = MaterialTheme.typography.titleMedium,
-                                                        fontWeight = FontWeight.Bold
-                                                    )
-                                                    Spacer(modifier = Modifier.height(4.dp))
-                                                    Text(
-                                                        text = subSummary,
-                                                        style = MaterialTheme.typography.bodyMedium,
-                                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                                    )
-                                                }
-                                                Spacer(modifier = Modifier.width(8.dp))
-                                                ExpandChevronIcon(
-                                                    expanded = isSubExpanded,
-                                                    contentDescription = if (isSubExpanded) "Collapse SubModule" else "Expand SubModule",
-                                                    tint = MaterialTheme.colorScheme.primary
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if (isSubExpanded) {
-                                    items(subModule.lessons, key = { "sub_lesson_${it.id}" }) { lesson ->
-                                        Box(modifier = Modifier.padding(start = 24.dp)) {
-                                            LessonCard(
-                                                lesson = lesson,
-                                                hasSavedPosition = readingPositions[lesson.id]?.hasProgress() == true,
-                                                showSummary = showLessonSummaries,
-                                                isExpandedLesson = true,
-                                                onClick = { onLessonSelected(lesson) }
-                                            )
-                                        }
                                     }
                                 }
                             }
@@ -1293,7 +1284,7 @@ fun SettingsScreen(
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "Adjust text size for lesson and koan readings",
+                    text = "Adjust text size for lesson readings",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1356,7 +1347,7 @@ fun SettingsScreen(
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "Prevent display sleep while viewing a lesson or koan",
+                            text = "Prevent display sleep while viewing a lesson",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1476,7 +1467,7 @@ fun AboutScreen(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "BodhiBytes is your companion for exploring foundational Buddhist teachings, traditional terminology, Zen koans, and insights into wisdom and compassion.",
+                text = "BodhiBytes is your companion for exploring foundational Buddhist teachings, traditional terminology, and insights into wisdom and compassion.",
                 style = MaterialTheme.typography.bodyLarge
             )
 
@@ -1522,10 +1513,6 @@ fun AboutScreen(
 fun WelcomeCard(
     lesson: Lesson
 ) {
-    val displaySummary = lesson.summary.ifBlank {
-        buildBriefSummary(lesson.content, lesson.title)
-    }
-
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
@@ -1544,14 +1531,6 @@ fun WelcomeCard(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
-            if (displaySummary.isNotBlank()) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = displaySummary,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.9f)
-                )
-            }
         }
     }
 }
@@ -1589,7 +1568,6 @@ fun LessonCard(
     val displaySummary = lesson.summary.ifBlank {
         buildBriefSummary(lesson.content, lesson.title)
     }
-    val isKoan = lesson.id in 101..201
     val hasQuiz = lesson.quiz != null
 
     if (isExpandedLesson) {
@@ -1630,12 +1608,6 @@ fun LessonCard(
                                 label = "Quiz",
                                 containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                                 contentColor = MaterialTheme.colorScheme.primary
-                            )
-                        } else if (isKoan) {
-                            LessonMetadataBadge(
-                                label = "Koan",
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -1697,12 +1669,6 @@ fun LessonCard(
                                 label = "Quiz",
                                 containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                                 contentColor = MaterialTheme.colorScheme.primary
-                            )
-                        } else if (isKoan) {
-                            LessonMetadataBadge(
-                                label = "Koan",
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
