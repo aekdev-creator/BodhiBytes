@@ -3,6 +3,7 @@ package dev.alex.bodhibytes.ui
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
+import android.view.WindowManager
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.alex.bodhibytes.R
@@ -51,6 +53,61 @@ import dev.alex.bodhibytes.model.Lesson
 import dev.alex.bodhibytes.model.Quiz
 import dev.alex.santideva.repository.SantidevaRepository
 import kotlinx.coroutines.launch
+
+enum class ReadingFontSize(
+    val key: String,
+    val label: String,
+    val bodyFontSize: TextUnit,
+    val titleFontSize: TextUnit
+) {
+    SMALL("small", "Small", 14.sp, 18.sp),
+    DEFAULT("default", "Default", 16.sp, 22.sp),
+    LARGE("large", "Large", 19.sp, 25.sp),
+    EXTRA_LARGE("extra_large", "Extra Large", 22.sp, 28.sp);
+
+    companion object {
+        fun fromKey(key: String?): ReadingFontSize {
+            return entries.find { it.key == key } ?: DEFAULT
+        }
+    }
+}
+
+enum class ReadingLineSpacing(
+    val key: String,
+    val label: String,
+    val lineHeight: TextUnit,
+    val paragraphSpacing: Int
+) {
+    COMPACT("compact", "Compact", 24.sp, 12),
+    COMFORTABLE("comfortable", "Comfortable", 30.sp, 16),
+    SPACIOUS("spacious", "Spacious", 36.sp, 22);
+
+    companion object {
+        fun fromKey(key: String?): ReadingLineSpacing {
+            return entries.find { it.key == key } ?: COMFORTABLE
+        }
+    }
+}
+
+data class ReadingPosition(
+    val index: Int = 0,
+    val offset: Int = 0
+) {
+    fun hasProgress(): Boolean = index > 0 || offset > 0
+
+    fun encode(): String = "$index:$offset"
+
+    companion object {
+        fun decode(raw: String?): ReadingPosition {
+            if (raw.isNullOrBlank()) return ReadingPosition()
+            val parts = raw.split(":")
+            if (parts.size != 2) return ReadingPosition()
+            val index = parts[0].toIntOrNull()?.coerceAtLeast(0) ?: 0
+            val offset = parts[1].toIntOrNull()?.coerceAtLeast(0) ?: 0
+            return ReadingPosition(index = index, offset = offset)
+        }
+    }
+}
 
 sealed interface AppScreen {
     object List : AppScreen
@@ -106,6 +163,32 @@ private fun buildModuleSummary(
 
     val countLabel = if (lessons.size == 1) "1 reading" else "${lessons.size} readings"
     return "$countLabel in $title."
+}
+
+private fun loadReadingPositions(prefs: android.content.SharedPreferences): Map<Int, ReadingPosition> {
+    val rawEntries = prefs.getStringSet("reading_positions", emptySet()) ?: emptySet()
+    val result = mutableMapOf<Int, ReadingPosition>()
+    for (entry in rawEntries) {
+        val parts = entry.split("=", limit = 2)
+        if (parts.size == 2) {
+            val lessonId = parts[0].toIntOrNull()
+            if (lessonId != null) {
+                result[lessonId] = ReadingPosition.decode(parts[1])
+            }
+        }
+    }
+    return result
+}
+
+private fun saveReadingPositions(
+    prefs: android.content.SharedPreferences,
+    positions: Map<Int, ReadingPosition>
+) {
+    val serialized = positions
+        .filterValues { it.hasProgress() }
+        .map { (lessonId, pos) -> "$lessonId=${pos.encode()}" }
+        .toSet()
+    prefs.edit().putStringSet("reading_positions", serialized).apply()
 }
 
 @Composable
@@ -166,20 +249,60 @@ fun BodhiBytesApp() {
     var bookmarksScrollIndex by remember { mutableStateOf(0) }
     var bookmarksScrollOffset by remember { mutableStateOf(0) }
 
-    // Initialize SharedPreferences for persistent storage (bookmarks and preferences)
+    // Initialize SharedPreferences for persistent storage (bookmarks, reading positions, and preferences)
     val sharedPreferences = remember {
         context.getSharedPreferences("bodhibytes_prefs", android.content.Context.MODE_PRIVATE)
     }
 
-    // Load dark mode preference
+    // Load preferences
     var isDarkMode by remember {
         mutableStateOf(sharedPreferences.getBoolean("dark_mode", false))
+    }
+    var readingFontSize by remember {
+        mutableStateOf(ReadingFontSize.fromKey(sharedPreferences.getString("reading_font_size", ReadingFontSize.DEFAULT.key)))
+    }
+    var readingLineSpacing by remember {
+        mutableStateOf(ReadingLineSpacing.fromKey(sharedPreferences.getString("reading_line_spacing", ReadingLineSpacing.COMFORTABLE.key)))
+    }
+    var keepScreenAwake by remember {
+        mutableStateOf(sharedPreferences.getBoolean("keep_screen_awake", true))
     }
 
     // Load saved bookmarks from local storage on startup
     var bookmarkedLessonIds by remember {
         val savedStringSet = sharedPreferences.getStringSet("bookmarked_ids", emptySet()) ?: emptySet()
         mutableStateOf(savedStringSet.mapNotNull { it.toIntOrNull() }.toSet())
+    }
+
+    // Load saved reading positions per lesson
+    var readingPositions by remember {
+        mutableStateOf(loadReadingPositions(sharedPreferences))
+    }
+
+    // Track most recently opened lesson for quick resumption on Home
+    var lastOpenedLessonId by remember {
+        val savedId = sharedPreferences.getInt("last_opened_lesson_id", -1)
+        mutableStateOf(if (savedId != -1) savedId else null)
+    }
+
+    val recordLastOpenedLesson: (Int) -> Unit = { lessonId ->
+        if (lastOpenedLessonId != lessonId) {
+            lastOpenedLessonId = lessonId
+            sharedPreferences.edit().putInt("last_opened_lesson_id", lessonId).apply()
+        }
+    }
+
+    val updateReadingPosition: (Int, ReadingPosition) -> Unit = { lessonId, position ->
+        val current = readingPositions[lessonId] ?: ReadingPosition()
+        if (current != position) {
+            val updated = if (position.hasProgress()) {
+                readingPositions + (lessonId to position)
+            } else {
+                readingPositions - lessonId
+            }
+            readingPositions = updated
+            saveReadingPositions(sharedPreferences, updated)
+        }
     }
 
     val allLessons = remember { LessonRepository.getCurriculum() }
@@ -209,6 +332,16 @@ fun BodhiBytesApp() {
             addAll(allLessons.filter { it.id in 9..14 })
             addAll(allKoans)
             addAll(santidevaLessons)
+        }
+    }
+
+    val continueReadingLesson = remember(lastOpenedLessonId, readingPositions, orderedLessons) {
+        val lastLesson = lastOpenedLessonId?.let { id -> orderedLessons.find { it.id == id } }
+        if (lastLesson != null && readingPositions[lastLesson.id]?.hasProgress() == true) {
+            return@remember lastLesson
+        }
+        orderedLessons.firstOrNull { lesson ->
+            readingPositions[lesson.id]?.hasProgress() == true
         }
     }
 
@@ -318,19 +451,35 @@ fun BodhiBytesApp() {
                         initialIndex = lessonListScrollIndex,
                         initialOffset = lessonListScrollOffset,
                         expandedKeys = lessonListExpandedKeys,
+                        readingPositions = readingPositions,
+                        continueReadingLesson = continueReadingLesson,
                         onExpandedKeysChanged = { lessonListExpandedKeys = it },
                         onScrollChanged = { index, offset ->
                             lessonListScrollIndex = index
                             lessonListScrollOffset = offset
                         },
-                        onLessonSelected = { lesson -> currentScreen = AppScreen.Detail(lesson) },
+                        onLessonSelected = { lesson ->
+                            recordLastOpenedLesson(lesson.id)
+                            currentScreen = AppScreen.Detail(lesson)
+                        },
                         onMenuClick = { scope.launch { drawerState.open() } }
                     )
                 }
                 is AppScreen.Detail -> {
+                    LaunchedEffect(screen.lesson.id) {
+                        recordLastOpenedLesson(screen.lesson.id)
+                    }
+                    val savedPosition = readingPositions[screen.lesson.id] ?: ReadingPosition()
                     LessonDetailScreen(
                         lesson = screen.lesson,
                         isBookmarked = bookmarkedLessonIds.contains(screen.lesson.id),
+                        savedReadingPosition = savedPosition,
+                        readingFontSize = readingFontSize,
+                        readingLineSpacing = readingLineSpacing,
+                        keepScreenAwake = keepScreenAwake,
+                        onReadingPositionChanged = { position ->
+                            updateReadingPosition(screen.lesson.id, position)
+                        },
                         onBookmarkClick = {
                             bookmarkedLessonIds = if (bookmarkedLessonIds.contains(screen.lesson.id)) {
                                 bookmarkedLessonIds - screen.lesson.id
@@ -365,6 +514,7 @@ fun BodhiBytesApp() {
                         onBackClick = { currentScreen = AppScreen.Detail(screen.lesson) },
                         onHomeClick = { currentScreen = AppScreen.List },
                         onNextLessonClick = { targetLesson ->
+                            recordLastOpenedLesson(targetLesson.id)
                             currentScreen = AppScreen.Detail(targetLesson)
                         }
                     )
@@ -372,6 +522,7 @@ fun BodhiBytesApp() {
                 is AppScreen.Bookmarks -> {
                     BookmarksScreen(
                         bookmarkedIds = bookmarkedLessonIds,
+                        readingPositions = readingPositions,
                         allLessons = orderedLessons,
                         initialIndex = bookmarksScrollIndex,
                         initialOffset = bookmarksScrollOffset,
@@ -379,16 +530,34 @@ fun BodhiBytesApp() {
                             bookmarksScrollIndex = index
                             bookmarksScrollOffset = offset
                         },
-                        onLessonSelected = { lesson -> currentScreen = AppScreen.Detail(lesson) },
+                        onLessonSelected = { lesson ->
+                            recordLastOpenedLesson(lesson.id)
+                            currentScreen = AppScreen.Detail(lesson)
+                        },
                         onBackClick = { currentScreen = AppScreen.List }
                     )
                 }
                 is AppScreen.Settings -> {
                     SettingsScreen(
                         isDarkMode = isDarkMode,
+                        readingFontSize = readingFontSize,
+                        readingLineSpacing = readingLineSpacing,
+                        keepScreenAwake = keepScreenAwake,
                         onDarkModeChanged = { enabled ->
                             isDarkMode = enabled
                             sharedPreferences.edit().putBoolean("dark_mode", enabled).apply()
+                        },
+                        onReadingFontSizeChanged = { size ->
+                            readingFontSize = size
+                            sharedPreferences.edit().putString("reading_font_size", size.key).apply()
+                        },
+                        onReadingLineSpacingChanged = { spacing ->
+                            readingLineSpacing = spacing
+                            sharedPreferences.edit().putString("reading_line_spacing", spacing.key).apply()
+                        },
+                        onKeepScreenAwakeChanged = { enabled ->
+                            keepScreenAwake = enabled
+                            sharedPreferences.edit().putBoolean("keep_screen_awake", enabled).apply()
                         },
                         onBackClick = { currentScreen = AppScreen.List }
                     )
@@ -410,6 +579,8 @@ fun LessonListScreen(
     initialIndex: Int,
     initialOffset: Int,
     expandedKeys: Set<String>,
+    readingPositions: Map<Int, ReadingPosition> = emptyMap(),
+    continueReadingLesson: Lesson? = null,
     onExpandedKeysChanged: (Set<String>) -> Unit,
     onScrollChanged: (Int, Int) -> Unit,
     onLessonSelected: (Lesson) -> Unit,
@@ -559,6 +730,15 @@ fun LessonListScreen(
                 WelcomeCard(lesson = welcomeLesson)
             }
 
+            if (continueReadingLesson != null) {
+                item(key = "continue_reading_card") {
+                    ContinueReadingCard(
+                        lesson = continueReadingLesson,
+                        onResumeClick = { onLessonSelected(continueReadingLesson) }
+                    )
+                }
+            }
+
             homeItems.forEachIndexed { index, item ->
                 when (item) {
                     is HomeItem.RegularModule -> {
@@ -622,6 +802,7 @@ fun LessonListScreen(
                                 Box(modifier = Modifier.padding(start = 12.dp)) {
                                     LessonCard(
                                         lesson = lesson,
+                                        hasSavedPosition = readingPositions[lesson.id]?.hasProgress() == true,
                                         showSummary = true,
                                         isExpandedLesson = true,
                                         onClick = { onLessonSelected(lesson) }
@@ -787,6 +968,7 @@ fun LessonListScreen(
                                         Box(modifier = Modifier.padding(start = 24.dp)) {
                                             LessonCard(
                                                 lesson = lesson,
+                                                hasSavedPosition = readingPositions[lesson.id]?.hasProgress() == true,
                                                 showSummary = showLessonSummaries,
                                                 isExpandedLesson = true,
                                                 onClick = { onLessonSelected(lesson) }
@@ -803,10 +985,65 @@ fun LessonListScreen(
     }
 }
 
+@Composable
+fun ContinueReadingCard(
+    lesson: Lesson,
+    onResumeClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onResumeClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+            contentColor = MaterialTheme.colorScheme.onSurface
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "CONTINUE READING",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                FilledTonalButton(
+                    onClick = onResumeClick,
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text(
+                        text = "Resume",
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1,
+                        softWrap = false
+                    )
+                }
+            }
+            Text(
+                text = lesson.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookmarksScreen(
     bookmarkedIds: Set<Int>,
+    readingPositions: Map<Int, ReadingPosition> = emptyMap(),
     allLessons: List<Lesson>,
     initialIndex: Int,
     initialOffset: Int,
@@ -867,6 +1104,7 @@ fun BookmarksScreen(
                 items(bookmarkedLessons, key = { it.id }) { lesson ->
                     LessonCard(
                         lesson = lesson,
+                        hasSavedPosition = readingPositions[lesson.id]?.hasProgress() == true,
                         showSummary = true,
                         isExpandedLesson = false,
                         onClick = { onLessonSelected(lesson) }
@@ -877,11 +1115,17 @@ fun BookmarksScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(
     isDarkMode: Boolean,
+    readingFontSize: ReadingFontSize,
+    readingLineSpacing: ReadingLineSpacing,
+    keepScreenAwake: Boolean,
     onDarkModeChanged: (Boolean) -> Unit,
+    onReadingFontSizeChanged: (ReadingFontSize) -> Unit,
+    onReadingLineSpacingChanged: (ReadingLineSpacing) -> Unit,
+    onKeepScreenAwakeChanged: (Boolean) -> Unit,
     onBackClick: () -> Unit
 ) {
     Scaffold(
@@ -896,45 +1140,143 @@ fun SettingsScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(innerPadding),
+            contentPadding = PaddingValues(24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text(
-                text = "App Preferences",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onDarkModeChanged(!isDarkMode) }
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Dark Mode",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "Use dark theme across the application",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+            item {
+                Text(
+                    text = "Appearance",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onDarkModeChanged(!isDarkMode) }
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Dark Mode",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Use dark theme across the application",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = isDarkMode,
+                        onCheckedChange = { onDarkModeChanged(it) }
                     )
                 }
-                Switch(
-                    checked = isDarkMode,
-                    onCheckedChange = { onDarkModeChanged(it) }
+            }
+
+            item {
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "Reading & Comfort",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
                 )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // 1. Reading Font Size
+                Text(
+                    text = "Reading Font Size",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Adjust text size for lesson and koan readings",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ReadingFontSize.entries.forEach { sizeOption ->
+                        FilterChip(
+                            selected = readingFontSize == sizeOption,
+                            onClick = { onReadingFontSizeChanged(sizeOption) },
+                            label = { Text(sizeOption.label) }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // 2. Line Spacing
+                Text(
+                    text = "Line Spacing",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Control line height and spacing between paragraphs",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ReadingLineSpacing.entries.forEach { spacingOption ->
+                        FilterChip(
+                            selected = readingLineSpacing == spacingOption,
+                            onClick = { onReadingLineSpacingChanged(spacingOption) },
+                            label = { Text(spacingOption.label) }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // 3. Keep Screen Awake While Reading
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onKeepScreenAwakeChanged(!keepScreenAwake) }
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Keep Screen Awake While Reading",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Prevent display sleep while viewing a lesson or koan",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = keepScreenAwake,
+                        onCheckedChange = { onKeepScreenAwakeChanged(it) }
+                    )
+                }
             }
         }
     }
@@ -1150,6 +1492,7 @@ private fun LessonMetadataBadge(
 @Composable
 fun LessonCard(
     lesson: Lesson,
+    hasSavedPosition: Boolean = false,
     showSummary: Boolean = true,
     isExpandedLesson: Boolean = false,
     onClick: () -> Unit
@@ -1185,18 +1528,27 @@ fun LessonCard(
                             .weight(1f)
                             .padding(end = 8.dp)
                     )
-                    if (hasQuiz) {
-                        LessonMetadataBadge(
-                            label = "Quiz",
-                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
-                    } else if (isKoan) {
-                        LessonMetadataBadge(
-                            label = "Koan",
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        if (hasSavedPosition) {
+                            LessonMetadataBadge(
+                                label = "Resumed",
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                        if (hasQuiz) {
+                            LessonMetadataBadge(
+                                label = "Quiz",
+                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                contentColor = MaterialTheme.colorScheme.primary
+                            )
+                        } else if (isKoan) {
+                            LessonMetadataBadge(
+                                label = "Koan",
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
                 if (showSummary && displaySummary.isNotBlank()) {
@@ -1243,18 +1595,27 @@ fun LessonCard(
                             .weight(1f)
                             .padding(end = 8.dp)
                     )
-                    if (hasQuiz) {
-                        LessonMetadataBadge(
-                            label = "Quiz",
-                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
-                    } else if (isKoan) {
-                        LessonMetadataBadge(
-                            label = "Koan",
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        if (hasSavedPosition) {
+                            LessonMetadataBadge(
+                                label = "Resumed",
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                        if (hasQuiz) {
+                            LessonMetadataBadge(
+                                label = "Quiz",
+                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                contentColor = MaterialTheme.colorScheme.primary
+                            )
+                        } else if (isKoan) {
+                            LessonMetadataBadge(
+                                label = "Koan",
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
                 if (showSummary && displaySummary.isNotBlank()) {
@@ -1275,10 +1636,65 @@ fun LessonCard(
 fun LessonDetailScreen(
     lesson: Lesson,
     isBookmarked: Boolean,
+    savedReadingPosition: ReadingPosition = ReadingPosition(),
+    readingFontSize: ReadingFontSize = ReadingFontSize.DEFAULT,
+    readingLineSpacing: ReadingLineSpacing = ReadingLineSpacing.COMFORTABLE,
+    keepScreenAwake: Boolean = true,
+    onReadingPositionChanged: (ReadingPosition) -> Unit = {},
     onBookmarkClick: () -> Unit,
     onBackClick: () -> Unit,
     onQuizClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    DisposableEffect(keepScreenAwake) {
+        val window = (context as? Activity)?.window
+        if (keepScreenAwake) {
+            window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+        onDispose {
+            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
+
+    val paragraphs = remember(lesson.content) {
+        lesson.content
+            .split(Regex("\\n\\s*\\n"))
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+    }
+
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = savedReadingPosition.index,
+        initialFirstVisibleItemScrollOffset = savedReadingPosition.offset
+    )
+
+    var resumedFromSaved by remember(lesson.id) {
+        mutableStateOf(savedReadingPosition.hasProgress())
+    }
+
+    LaunchedEffect(lesson.id, listState) {
+        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+            .collect { (index, offset) ->
+                if (index > 0 || offset > 0) {
+                    onReadingPositionChanged(ReadingPosition(index = index, offset = offset))
+                }
+            }
+    }
+
+    DisposableEffect(lesson.id, listState) {
+        onDispose {
+            val index = listState.firstVisibleItemIndex
+            val offset = listState.firstVisibleItemScrollOffset
+            if (index > 0 || offset > 0) {
+                onReadingPositionChanged(ReadingPosition(index = index, offset = offset))
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -1339,28 +1755,73 @@ fun LessonDetailScreen(
         }
     ) { innerPadding ->
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            item {
+            if (resumedFromSaved) {
+                item(key = "resume_position_banner") {
+                    Surface(
+                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Resumed reading position",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.weight(1f)
+                            )
+                            TextButton(
+                                onClick = {
+                                    resumedFromSaved = false
+                                    onReadingPositionChanged(ReadingPosition())
+                                    scope.launch {
+                                        listState.scrollToItem(0, 0)
+                                    }
+                                }
+                            ) {
+                                Text("Restart", style = MaterialTheme.typography.labelLarge)
+                            }
+                        }
+                    }
+                }
+            }
+
+            item(key = "lesson_body_content") {
                 Column(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         text = lesson.title,
-                        style = MaterialTheme.typography.titleLarge,
+                        fontSize = readingFontSize.titleFontSize,
+                        lineHeight = (readingFontSize.titleFontSize.value * 1.25f).sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     HorizontalDivider()
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = lesson.content,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(readingLineSpacing.paragraphSpacing.dp)
+                    ) {
+                        paragraphs.forEach { paragraph ->
+                            Text(
+                                text = paragraph,
+                                fontSize = readingFontSize.bodyFontSize,
+                                lineHeight = readingLineSpacing.lineHeight
+                            )
+                        }
+                    }
                 }
             }
         }
