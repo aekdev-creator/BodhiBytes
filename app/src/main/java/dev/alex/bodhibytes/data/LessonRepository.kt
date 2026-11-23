@@ -71,15 +71,15 @@ object LessonRepository {
 
                 Mendicant: A wandering ascetic or monastic practitioner who relies on alms and lives a simple, non-possessive life.
 
-                Sutta / Sutra: A text that conveys great meaning with few words.
+                Sutta / Sutra: Discourse attributed to the Buddha.
 
                 Concept / Conceptual: A memory or thought about something.
 
                 Phenomena: What you observe with your senses, observable events.
 
-                Dependent Origination (Dependent Arising): Everything observable results only from its causes and conditions, not supernatural power.
+                Dependent Origination (Dependent Arising): Everything you observe results from causes and conditions.
 
-                Ignorance: Giving meaning to what you observe as more than dependent arising.
+                Ignorance: Viewing what you observe to be more than dependent arising by conceptualizing.
             """.trimIndent(),
             quiz = Quiz(
                 id = quizIdFor(1),
@@ -101,13 +101,13 @@ object LessonRepository {
                         id = 2,
                         text = "How is Ignorance defined in this lesson?",
                         options = listOf(
-                            "Giving meaning to what you observe as more than dependent arising",
+                            "Viewing what you observe to be more than dependent arising by conceptualizing.",
                             "The community of monks, nuns, and practitioners",
                             "Transcendent wisdom and intuitive insight",
-                            "A text that conveys great meaning with few words"
+                            "Discourse attributed to the Buddha."
                         ),
                         correctOptionIndex = 0,
-                        explanation = "This lesson defines Ignorance as giving meaning to what you observe as more than dependent arising."
+                        explanation = "This lesson defines Ignorance as viewing what you observe to be more than dependent arising by conceptualizing."
                     ),
                     Question(
                         id = 3,
@@ -137,13 +137,13 @@ object LessonRepository {
                         id = 5,
                         text = "What does Dependent Origination (Dependent Arising) mean in this lesson?",
                         options = listOf(
-                            "Everything observable results only from its causes and conditions, not supernatural power",
+                            "Everything you observe results from causes and conditions.",
                             "Renouncing all worldly comforts for life",
                             "A descriptive title used for the Buddha",
                             "The enlightened mind of awakening"
                         ),
                         correctOptionIndex = 0,
-                        explanation = "This lesson states that Dependent Origination (Dependent Arising) means everything observable results only from its causes and conditions, not supernatural power."
+                        explanation = "This lesson states that Dependent Origination (Dependent Arising) means everything you observe results from causes and conditions."
                     )
                 )
             )
@@ -750,7 +750,7 @@ object LessonRepository {
                         explanation = "Without a rigid self to defend, the mind opens up to boundless empathy, humility, and effortless freedom."
                     ),
                     Question(
-                        id = quizIdFor(18),
+                        id = 2,
                         text = "What does close observation reveal about our thoughts, emotions, and physical bodies?",
                         options = listOf(
                             "That they form an unchanging core identity",

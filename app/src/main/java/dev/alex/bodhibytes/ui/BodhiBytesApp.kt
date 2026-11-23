@@ -856,7 +856,7 @@ fun LessonListScreen(
                                             text = moduleSummary,
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            maxLines = 3,
+                                            maxLines = 5,
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     }
@@ -915,7 +915,7 @@ fun LessonListScreen(
                                             text = cardSummary,
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            maxLines = 2,
+                                            maxLines = 5,
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     }
@@ -1645,7 +1645,7 @@ fun LessonCard(
                         text = displaySummary,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
+                        maxLines = 5,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
@@ -1711,7 +1711,7 @@ fun LessonCard(
                     Text(
                         text = displaySummary,
                         style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 3,
+                        maxLines = 5,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
