@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dev.alex.bodhibytes.model.Lesson
 import dev.alex.bodhibytes.model.Quiz
 
@@ -47,6 +48,8 @@ fun QuizScreen(
     quiz: Quiz,
     lesson: Lesson,
     nextLesson: Lesson?,
+    readingFontSize: ReadingFontSize = ReadingFontSize.DEFAULT,
+    readingLineSpacing: ReadingLineSpacing = ReadingLineSpacing.COMFORTABLE,
     onQuizCompleted: (Int) -> Unit = {},
     onBackClick: () -> Unit,
     onHomeClick: () -> Unit,
@@ -58,6 +61,12 @@ fun QuizScreen(
     var isCorrect by remember(quiz.id) { mutableStateOf(false) }
     var quizFinished by remember(quiz.id) { mutableStateOf(false) }
     var hasRecordedCompletion by remember(quiz.id) { mutableStateOf(false) }
+
+    val questionFontSize = readingFontSize.titleFontSize
+    val questionLineHeight = (questionFontSize.value * 1.3f).sp
+    val bodyFontSize = readingFontSize.bodyFontSize
+    val bodyLineHeight = readingLineSpacing.lineHeight
+    val spacingDp = readingLineSpacing.paragraphSpacing.dp
 
     fun markCompletedOnce() {
         if (!hasRecordedCompletion) {
@@ -104,13 +113,19 @@ fun QuizScreen(
             ) {
                 Text(
                     text = "Quiz Completed!",
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontSize = (questionFontSize.value + 6f).sp,
+                        lineHeight = ((questionFontSize.value + 6f) * 1.25f).sp
+                    ),
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(spacingDp + 4.dp))
                 Text(
                     text = "You have successfully completed the quiz for this lesson.",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = bodyFontSize,
+                        lineHeight = bodyLineHeight
+                    )
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
@@ -139,20 +154,26 @@ fun QuizScreen(
                     .fillMaxSize()
                     .padding(innerPadding),
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(spacingDp + 10.dp)
             ) {
                 item {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                        verticalArrangement = Arrangement.spacedBy(spacingDp)
                     ) {
                         Text(
                             text = "Question ${currentQuestionIndex + 1} of ${quiz.questions.size}",
-                            style = MaterialTheme.typography.labelLarge,
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontSize = bodyFontSize,
+                                lineHeight = bodyLineHeight
+                            ),
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = question.text,
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontSize = questionFontSize,
+                                lineHeight = questionLineHeight
+                            ),
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -181,7 +202,7 @@ fun QuizScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .padding(horizontal = 16.dp, vertical = 12.dp + spacingDp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
@@ -196,7 +217,10 @@ fun QuizScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = option,
-                                style = MaterialTheme.typography.bodyLarge
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontSize = bodyFontSize,
+                                    lineHeight = bodyLineHeight
+                                )
                             )
                         }
                     }
@@ -207,12 +231,15 @@ fun QuizScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 32.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(spacingDp + 10.dp)
                     ) {
                         if (feedbackMessage != null) {
                             Text(
                                 text = feedbackMessage!!,
-                                style = MaterialTheme.typography.bodyLarge,
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontSize = bodyFontSize,
+                                    lineHeight = bodyLineHeight
+                                ),
                                 color = if (isCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                             )
                         }
