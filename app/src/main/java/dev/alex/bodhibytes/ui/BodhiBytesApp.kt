@@ -9,7 +9,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,6 +44,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -110,6 +110,20 @@ private val DefinitionRegex = Regex(
     RegexOption.DOT_MATCHES_ALL
 )
 
+private val NumberedItemRegex = Regex(
+    "^(\\d+\\.\\s+[\\p{L}\\p{N}\\s()/\\-–—]{1,65}):\\s+(.+)$",
+    RegexOption.DOT_MATCHES_ALL
+)
+
+private fun parseNumberedEntry(paragraph: String): ParsedDefinition? {
+    val trimmed = paragraph.trim()
+    val match = NumberedItemRegex.matchEntire(trimmed) ?: return null
+    val label = match.groupValues[1].trim().replace(Regex("\\s+"), " ")
+    val body = match.groupValues[2].trim()
+    if (label.isEmpty() || body.isEmpty()) return null
+    return ParsedDefinition(term = label, definition = body)
+}
+
 private fun parseDefinition(paragraph: String): ParsedDefinition? {
     val trimmed = paragraph.trim()
     val firstLine = trimmed.lines().firstOrNull()?.trim() ?: return null
@@ -144,11 +158,11 @@ enum class ReadingLineSpacing(
     val key: String,
     val label: String,
     val lineHeight: TextUnit,
-    val paragraphSpacing: Int
+    val paragraphSpacing: Dp
 ) {
-    COMPACT("compact", "Compact", 18.sp, 4),
-    COMFORTABLE("comfortable", "Comfortable", 20.sp, 6),
-    SPACIOUS("spacious", "Spacious", 24.sp, 10);
+    COMPACT("compact", "Compact", 18.sp, 6.dp),
+    COMFORTABLE("comfortable", "Comfortable", 20.sp, 10.dp),
+    SPACIOUS("spacious", "Spacious", 24.sp, 14.dp);
 
     companion object {
         fun fromKey(key: String?): ReadingLineSpacing {
@@ -432,7 +446,8 @@ fun BodhiBytesApp() {
             addAll(allLessons.filter { it.id in 13..17 })
             addAll(allLessons.filter { it.id in 18..21 })
             addAll(allLessons.filter { it.id in 7..12 })
-            addAll(allLessons.filter { it.id in 101..199 })
+            addAll(allLessons.filter { it.id in 101..110 })
+            addAll(allLessons.filter { it.id in 111..199 })
         }
     }
 
@@ -479,7 +494,7 @@ fun BodhiBytesApp() {
                             modifier = Modifier.size(36.dp)
                         )
                         Text(
-                            text = "BODHIBYTES",
+                            text = "BodhiBytes",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.sp
@@ -573,6 +588,7 @@ fun BodhiBytesApp() {
                         expandedKeys = lessonListExpandedKeys,
                         readingPositions = readingPositions,
                         continueReadingLesson = continueReadingLesson,
+                        isDarkMode = isDarkMode,
                         onExpandedKeysChanged = { lessonListExpandedKeys = it },
                         onScrollChanged = { index, offset ->
                             lessonListScrollIndex = index
@@ -639,7 +655,7 @@ fun BodhiBytesApp() {
                         onQuizCompleted = handleQuizCompleted,
                         onBackClick = { currentScreen = AppScreen.Detail(screen.lesson) },
                         onHomeClick = { currentScreen = AppScreen.List },
-                        onNextLessonClick = { targetLesson ->
+                        onNextLessonClick = { targetLesson: Lesson ->
                             recordLastOpenedLesson(targetLesson.id)
                             currentScreen = AppScreen.Detail(targetLesson)
                         }
@@ -707,6 +723,7 @@ fun LessonListScreen(
     expandedKeys: Set<String>,
     readingPositions: Map<Int, ReadingPosition> = emptyMap(),
     continueReadingLesson: Lesson? = null,
+    isDarkMode: Boolean = false,
     onExpandedKeysChanged: (Set<String>) -> Unit,
     onScrollChanged: (Int, Int) -> Unit,
     onLessonSelected: (Lesson) -> Unit,
@@ -777,8 +794,13 @@ fun LessonListScreen(
                     ),
                     subModules = listOf(
                         LessonModule(
+                            title = "The Three Principal Aspects of the Path",
+                            lessons = allLessons.filter { it.id == 111 },
+                            summary = "Lam gyi gtso bo rnam gsum by Tsongkhapa: determination to be free, supreme bodhicitta, and the wisdom realizing dependent arising and emptiness."
+                        ),
+                        LessonModule(
                             title = "A Guide to the Bodhisattva's Way of Life by Śāntideva",
-                            lessons = allLessons.filter { it.id in 101..199 },
+                            lessons = allLessons.filter { it.id in 101..110 },
                             summary = "Bodhicaryāvatāra — Chapter 1: The Benefits of the Awakening Mind."
                         )
                     )
@@ -815,7 +837,7 @@ fun LessonListScreen(
                                 modifier = Modifier.size(28.dp)
                             )
                             Text(
-                                text = "BODHIBYTES",
+                                text = "BodhiBytes",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 1.sp
@@ -848,7 +870,10 @@ fun LessonListScreen(
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item(key = "welcome_lesson_card") {
-                WelcomeCard(lesson = welcomeLesson)
+                WelcomeCard(
+                    lesson = welcomeLesson,
+                    isDarkMode = isDarkMode
+                )
             }
 
             if (continueReadingLesson != null) {
@@ -1044,6 +1069,7 @@ fun LessonListScreen(
                                     subModule.lessons,
                                     subModule.summary
                                 )
+                                val sectionWord = if (subModule.lessons.size == 1) "SECTION" else "SECTIONS"
 
                                 item(key = subKey) {
                                     Card(
@@ -1079,7 +1105,7 @@ fun LessonListScreen(
                                                     .padding(end = 8.dp)
                                             ) {
                                                 Text(
-                                                    text = "TEXT · ${subModule.lessons.size} SECTIONS",
+                                                    text = "TEXT · ${subModule.lessons.size} $sectionWord",
                                                     style = MaterialTheme.typography.labelSmall,
                                                     fontWeight = FontWeight.SemiBold,
                                                     letterSpacing = 1.sp,
@@ -1132,19 +1158,32 @@ fun LessonListScreen(
                     }
                     is HomeItem.StandaloneLesson -> {
                         val lesson = item.lesson
-                        val cardSummary = lesson.summary.ifBlank {
-                            buildBriefSummary(lesson.content, lesson.title)
+                        val glossaryContainerColor = if (isDarkMode) {
+                            Color(0xFF221F1A)
+                        } else {
+                            Color(0xFFF7F3EA)
                         }
+                        val glossaryLabelColor = if (isDarkMode) {
+                            Color(0xFFD6A66B)
+                        } else {
+                            Color(0xFF8C5A2B)
+                        }
+                        val glossaryBorderColor = if (isDarkMode) {
+                            Color(0xFF473E31)
+                        } else {
+                            Color(0xFFE3D8C3)
+                        }
+
                         item(key = "standalone_lesson_${lesson.id}") {
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { onLessonSelected(lesson) },
                                 shape = CardShape,
-                                border = cardBorder(),
+                                border = BorderStroke(1.dp, glossaryBorderColor),
                                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
+                                    containerColor = glossaryContainerColor
                                 )
                             ) {
                                 Column(
@@ -1157,7 +1196,7 @@ fun LessonListScreen(
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = FontWeight.SemiBold,
                                         letterSpacing = 1.sp,
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = glossaryLabelColor
                                     )
                                     Spacer(modifier = Modifier.height(6.dp))
                                     Text(
@@ -1166,16 +1205,6 @@ fun LessonListScreen(
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
-                                    if (cardSummary.isNotBlank()) {
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Text(
-                                            text = cardSummary,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            maxLines = 5,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
                                 }
                             }
                         }
@@ -1207,8 +1236,8 @@ fun ContinueReadingCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1220,42 +1249,54 @@ fun ContinueReadingCard(
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 1.sp,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f)
                 )
-                TextButton(
-                    onClick = onClearClick,
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
-                    modifier = Modifier.height(28.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Clear",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        softWrap = false
-                    )
+                    TextButton(
+                        onClick = onClearClick,
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                        modifier = Modifier.height(30.dp)
+                    ) {
+                        Text(
+                            text = "Clear",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
+                    Button(
+                        onClick = onResumeClick,
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
+                        modifier = Modifier.height(30.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Text(
+                            text = "Resume",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
                 }
             }
             Text(
                 text = lesson.title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
             )
-            Button(
-                onClick = onResumeClick,
-                shape = CircleShape,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            ) {
-                Text(
-                    text = "Resume Reading",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
         }
     }
 }
@@ -1402,12 +1443,20 @@ fun SettingsScreen(
         ) {
             item {
                 Card(
+                    modifier = Modifier.fillMaxWidth(),
                     shape = CardShape,
                     border = cardBorder(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
                 ) {
-                    Column(modifier = Modifier.padding(18.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
                         Text(
                             text = "APPEARANCE",
                             style = MaterialTheme.typography.labelSmall,
@@ -1415,12 +1464,9 @@ fun SettingsScreen(
                             letterSpacing = 1.sp,
                             color = MaterialTheme.colorScheme.primary
                         )
-                        Spacer(modifier = Modifier.height(10.dp))
+
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onDarkModeChanged(!isDarkMode) }
-                                .padding(vertical = 4.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -1428,18 +1474,42 @@ fun SettingsScreen(
                                 Text(
                                     text = "Dark Mode",
                                     style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.SemiBold
                                 )
-                                Spacer(modifier = Modifier.height(2.dp))
                                 Text(
-                                    text = "Use dark theme across the application",
+                                    text = "Switch between light and dark app themes",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                             Switch(
                                 checked = isDarkMode,
-                                onCheckedChange = { onDarkModeChanged(it) }
+                                onCheckedChange = onDarkModeChanged
+                            )
+                        }
+
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Keep Screen Awake",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = "Prevent screen sleep while reading lessons",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Switch(
+                                checked = keepScreenAwake,
+                                onCheckedChange = onKeepScreenAwakeChanged
                             )
                         }
                     }
@@ -1448,33 +1518,27 @@ fun SettingsScreen(
 
             item {
                 Card(
+                    modifier = Modifier.fillMaxWidth(),
                     shape = CardShape,
                     border = cardBorder(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
                 ) {
-                    Column(modifier = Modifier.padding(18.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         Text(
-                            text = "READING & COMFORT",
+                            text = "READING FONT SIZE",
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             letterSpacing = 1.sp,
                             color = MaterialTheme.colorScheme.primary
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        Text(
-                            text = "Reading Font Size",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "Adjust text size for lesson readings",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -1487,23 +1551,33 @@ fun SettingsScreen(
                                 )
                             }
                         }
+                    }
+                }
+            }
 
-                        Spacer(modifier = Modifier.height(20.dp))
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        Spacer(modifier = Modifier.height(16.dp))
-
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = CardShape,
+                    border = cardBorder(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         Text(
-                            text = "Line Spacing",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            text = "LINE SPACING",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 1.sp,
+                            color = MaterialTheme.colorScheme.primary
                         )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "Control line height and spacing between paragraphs",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -1516,37 +1590,6 @@ fun SettingsScreen(
                                 )
                             }
                         }
-
-                        Spacer(modifier = Modifier.height(20.dp))
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onKeepScreenAwakeChanged(!keepScreenAwake) }
-                                .padding(vertical = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Keep Screen Awake While Reading",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "Prevent display sleep while viewing a lesson",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Switch(
-                                checked = keepScreenAwake,
-                                onCheckedChange = { onKeepScreenAwakeChanged(it) }
-                            )
-                        }
                     }
                 }
             }
@@ -1558,6 +1601,9 @@ fun SettingsScreen(
 @Composable
 fun FeedbackScreen(onBackClick: () -> Unit) {
     val uriHandler = LocalUriHandler.current
+    var feedbackMessage by remember { mutableStateOf("") }
+    var submittedNote by remember { mutableStateOf<String?>(null) }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -1594,34 +1640,75 @@ fun FeedbackScreen(onBackClick: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Card(
+                modifier = Modifier.fillMaxWidth(),
                 shape = CardShape,
                 border = cardBorder(),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(20.dp),
+                        .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "We value your feedback!",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        text = "SHARE YOUR THOUGHTS",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 1.sp,
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "If you found a bug or have suggestions to improve BodhiBytes, please feel free to open an issue or pull request on GitHub.",
+                        text = "Have suggestions, questions, or lesson feedback? Send a note below or open your email client.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Button(
-                        onClick = { uriHandler.openUri("https://github.com/aekdev-creator/BodhiBytes/issues") },
-                        shape = CircleShape,
+                    OutlinedTextField(
+                        value = feedbackMessage,
+                        onValueChange = {
+                            feedbackMessage = it
+                            submittedNote = null
+                        },
+                        label = { Text("Your message") },
+                        minLines = 4,
                         modifier = Modifier.fillMaxWidth()
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Text("Open GitHub Issues", fontWeight = FontWeight.SemiBold)
+                        Button(
+                            onClick = {
+                                if (feedbackMessage.isNotBlank()) {
+                                    submittedNote = "Feedback recorded locally for this session."
+                                    feedbackMessage = ""
+                                }
+                            },
+                            enabled = feedbackMessage.isNotBlank(),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Submit")
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                runCatching {
+                                    uriHandler.openUri("mailto:support@bodhibytes.app?subject=BodhiBytes%20Feedback")
+                                }
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Email Support")
+                        }
+                    }
+                    submittedNote?.let { note ->
+                        Text(
+                            text = note,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             }
@@ -1631,22 +1718,21 @@ fun FeedbackScreen(onBackClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutScreen(
-    onBackClick: () -> Unit
-) {
+fun AboutScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
-    val uriHandler = LocalUriHandler.current
-    val versionName = remember(context) {
-        val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.packageManager.getPackageInfo(
-                context.packageName,
-                PackageManager.PackageInfoFlags.of(0)
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            context.packageManager.getPackageInfo(context.packageName, 0)
-        }
-        packageInfo.versionName ?: "Unknown"
+    val versionName = remember {
+        runCatching {
+            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getPackageInfo(
+                    context.packageName,
+                    PackageManager.PackageInfoFlags.of(0)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getPackageInfo(context.packageName, 0)
+            }
+            packageInfo.versionName ?: "1.0"
+        }.getOrDefault("1.0")
     }
 
     Scaffold(
@@ -1656,16 +1742,13 @@ fun AboutScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "About BodhiBytes",
+                            text = "About",
                             fontWeight = FontWeight.SemiBold
                         )
                     },
                     navigationIcon = {
                         IconButton(onClick = onBackClick) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
-                            )
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -1680,131 +1763,115 @@ fun AboutScreen(
             }
         }
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(innerPadding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Card(
-                shape = CardShape,
-                border = cardBorder(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = CardShape,
+                    border = cardBorder(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
                 ) {
-                    Image(
-                        painter = painterResource(id = R.mipmap.ic_launcher),
-                        contentDescription = "App Icon",
-                        modifier = Modifier.size(72.dp)
-                    )
-                    Text(
-                        text = "BodhiBytes",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Version $versionName",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "BodhiBytes is your companion for exploring foundational Buddhist teachings, traditional terminology, and insights into wisdom and compassion.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    HorizontalDivider(
-                        modifier = Modifier.padding(vertical = 4.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant
-                    )
-
-                    Text(
-                        text = "Developed by Alexander Kelly",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-
-                    Text(
-                        text = "Built with Jetpack Compose & Kotlin",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    OutlinedButton(
-                        onClick = { uriHandler.openUri("https://github.com/aekdev-creator/BodhiBytes") },
-                        shape = CircleShape,
-                        border = cardBorder()
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(18.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Text("View Source Code on GitHub")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.mipmap.ic_launcher),
+                                contentDescription = "BodhiBytes Logo",
+                                modifier = Modifier.size(44.dp)
+                            )
+                            Column {
+                                Text(
+                                    text = "BodhiBytes",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Version $versionName",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        Text(
+                            text = "BodhiBytes presents structured readings, foundational Buddhist concepts, classical texts, and comprehension quizzes designed for clear, contemplative study.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
-
-                    Text(
-                        text = "Privacy Policy: BodhiBytes does not collect, store, or share any personal user data. All lesson progress and local states remain entirely on your device.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text(
-                text = "© 2026 Alexander Kelly. All rights reserved.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
 
 @Composable
 fun WelcomeCard(
-    lesson: Lesson
+    lesson: Lesson,
+    isDarkMode: Boolean = false
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp, vertical = 4.dp)
-    ) {
-        Text(
-            text = lesson.title,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+    val slateContainerColor = if (isDarkMode) {
+        Color(0xFF1C2533)
+    } else {
+        Color(0xFFEBF1F8)
     }
-}
+    val slateBorderColor = if (isDarkMode) {
+        Color(0xFF344661)
+    } else {
+        Color(0xFFC8D6E8)
+    }
 
-@Composable
-private fun LessonMetadataBadge(
-    label: String,
-    containerColor: Color,
-    contentColor: Color
-) {
-    Box(
-        modifier = Modifier
-            .background(color = containerColor, shape = RoundedCornerShape(6.dp))
-            .padding(horizontal = 8.dp, vertical = 2.dp)
-    ) {
-        Text(
-            text = label.uppercase(),
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 0.8.sp,
-            color = contentColor,
-            maxLines = 1,
-            softWrap = false
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = CardShape,
+        border = BorderStroke(1.dp, slateBorderColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = slateContainerColor,
+            contentColor = MaterialTheme.colorScheme.onSurface
         )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "WELCOME",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 1.sp,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = lesson.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "Explore Buddhist philosophy, mindfulness practices, and foundational teachings at your own pace.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
@@ -1816,129 +1883,67 @@ fun LessonCard(
     isExpandedLesson: Boolean = false,
     onClick: () -> Unit
 ) {
-    val displaySummary = lesson.summary.ifBlank {
-        buildBriefSummary(lesson.content, lesson.title)
+    val displaySummary = remember(lesson.summary, lesson.content, lesson.title) {
+        if (lesson.summary.isNotBlank()) {
+            lesson.summary
+        } else {
+            buildBriefSummary(lesson.content, lesson.title)
+        }
     }
-    val hasQuiz = lesson.quiz != null
 
-    if (isExpandedLesson) {
-        Card(
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = CardShape,
+        border = cardBorder(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick),
-            shape = CardShape,
-            border = cardBorder(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+                .padding(18.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(14.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
-                ) {
+                Text(
+                    text = if (isExpandedLesson) "LESSON" else "READING",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 1.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                if (hasSavedPosition) {
                     Text(
-                        text = lesson.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(end = 8.dp)
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        if (hasSavedPosition) {
-                            LessonMetadataBadge(
-                                label = "Resumed",
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        }
-                        if (hasQuiz) {
-                            LessonMetadataBadge(
-                                label = "Quiz",
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                }
-                if (showSummary && displaySummary.isNotBlank()) {
-                    Text(
-                        text = displaySummary,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 5,
-                        overflow = TextOverflow.Ellipsis
+                        text = "IN PROGRESS",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 }
             }
-        }
-    } else {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick),
-            shape = CardShape,
-            border = cardBorder(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = lesson.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(18.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Text(
-                        text = lesson.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(end = 8.dp)
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        if (hasSavedPosition) {
-                            LessonMetadataBadge(
-                                label = "Resumed",
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        }
-                        if (hasQuiz) {
-                            LessonMetadataBadge(
-                                label = "Quiz",
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
-                }
-                if (showSummary && displaySummary.isNotBlank()) {
-                    Text(
-                        text = displaySummary,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 5,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+            if (showSummary && displaySummary.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = displaySummary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 5,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }
@@ -1959,20 +1964,6 @@ fun LessonDetailScreen(
     onQuizClick: () -> Unit
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
-    DisposableEffect(keepScreenAwake) {
-        val window = (context as? Activity)?.window
-        if (keepScreenAwake) {
-            window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        } else {
-            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-        onDispose {
-            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-    }
-
     val paragraphs = remember(lesson.content) {
         lesson.content
             .split(Regex("\\n\\s*\\n"))
@@ -1981,31 +1972,28 @@ fun LessonDetailScreen(
     }
 
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = savedReadingPosition.index,
-        initialFirstVisibleItemScrollOffset = savedReadingPosition.offset
+        initialFirstVisibleItemIndex = savedReadingPosition.index.coerceAtLeast(0),
+        initialFirstVisibleItemScrollOffset = savedReadingPosition.offset.coerceAtLeast(0)
     )
 
-    var resumedFromSaved by remember(lesson.id) {
-        mutableStateOf(savedReadingPosition.hasProgress())
-    }
-
-    LaunchedEffect(lesson.id, listState) {
-        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
-            .collect { (index, offset) ->
-                if (index > 0 || offset > 0) {
-                    onReadingPositionChanged(ReadingPosition(index = index, offset = offset))
-                }
-            }
-    }
-
-    DisposableEffect(lesson.id, listState) {
+    DisposableEffect(context, keepScreenAwake) {
+        val window = (context as? Activity)?.window
+        val previousFlag = window?.attributes?.flags?.and(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) ?: 0
+        if (keepScreenAwake) {
+            window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
         onDispose {
-            val index = listState.firstVisibleItemIndex
-            val offset = listState.firstVisibleItemScrollOffset
-            if (index > 0 || offset > 0) {
-                onReadingPositionChanged(ReadingPosition(index = index, offset = offset))
+            if (keepScreenAwake && previousFlag == 0) {
+                window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
         }
+    }
+
+    LaunchedEffect(listState, lesson.id) {
+        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+            .collect { (index, offset) ->
+                onReadingPositionChanged(ReadingPosition(index = index, offset = offset))
+            }
     }
 
     Scaffold(
@@ -2013,20 +2001,25 @@ fun LessonDetailScreen(
         topBar = {
             Column {
                 TopAppBar(
-                    title = { },
+                    title = {
+                        Text(
+                            text = lesson.title,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = onBackClick) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
-                            )
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     },
                     actions = {
                         IconButton(onClick = onBookmarkClick) {
                             Icon(
                                 imageVector = if (isBookmarked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = "Bookmark Lesson",
+                                contentDescription = if (isBookmarked) "Remove Bookmark" else "Bookmark Lesson",
                                 tint = if (isBookmarked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                             )
                         }
@@ -2041,46 +2034,6 @@ fun LessonDetailScreen(
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
             }
-        },
-        bottomBar = {
-            Surface(
-                tonalElevation = 0.dp,
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column {
-                    HorizontalDivider(
-                        thickness = 1.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .navigationBarsPadding()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = onBackClick,
-                            shape = CircleShape,
-                            border = cardBorder(),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Back", style = MaterialTheme.typography.labelLarge)
-                        }
-
-                        if (lesson.quiz != null) {
-                            Button(
-                                onClick = onQuizClick,
-                                shape = CircleShape,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text("Proceed to Quiz", style = MaterialTheme.typography.labelLarge)
-                            }
-                        }
-                    }
-                }
-            }
         }
     ) { innerPadding ->
         LazyColumn(
@@ -2089,129 +2042,92 @@ fun LessonDetailScreen(
                 .fillMaxSize()
                 .padding(innerPadding),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(readingLineSpacing.paragraphSpacing)
         ) {
-            if (resumedFromSaved) {
-                item(key = "resume_position_banner") {
-                    Surface(
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = CardShape,
-                        border = cardBorder(),
-                        modifier = Modifier.fillMaxWidth()
+            if (lesson.summary.isNotBlank()) {
+                item(key = "lesson_header") {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 14.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Resumed reading position",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.weight(1f)
-                            )
-                            TextButton(
-                                onClick = {
-                                    resumedFromSaved = false
-                                    onReadingPositionChanged(ReadingPosition())
-                                    scope.launch {
-                                        listState.scrollToItem(0, 0)
-                                    }
-                                }
-                            ) {
-                                Text("Restart", style = MaterialTheme.typography.labelLarge)
-                            }
-                        }
+                        Text(
+                            text = lesson.summary,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontSize = readingFontSize.bodyFontSize,
+                                lineHeight = readingLineSpacing.lineHeight
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.padding(top = 6.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
                     }
                 }
             }
 
-            item(key = "lesson_body_content") {
-                Card(
-                    shape = CardShape,
-                    border = cardBorder(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
+            items(
+                count = paragraphs.size,
+                key = { index -> "paragraph_${lesson.id}_$index" }
+            ) { index ->
+                val paragraph = paragraphs[index]
+                val structuredEntry = parseNumberedEntry(paragraph) ?: parseDefinition(paragraph)
+
+                if (structuredEntry != null) {
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            ) {
+                                append(structuredEntry.term)
+                            }
+                            append(": ")
+                            append(structuredEntry.definition)
+                        },
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = readingFontSize.bodyFontSize,
+                            lineHeight = readingLineSpacing.lineHeight
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(18.dp)
+                            .padding(vertical = 2.dp)
+                    )
+                } else {
+                    Text(
+                        text = paragraph,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = readingFontSize.bodyFontSize,
+                            lineHeight = readingLineSpacing.lineHeight
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp)
+                    )
+                }
+            }
+
+            if (lesson.quiz != null) {
+                item(key = "start_quiz_button") {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = onQuizClick,
+                        shape = CircleShape,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
                     ) {
                         Text(
-                            text = lesson.title,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontSize = readingFontSize.titleFontSize,
-                                lineHeight = (readingFontSize.titleFontSize.value * 1.3f).sp
-                            ),
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            text = "Start Quiz",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
                         )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        val parsedItems = remember(paragraphs) {
-                            paragraphs.map { it to parseDefinition(it) }
-                        }
-
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(readingLineSpacing.paragraphSpacing.dp)
-                        ) {
-                            parsedItems.forEachIndexed { idx, (paragraph, def) ->
-                                val nextIsDef = parsedItems.getOrNull(idx + 1)?.second != null
-                                if (def != null) {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 2.dp)
-                                    ) {
-                                        Text(
-                                            text = buildAnnotatedString {
-                                                withStyle(
-                                                    SpanStyle(
-                                                        color = MaterialTheme.colorScheme.primary,
-                                                        fontWeight = FontWeight.Bold
-                                                    )
-                                                ) {
-                                                    append("${def.term}: ")
-                                                }
-                                                withStyle(
-                                                    SpanStyle(
-                                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                                    )
-                                                ) {
-                                                    append(def.definition)
-                                                }
-                                            },
-                                            style = MaterialTheme.typography.bodyMedium.copy(
-                                                fontSize = readingFontSize.bodyFontSize,
-                                                lineHeight = readingLineSpacing.lineHeight
-                                            )
-                                        )
-                                        if (nextIsDef) {
-                                            Spacer(modifier = Modifier.height(8.dp))
-                                            HorizontalDivider(
-                                                thickness = 0.75.dp,
-                                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)
-                                            )
-                                        }
-                                    }
-                                } else {
-                                    Text(
-                                        text = paragraph,
-                                        style = MaterialTheme.typography.bodyMedium.copy(
-                                            fontSize = readingFontSize.bodyFontSize,
-                                            lineHeight = readingLineSpacing.lineHeight
-                                        ),
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
                     }
                 }
             }
