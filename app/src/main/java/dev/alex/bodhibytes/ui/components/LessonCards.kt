@@ -1,11 +1,11 @@
 package dev.alex.bodhibytes.ui.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,10 +16,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,6 +37,42 @@ import androidx.compose.ui.unit.sp
 import dev.alex.bodhibytes.model.Lesson
 import dev.alex.bodhibytes.ui.theme.CardShape
 import dev.alex.bodhibytes.ui.theme.cardBorder
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BodhiBytesTopBar(
+    title: @Composable () -> Unit,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    progress: Float? = null
+) {
+    Column {
+        TopAppBar(
+            title = title,
+            navigationIcon = navigationIcon,
+            actions = actions,
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                titleContentColor = MaterialTheme.colorScheme.onSurface
+            )
+        )
+        if (progress != null) {
+            LinearProgressIndicator(
+                progress = { progress.coerceIn(0f, 1f) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(2.5.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.outlineVariant
+            )
+        } else {
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+        }
+    }
+}
 
 fun buildBriefSummary(content: String, fallbackTitle: String, maxChars: Int = 150): String {
     val normalized = content
@@ -190,6 +231,7 @@ fun ContinueReadingCard(
 fun LessonCard(
     lesson: Lesson,
     hasSavedPosition: Boolean = false,
+    isQuizCompleted: Boolean = false,
     showSummary: Boolean = true,
     isExpandedLesson: Boolean = false,
     onClick: () -> Unit
@@ -243,6 +285,24 @@ fun LessonCard(
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            maxLines = 1,
+                            softWrap = false,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        )
+                    }
+                } else if (isQuizCompleted) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.secondaryContainer
+                    ) {
+                        Text(
+                            text = "Completed",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            maxLines = 1,
+                            softWrap = false,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                         )
                     }

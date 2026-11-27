@@ -31,17 +31,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -60,6 +56,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.alex.bodhibytes.model.Lesson
+import dev.alex.bodhibytes.ui.components.BodhiBytesTopBar
 import dev.alex.bodhibytes.ui.state.ReadingPosition
 import dev.alex.bodhibytes.ui.theme.CardShape
 import dev.alex.bodhibytes.ui.theme.ReadingFontSize
@@ -76,7 +73,7 @@ private sealed interface ContentBlock {
 }
 
 private val DefinitionRegex = Regex(
-    "^([\\p{L}\\p{N}\\s()/&\\-–—]{1,75}):\\s+(.+)$",
+    "^([\\p{L}\\p{N}\\s()/&\\-–—]{1,45}):\\s+(.+)$",
     RegexOption.DOT_MATCHES_ALL
 )
 
@@ -87,6 +84,16 @@ private val NumberedItemRegex = Regex(
 
 private val StandaloneHeadingRegex = Regex(
     "^([\\p{L}\\p{N}\\s()/&\\-–—]{3,75}):$"
+)
+
+private val NumberedStanzaRegex = Regex(
+    "^(?:\\d+\\.)?\\d+(?:–\\d+)?\\.?\\s+(.+)$",
+    RegexOption.DOT_MATCHES_ALL
+)
+
+private val RomanStanzaRegex = Regex(
+    "^([IVXLCDM]+(?:–[IVXLCDM]+)?)\\.\\s+(.+)$",
+    RegexOption.DOT_MATCHES_ALL
 )
 
 private fun parseContentBlocks(content: String): List<ContentBlock> {
@@ -121,17 +128,21 @@ private fun parseContentBlocks(content: String): List<ContentBlock> {
             )
         }
 
+        if (NumberedStanzaRegex.matches(paragraph) || RomanStanzaRegex.matches(paragraph)) {
+            return@map ContentBlock.VerseBlock(lines)
+        }
+
         if (lines.size >= 3 && lines.all { it.length <= 75 }) {
             return@map ContentBlock.VerseBlock(lines)
         }
 
         val firstLine = lines.firstOrNull() ?: ""
-        if (firstLine.length <= 140) {
+        if (firstLine.length <= 90) {
             val defMatch = DefinitionRegex.matchEntire(paragraph)
             if (defMatch != null) {
                 val term = defMatch.groupValues[1].trim().replace(Regex("\\s+"), " ")
                 val body = defMatch.groupValues[2].trim()
-                if (term.isNotEmpty() && body.isNotEmpty() && term.count { it == ' ' } <= 8) {
+                if (term.isNotEmpty() && body.isNotEmpty() && term.count { it == ' ' } <= 5) {
                     return@map ContentBlock.KeyValueCard(term = term, definition = body)
                 }
             }
@@ -141,7 +152,6 @@ private fun parseContentBlocks(content: String): List<ContentBlock> {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LessonDetailScreen(
     lesson: Lesson,
@@ -225,45 +235,32 @@ fun LessonDetailScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            Column {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = lesson.title,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = onBookmarkClick) {
-                            Icon(
-                                imageVector = if (isBookmarked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = if (isBookmarked) "Remove Bookmark" else "Add Bookmark",
-                                tint = if (isBookmarked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface
+            BodhiBytesTopBar(
+                title = {
+                    Text(
+                        text = lesson.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                )
-                LinearProgressIndicator(
-                    progress = { animatedProgress },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(2.5.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.outlineVariant
-                )
-            }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onBookmarkClick) {
+                        Icon(
+                            imageVector = if (isBookmarked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = if (isBookmarked) "Remove Bookmark" else "Add Bookmark",
+                            tint = if (isBookmarked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
+                progress = animatedProgress
+            )
         }
     ) { innerPadding ->
         LazyColumn(

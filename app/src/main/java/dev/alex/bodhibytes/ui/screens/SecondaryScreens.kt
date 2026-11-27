@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,11 +35,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.alex.bodhibytes.R
 import dev.alex.bodhibytes.model.Lesson
+import dev.alex.bodhibytes.ui.components.BodhiBytesTopBar
 import dev.alex.bodhibytes.ui.components.LessonCard
 import dev.alex.bodhibytes.ui.state.ReadingPosition
 import dev.alex.bodhibytes.ui.theme.CardShape
@@ -59,11 +60,11 @@ import dev.alex.bodhibytes.ui.theme.ReadingFontSize
 import dev.alex.bodhibytes.ui.theme.ReadingLineSpacing
 import dev.alex.bodhibytes.ui.theme.cardBorder
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookmarksScreen(
     bookmarkedIds: Set<Int>,
     readingPositions: Map<Int, ReadingPosition> = emptyMap(),
+    completedQuizLessonIds: Set<Int> = emptySet(),
     allLessons: List<Lesson>,
     initialIndex: Int,
     initialOffset: Int,
@@ -90,29 +91,19 @@ fun BookmarksScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            Column {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Bookmarks",
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface
+            BodhiBytesTopBar(
+                title = {
+                    Text(
+                        text = "Bookmarks",
+                        fontWeight = FontWeight.SemiBold
                     )
-                )
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
-            }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
         }
     ) { innerPadding ->
         if (bookmarkedLessons.isEmpty()) {
@@ -141,6 +132,7 @@ fun BookmarksScreen(
                     LessonCard(
                         lesson = lesson,
                         hasSavedPosition = readingPositions[lesson.id]?.hasProgress() == true,
+                        isQuizCompleted = completedQuizLessonIds.contains(lesson.id),
                         showSummary = true,
                         isExpandedLesson = false,
                         onClick = { onLessonSelected(lesson) }
@@ -151,7 +143,7 @@ fun BookmarksScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(
     isDarkMode: Boolean,
@@ -167,29 +159,19 @@ fun SettingsScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            Column {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Settings",
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface
+            BodhiBytesTopBar(
+                title = {
+                    Text(
+                        text = "Settings",
+                        fontWeight = FontWeight.SemiBold
                     )
-                )
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
-            }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
         }
     ) { innerPadding ->
         LazyColumn(
@@ -377,38 +359,28 @@ fun SettingsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedbackScreen(onBackClick: () -> Unit) {
     val uriHandler = LocalUriHandler.current
     val supportEmail = "bodhibytes@googlegroups.com"
+    var mailError by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            Column {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Feedback & Support",
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface
+            BodhiBytesTopBar(
+                title = {
+                    Text(
+                        text = "Feedback & Support",
+                        fontWeight = FontWeight.SemiBold
                     )
-                )
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
-            }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
         }
     ) { innerPadding ->
         Column(
@@ -450,7 +422,12 @@ fun FeedbackScreen(onBackClick: () -> Unit) {
                     )
                     Button(
                         onClick = {
-                            uriHandler.openUri("mailto:$supportEmail?subject=BodhiBytes%20Feedback")
+                            mailError = null
+                            try {
+                                uriHandler.openUri("mailto:$supportEmail?subject=BodhiBytes%20Feedback")
+                            } catch (_: Exception) {
+                                mailError = "No email app found. You can reach us at $supportEmail."
+                            }
                         },
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth()
@@ -463,13 +440,19 @@ fun FeedbackScreen(onBackClick: () -> Unit) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = "Email $supportEmail")
                     }
+                    mailError?.let { message ->
+                        Text(
+                            text = message,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
@@ -493,29 +476,19 @@ fun AboutScreen(onBackClick: () -> Unit) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            Column {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "About BodhiBytes",
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface
+            BodhiBytesTopBar(
+                title = {
+                    Text(
+                        text = "About BodhiBytes",
+                        fontWeight = FontWeight.SemiBold
                     )
-                )
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
-            }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
         }
     ) { innerPadding ->
         Column(

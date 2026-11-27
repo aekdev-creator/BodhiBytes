@@ -30,7 +30,6 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -54,24 +53,13 @@ import dev.alex.bodhibytes.ui.screens.LessonDetailScreen
 import dev.alex.bodhibytes.ui.screens.LessonListScreen
 import dev.alex.bodhibytes.ui.screens.QuizScreen
 import dev.alex.bodhibytes.ui.screens.SettingsScreen
-import dev.alex.bodhibytes.ui.state.KEY_BOOKMARKED_IDS
-import dev.alex.bodhibytes.ui.state.KEY_COMPLETED_QUIZ_LESSON_IDS
-import dev.alex.bodhibytes.ui.state.KEY_DARK_MODE
-import dev.alex.bodhibytes.ui.state.KEY_KEEP_SCREEN_AWAKE
-import dev.alex.bodhibytes.ui.state.KEY_LAST_OPENED_LESSON_ID
-import dev.alex.bodhibytes.ui.state.KEY_READING_FONT_SIZE
-import dev.alex.bodhibytes.ui.state.KEY_READING_LINE_SPACING
-import dev.alex.bodhibytes.ui.state.PREFS_NAME
 import dev.alex.bodhibytes.ui.state.ReadingPosition
-import dev.alex.bodhibytes.ui.state.loadReadingPositions
-import dev.alex.bodhibytes.ui.state.saveReadingPositions
-import dev.alex.bodhibytes.ui.theme.ReadingFontSize
-import dev.alex.bodhibytes.ui.theme.ReadingLineSpacing
+import dev.alex.bodhibytes.ui.state.rememberBodhiBytesAppState
 import dev.alex.bodhibytes.ui.theme.UnconditionedDarkColorScheme
 import dev.alex.bodhibytes.ui.theme.UnconditionedLightColorScheme
 import kotlinx.coroutines.launch
 
-private const val LAST_MAIN_CURRICULUM_LESSON_ID = 12
+private const val LAST_MAIN_CURRICULUM_LESSON_ID = 21
 
 sealed interface AppScreen {
     object List : AppScreen
@@ -87,6 +75,8 @@ sealed interface AppScreen {
 fun BodhiBytesApp() {
     val context = LocalContext.current
     val activity = context as? Activity
+    val appState = rememberBodhiBytesAppState(context)
+
     var currentScreen by remember { mutableStateOf<AppScreen>(AppScreen.List) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -104,161 +94,54 @@ fun BodhiBytesApp() {
         }
     }
 
-    var lessonListScrollIndex by remember { mutableStateOf(0) }
-    var lessonListScrollOffset by remember { mutableStateOf(0) }
-    var lessonListExpandedKeys by remember { mutableStateOf(emptySet<String>()) }
-    var scrollToLibraryToken by remember { mutableIntStateOf(0) }
-
-    var bookmarksScrollIndex by remember { mutableStateOf(0) }
-    var bookmarksScrollOffset by remember { mutableStateOf(0) }
-
-    val sharedPreferences = remember {
-        context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
-    }
-
-    var isDarkMode by remember {
-        mutableStateOf(sharedPreferences.getBoolean(KEY_DARK_MODE, false))
-    }
-    var readingFontSize by remember {
-        mutableStateOf(
-            ReadingFontSize.fromKey(
-                sharedPreferences.getString(KEY_READING_FONT_SIZE, ReadingFontSize.DEFAULT.key)
-            )
-        )
-    }
-    var readingLineSpacing by remember {
-        mutableStateOf(
-            ReadingLineSpacing.fromKey(
-                sharedPreferences.getString(
-                    KEY_READING_LINE_SPACING,
-                    ReadingLineSpacing.COMFORTABLE.key
-                )
-            )
-        )
-    }
-    var keepScreenAwake by remember {
-        mutableStateOf(sharedPreferences.getBoolean(KEY_KEEP_SCREEN_AWAKE, true))
-    }
-
-    var bookmarkedLessonIds by remember {
-        val savedStringSet = sharedPreferences.getStringSet(KEY_BOOKMARKED_IDS, emptySet()) ?: emptySet()
-        mutableStateOf(savedStringSet.mapNotNull { it.toIntOrNull() }.toSet())
-    }
-
-    var readingPositions by remember {
-        mutableStateOf(loadReadingPositions(sharedPreferences))
-    }
-
-    var completedQuizLessonIds by remember {
-        val saved = sharedPreferences.getStringSet(KEY_COMPLETED_QUIZ_LESSON_IDS, emptySet()) ?: emptySet()
-        mutableStateOf(saved.mapNotNull { it.toIntOrNull() }.toSet())
-    }
-
-    var lastOpenedLessonId by remember {
-        val savedId = sharedPreferences.getInt(KEY_LAST_OPENED_LESSON_ID, -1)
-        mutableStateOf(if (savedId != -1) savedId else null)
-    }
-
-    val persistCompletedQuizIds: (Set<Int>) -> Unit = { updated ->
-        completedQuizLessonIds = updated
-        sharedPreferences.edit()
-            .putStringSet(KEY_COMPLETED_QUIZ_LESSON_IDS, updated.map { it.toString() }.toSet())
-            .apply()
-    }
-
-    val recordLastOpenedLesson: (Int) -> Unit = { lessonId ->
-        if (lastOpenedLessonId != lessonId) {
-            lastOpenedLessonId = lessonId
-            sharedPreferences.edit().putInt(KEY_LAST_OPENED_LESSON_ID, lessonId).apply()
-        }
-    }
-
-    val updateReadingPosition: (Int, ReadingPosition) -> Unit = { lessonId, position ->
-        val current = readingPositions[lessonId] ?: ReadingPosition()
-        if (current != position) {
-            val updated = if (position.hasProgress()) {
-                readingPositions + (lessonId to position)
-            } else {
-                readingPositions - lessonId
-            }
-            readingPositions = updated
-            saveReadingPositions(sharedPreferences, updated)
-
-            if (position.hasProgress() && completedQuizLessonIds.contains(lessonId)) {
-                persistCompletedQuizIds(completedQuizLessonIds - lessonId)
-                recordLastOpenedLesson(lessonId)
-            }
-        }
-    }
-
-    val clearContinueReadingLesson: (Int) -> Unit = { lessonId ->
-        if (readingPositions.containsKey(lessonId)) {
-            val updatedPositions = readingPositions - lessonId
-            readingPositions = updatedPositions
-            saveReadingPositions(sharedPreferences, updatedPositions)
-        }
-        if (lastOpenedLessonId == lessonId) {
-            lastOpenedLessonId = null
-            sharedPreferences.edit().remove(KEY_LAST_OPENED_LESSON_ID).apply()
-        }
-    }
-
-    val handleQuizCompleted: (Int) -> Unit = { completedLessonId ->
-        persistCompletedQuizIds(completedQuizLessonIds + completedLessonId)
-
-        if (readingPositions.containsKey(completedLessonId)) {
-            val updatedPositions = readingPositions - completedLessonId
-            readingPositions = updatedPositions
-            saveReadingPositions(sharedPreferences, updatedPositions)
-        }
-
-        if (lastOpenedLessonId == completedLessonId) {
-            lastOpenedLessonId = null
-            sharedPreferences.edit().remove(KEY_LAST_OPENED_LESSON_ID).apply()
-        }
-    }
-
     val allLessons by produceState(
         initialValue = LessonRepository.getCachedCurriculum(),
-        key1 = context
+        key1 = context,
+        key2 = appState.curriculumRetryToken
     ) {
-        value = LessonRepository.getCurriculum(context)
+        val loaded = LessonRepository.getCurriculum(
+            context = context,
+            forceRefresh = appState.curriculumRetryToken > 0
+        )
+        if (loaded.isNotEmpty() || value.isEmpty()) {
+            value = loaded
+        }
     }
 
     val orderedLessons = remember(allLessons) {
         buildList {
             allLessons.find { it.id == 1 }?.let { add(it) }
             addAll(allLessons.filter { it.id in 2..6 })
-            addAll(allLessons.filter { it.id in 13..17 })
-            addAll(allLessons.filter { it.id in 18..21 })
-            addAll(allLessons.filter { it.id in 7..12 })
-            addAll(allLessons.filter { it.id in 101..110 })
-            addAll(allLessons.filter { it.id in 111..199 })
+            addAll(allLessons.filter { it.id in 7..10 })
+            addAll(allLessons.filter { it.id in 11..15 })
+            addAll(allLessons.filter { it.id in 16..21 })
+            addAll(allLessons.filter { it.id in 22..31 })
+            addAll(allLessons.filter { it.id == 32 })
         }
     }
 
     val continueReadingLesson = remember(
-        lastOpenedLessonId,
-        readingPositions,
-        completedQuizLessonIds,
+        appState.lastOpenedLessonId,
+        appState.readingPositions,
+        appState.completedQuizLessonIds,
         orderedLessons
     ) {
-        val lastLesson = lastOpenedLessonId
-            ?.takeIf { id -> !completedQuizLessonIds.contains(id) }
+        val lastLesson = appState.lastOpenedLessonId
+            ?.takeIf { id -> !appState.completedQuizLessonIds.contains(id) }
             ?.let { id -> orderedLessons.find { it.id == id } }
 
-        if (lastLesson != null && readingPositions[lastLesson.id]?.hasProgress() == true) {
+        if (lastLesson != null && appState.readingPositions[lastLesson.id]?.hasProgress() == true) {
             return@remember lastLesson
         }
 
         orderedLessons.firstOrNull { lesson ->
-            !completedQuizLessonIds.contains(lesson.id) &&
-                readingPositions[lesson.id]?.hasProgress() == true
+            !appState.completedQuizLessonIds.contains(lesson.id) &&
+                appState.readingPositions[lesson.id]?.hasProgress() == true
         }
     }
 
     MaterialTheme(
-        colorScheme = if (isDarkMode) UnconditionedDarkColorScheme else UnconditionedLightColorScheme
+        colorScheme = if (appState.isDarkMode) UnconditionedDarkColorScheme else UnconditionedLightColorScheme
     ) {
         ModalNavigationDrawer(
             drawerState = drawerState,
@@ -369,57 +252,47 @@ fun BodhiBytesApp() {
             when (val screen = currentScreen) {
                 is AppScreen.List -> {
                     LessonListScreen(
-                        initialIndex = lessonListScrollIndex,
-                        initialOffset = lessonListScrollOffset,
-                        expandedKeys = lessonListExpandedKeys,
-                        readingPositions = readingPositions,
+                        initialIndex = appState.lessonListScrollIndex,
+                        initialOffset = appState.lessonListScrollOffset,
+                        expandedKeys = appState.lessonListExpandedKeys,
+                        readingPositions = appState.readingPositions,
+                        completedQuizLessonIds = appState.completedQuizLessonIds,
                         continueReadingLesson = continueReadingLesson,
-                        isDarkMode = isDarkMode,
+                        isDarkMode = appState.isDarkMode,
                         allLessons = allLessons,
-                        scrollToLibraryToken = scrollToLibraryToken,
-                        onScrollToLibraryHandled = { scrollToLibraryToken = 0 },
-                        onExpandedKeysChanged = { lessonListExpandedKeys = it },
+                        scrollToLibraryToken = appState.scrollToLibraryToken,
+                        onScrollToLibraryHandled = { appState.scrollToLibraryToken = 0 },
+                        onExpandedKeysChanged = { appState.lessonListExpandedKeys = it },
                         onScrollChanged = { index, offset ->
-                            lessonListScrollIndex = index
-                            lessonListScrollOffset = offset
+                            appState.updateLessonListScroll(index, offset)
                         },
                         onLessonSelected = { lesson ->
-                            recordLastOpenedLesson(lesson.id)
+                            appState.onLessonOpened(lesson.id)
                             currentScreen = AppScreen.Detail(lesson)
                         },
                         onClearContinueReading = { lesson ->
-                            clearContinueReadingLesson(lesson.id)
+                            appState.clearContinueReadingLesson(lesson.id)
                         },
                         onMenuClick = { scope.launch { drawerState.open() } }
                     )
                 }
 
                 is AppScreen.Detail -> {
-                    LaunchedEffect(screen.lesson.id) {
-                        recordLastOpenedLesson(screen.lesson.id)
+                    LaunchedEffect(screen.lesson.id, appState.completedQuizLessonIds) {
+                        appState.onLessonOpened(screen.lesson.id)
                     }
-                    val savedPosition = readingPositions[screen.lesson.id] ?: ReadingPosition()
+                    val savedPosition = appState.readingPositions[screen.lesson.id] ?: ReadingPosition()
                     LessonDetailScreen(
                         lesson = screen.lesson,
-                        isBookmarked = bookmarkedLessonIds.contains(screen.lesson.id),
+                        isBookmarked = appState.bookmarkedLessonIds.contains(screen.lesson.id),
                         savedReadingPosition = savedPosition,
-                        readingFontSize = readingFontSize,
-                        readingLineSpacing = readingLineSpacing,
-                        keepScreenAwake = keepScreenAwake,
+                        readingFontSize = appState.readingFontSize,
+                        readingLineSpacing = appState.readingLineSpacing,
+                        keepScreenAwake = appState.keepScreenAwake,
                         onReadingPositionChanged = { position ->
-                            updateReadingPosition(screen.lesson.id, position)
+                            appState.updateReadingPosition(screen.lesson.id, position)
                         },
-                        onBookmarkClick = {
-                            bookmarkedLessonIds = if (bookmarkedLessonIds.contains(screen.lesson.id)) {
-                                bookmarkedLessonIds - screen.lesson.id
-                            } else {
-                                bookmarkedLessonIds + screen.lesson.id
-                            }
-                            sharedPreferences.edit().putStringSet(
-                                KEY_BOOKMARKED_IDS,
-                                bookmarkedLessonIds.map { it.toString() }.toSet()
-                            ).apply()
-                        },
+                        onBookmarkClick = { appState.toggleBookmark(screen.lesson.id) },
                         onBackClick = { currentScreen = AppScreen.List },
                         onQuizClick = {
                             screen.lesson.quiz?.let { quiz ->
@@ -443,17 +316,17 @@ fun BodhiBytesApp() {
                         lesson = screen.lesson,
                         nextLesson = nextLesson,
                         showGoToLibrary = isLastMainLesson,
-                        readingFontSize = readingFontSize,
-                        readingLineSpacing = readingLineSpacing,
-                        onQuizCompleted = handleQuizCompleted,
+                        readingFontSize = appState.readingFontSize,
+                        readingLineSpacing = appState.readingLineSpacing,
+                        onQuizCompleted = { appState.handleQuizCompleted(it) },
                         onBackClick = { currentScreen = AppScreen.Detail(screen.lesson) },
                         onHomeClick = { currentScreen = AppScreen.List },
                         onNextLessonClick = { targetLesson: Lesson ->
-                            recordLastOpenedLesson(targetLesson.id)
+                            appState.onLessonOpened(targetLesson.id)
                             currentScreen = AppScreen.Detail(targetLesson)
                         },
                         onGoToLibraryClick = {
-                            scrollToLibraryToken += 1
+                            appState.scrollToLibraryToken += 1
                             currentScreen = AppScreen.List
                         }
                     )
@@ -461,17 +334,17 @@ fun BodhiBytesApp() {
 
                 is AppScreen.Bookmarks -> {
                     BookmarksScreen(
-                        bookmarkedIds = bookmarkedLessonIds,
-                        readingPositions = readingPositions,
-                        allLessons = orderedLessons,
-                        initialIndex = bookmarksScrollIndex,
-                        initialOffset = bookmarksScrollOffset,
+                        bookmarkedIds = appState.bookmarkedLessonIds,
+                        readingPositions = appState.readingPositions,
+                        completedQuizLessonIds = appState.completedQuizLessonIds,
+                        allLessons = allLessons.ifEmpty { orderedLessons },
+                        initialIndex = appState.bookmarksScrollIndex,
+                        initialOffset = appState.bookmarksScrollOffset,
                         onScrollChanged = { index, offset ->
-                            bookmarksScrollIndex = index
-                            bookmarksScrollOffset = offset
+                            appState.updateBookmarksScroll(index, offset)
                         },
                         onLessonSelected = { lesson ->
-                            recordLastOpenedLesson(lesson.id)
+                            appState.onLessonOpened(lesson.id)
                             currentScreen = AppScreen.Detail(lesson)
                         },
                         onBackClick = { currentScreen = AppScreen.List }
@@ -480,26 +353,14 @@ fun BodhiBytesApp() {
 
                 is AppScreen.Settings -> {
                     SettingsScreen(
-                        isDarkMode = isDarkMode,
-                        readingFontSize = readingFontSize,
-                        readingLineSpacing = readingLineSpacing,
-                        keepScreenAwake = keepScreenAwake,
-                        onDarkModeChanged = { enabled ->
-                            isDarkMode = enabled
-                            sharedPreferences.edit().putBoolean(KEY_DARK_MODE, enabled).apply()
-                        },
-                        onReadingFontSizeChanged = { size ->
-                            readingFontSize = size
-                            sharedPreferences.edit().putString(KEY_READING_FONT_SIZE, size.key).apply()
-                        },
-                        onReadingLineSpacingChanged = { spacing ->
-                            readingLineSpacing = spacing
-                            sharedPreferences.edit().putString(KEY_READING_LINE_SPACING, spacing.key).apply()
-                        },
-                        onKeepScreenAwakeChanged = { enabled ->
-                            keepScreenAwake = enabled
-                            sharedPreferences.edit().putBoolean(KEY_KEEP_SCREEN_AWAKE, enabled).apply()
-                        },
+                        isDarkMode = appState.isDarkMode,
+                        readingFontSize = appState.readingFontSize,
+                        readingLineSpacing = appState.readingLineSpacing,
+                        keepScreenAwake = appState.keepScreenAwake,
+                        onDarkModeChanged = { appState.updateDarkMode(it) },
+                        onReadingFontSizeChanged = { appState.updateReadingFontSize(it) },
+                        onReadingLineSpacingChanged = { appState.updateReadingLineSpacing(it) },
+                        onKeepScreenAwakeChanged = { appState.updateKeepScreenAwake(it) },
                         onBackClick = { currentScreen = AppScreen.List }
                     )
                 }
