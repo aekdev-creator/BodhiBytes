@@ -1,4 +1,4 @@
-package dev.alex.bodhibytes.ui
+package dev.alex.bodhibytes.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.alex.bodhibytes.model.Lesson
 import dev.alex.bodhibytes.model.Quiz
+import dev.alex.bodhibytes.ui.theme.ReadingFontSize
+import dev.alex.bodhibytes.ui.theme.ReadingLineSpacing
 
 private val QuizCardShape = RoundedCornerShape(14.dp)
 
