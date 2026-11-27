@@ -20,10 +20,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -57,6 +59,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.alex.bodhibytes.R
 import dev.alex.bodhibytes.data.LessonRepository
+import dev.alex.bodhibytes.model.CurriculumModuleSpec
+import dev.alex.bodhibytes.model.CurriculumStructure
 import dev.alex.bodhibytes.model.Lesson
 import dev.alex.bodhibytes.ui.components.BodhiBytesTopBar
 import dev.alex.bodhibytes.ui.components.ContinueReadingCard
@@ -78,7 +82,10 @@ sealed interface HomeItem {
         val module: LessonModule,
         val subModules: List<LessonModule>
     ) : HomeItem
-    data class StandaloneLesson(val lesson: Lesson) : HomeItem
+    data class StandaloneLesson(
+        val lesson: Lesson,
+        val isReady: Boolean = true
+    ) : HomeItem
 }
 
 private fun buildModuleSummary(
@@ -92,6 +99,15 @@ private fun buildModuleSummary(
     val countLabel = if (lessons.size == 1) "1 reading" else "${lessons.size} readings"
     return "$countLabel in $title."
 }
+
+private fun specToLessonModule(
+    spec: CurriculumModuleSpec,
+    lessonsById: Map<Int, Lesson>
+): LessonModule = LessonModule(
+    title = spec.title,
+    lessons = spec.lessonIds.mapNotNull { lessonsById[it] },
+    summary = spec.summary
+)
 
 @Composable
 private fun ExpandChevronIcon(
@@ -143,9 +159,11 @@ fun LessonListScreen(
     completedQuizLessonIds: Set<Int> = emptySet(),
     continueReadingLesson: Lesson? = null,
     isDarkMode: Boolean = false,
+    isLoadingCurriculum: Boolean = false,
     allLessons: List<Lesson> = remember { LessonRepository.getCachedCurriculum() },
     scrollToLibraryToken: Int = 0,
     onScrollToLibraryHandled: () -> Unit = {},
+    onRetryCurriculum: () -> Unit = {},
     onExpandedKeysChanged: (Set<String>) -> Unit,
     onScrollChanged: (Int, Int) -> Unit,
     onLessonSelected: (Lesson) -> Unit,
@@ -177,70 +195,44 @@ fun LessonListScreen(
         )
     }
 
-    val wordsAndMeaningsLesson = remember(allLessons) { allLessons.find { it.id == 1 } }
-
-    val homeItems = remember(allLessons, wordsAndMeaningsLesson) {
+    val homeItems = remember(allLessons) {
+        val lessonsById = allLessons.associateBy { it.id }
         buildList {
-            if (wordsAndMeaningsLesson != null) {
-                add(HomeItem.StandaloneLesson(wordsAndMeaningsLesson))
-            }
-            add(
-                HomeItem.RegularModule(
-                    LessonModule(
-                        title = "The Path",
-                        lessons = allLessons.filter { it.id in 2..6 },
-                        summary = "Foundational stages of the path, ethics, and core principles guiding practice."
-                    )
-                )
-            )
-            add(
-                HomeItem.RegularModule(
-                    LessonModule(
-                        title = "The Three Marks of Existence",
-                        lessons = allLessons.filter { it.id in 7..10 },
-                        summary = "Exploring impermanence, unsatisfactoriness, and non-self across conditioned experience."
-                    )
-                )
-            )
-            add(
-                HomeItem.RegularModule(
-                    LessonModule(
-                        title = "Compassion, Karma & Practice",
-                        lessons = allLessons.filter { it.id in 11..15 },
-                        summary = "Contemplating mortality, cause and effect, bodhicitta, the six perfections, and Tsongkhapa."
-                    )
-                )
-            )
-            add(
-                HomeItem.RegularModule(
-                    LessonModule(
-                        title = "Interdependence & Wisdom (Emptiness)",
-                        lessons = allLessons.filter { it.id in 16..21 },
-                        summary = "Insight into interdependence, emptiness, Nāgārjuna, and Āryadeva."
-                    )
-                )
-            )
-            add(
-                HomeItem.NestedModule(
-                    module = LessonModule(
-                        title = "Library",
-                        lessons = emptyList(),
-                        summary = "Source texts and classical Buddhist works."
-                    ),
-                    subModules = listOf(
-                        LessonModule(
-                            title = "The Three Principal Aspects of the Path by Tsongkhapa",
-                            lessons = allLessons.filter { it.id == 32 },
-                            summary = "Lam gyi gtso bo rnam gsum by Tsongkhapa: determination to be free, supreme bodhicitta, and the wisdom realizing dependent arising and emptiness."
-                        ),
-                        LessonModule(
-                            title = "A Guide to the Bodhisattva's Way of Life by Śāntideva",
-                            lessons = allLessons.filter { it.id in 22..31 },
-                            summary = "Bodhicaryāvatāra — Chapters 1 to 10 on the awakening mind, ethics, patience, effort, meditation, wisdom, and dedication."
+            CurriculumStructure.modules.forEach { spec ->
+                when {
+                    spec.key == "glossary" -> {
+                        spec.lessonIds.forEach { lessonId ->
+                            val loadedLesson = lessonsById[lessonId]
+                            val displayLesson = loadedLesson ?: Lesson(
+                                id = lessonId,
+                                title = spec.title,
+                                summary = spec.summary,
+                                content = "",
+                                quiz = null
+                            )
+                            add(
+                                HomeItem.StandaloneLesson(
+                                    lesson = displayLesson,
+                                    isReady = loadedLesson != null
+                                )
+                            )
+                        }
+                    }
+                    spec.isLibraryCollection -> {
+                        add(
+                            HomeItem.NestedModule(
+                                module = specToLessonModule(spec, lessonsById),
+                                subModules = spec.subModules.map { subSpec ->
+                                    specToLessonModule(subSpec, lessonsById)
+                                }
+                            )
                         )
-                    )
-                )
-            )
+                    }
+                    else -> {
+                        add(HomeItem.RegularModule(specToLessonModule(spec, lessonsById)))
+                    }
+                }
+            }
         }
     }
 
@@ -415,6 +407,46 @@ fun LessonListScreen(
                         lesson = welcomeLesson,
                         isDarkMode = isDarkMode
                     )
+                }
+
+                if (allLessons.isEmpty() && !isLoadingCurriculum) {
+                    item(key = "curriculum_empty_retry_card") {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = CardShape,
+                            border = cardBorder(),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(18.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Text(
+                                    text = "CURRICULUM UNAVAILABLE",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    letterSpacing = 1.sp,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Lessons couldn't be loaded right now. Try loading the curriculum again.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Button(
+                                    onClick = onRetryCurriculum,
+                                    shape = CircleShape
+                                ) {
+                                    Text("Retry")
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if (continueReadingLesson != null) {
@@ -728,7 +760,9 @@ fun LessonListScreen(
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { onLessonSelected(lesson) },
+                                        .clickable(enabled = item.isReady) {
+                                            onLessonSelected(lesson)
+                                        },
                                     shape = CardShape,
                                     border = BorderStroke(1.dp, glossaryBorderColor),
                                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),

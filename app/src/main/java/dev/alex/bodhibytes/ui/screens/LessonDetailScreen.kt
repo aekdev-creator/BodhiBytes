@@ -43,8 +43,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +57,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.alex.bodhibytes.data.ContentBlock
+import dev.alex.bodhibytes.data.LessonRepository
+import dev.alex.bodhibytes.data.parseContentBlocks
 import dev.alex.bodhibytes.model.Lesson
 import dev.alex.bodhibytes.ui.components.BodhiBytesTopBar
 import dev.alex.bodhibytes.ui.state.ReadingPosition
@@ -62,96 +67,11 @@ import dev.alex.bodhibytes.ui.theme.CardShape
 import dev.alex.bodhibytes.ui.theme.ReadingFontSize
 import dev.alex.bodhibytes.ui.theme.ReadingLineSpacing
 import dev.alex.bodhibytes.ui.theme.cardBorder
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 
-private sealed interface ContentBlock {
-    data class SectionHeading(val title: String) : ContentBlock
-    data class NumberedCard(val number: String, val title: String, val body: String) : ContentBlock
-    data class KeyValueCard(val term: String, val definition: String) : ContentBlock
-    data class VerseBlock(val lines: List<String>) : ContentBlock
-    data class SourceNote(val text: String) : ContentBlock
-    data class BodyParagraph(val text: String) : ContentBlock
-}
-
-private val DefinitionRegex = Regex(
-    "^([\\p{L}\\p{N}\\s()/&\\-–—]{1,45}):\\s+(.+)$",
-    RegexOption.DOT_MATCHES_ALL
-)
-
-private val NumberedItemRegex = Regex(
-    "^(\\d+)\\.\\s+([\\p{L}\\p{N}\\s()/&\\-–—]{1,65}):\\s+(.+)$",
-    RegexOption.DOT_MATCHES_ALL
-)
-
-private val StandaloneHeadingRegex = Regex(
-    "^([\\p{L}\\p{N}\\s()/&\\-–—]{3,75}):$"
-)
-
-private val NumberedStanzaRegex = Regex(
-    "^(?:\\d+\\.)?\\d+(?:–\\d+)?\\.?\\s+(.+)$",
-    RegexOption.DOT_MATCHES_ALL
-)
-
-private val RomanStanzaRegex = Regex(
-    "^([IVXLCDM]+(?:–[IVXLCDM]+)?)\\.\\s+(.+)$",
-    RegexOption.DOT_MATCHES_ALL
-)
-
-private fun parseContentBlocks(content: String): List<ContentBlock> {
-    val rawParagraphs = content
-        .split(Regex("\\n\\s*\\n"))
-        .map { it.trim() }
-        .filter { it.isNotEmpty() }
-
-    return rawParagraphs.map { paragraph ->
-        val lines = paragraph.lines().map { it.trim() }.filter { it.isNotEmpty() }
-
-        if (paragraph.startsWith("Source & Study Note:") ||
-            paragraph.startsWith("Source and Translation Note") ||
-            paragraph.startsWith("SOURCE AND TRANSLATION NOTE")
-        ) {
-            return@map ContentBlock.SourceNote(paragraph)
-        }
-
-        if (lines.size == 1) {
-            val headingMatch = StandaloneHeadingRegex.matchEntire(lines[0])
-            if (headingMatch != null && lines[0].count { it == ' ' } <= 9) {
-                return@map ContentBlock.SectionHeading(headingMatch.groupValues[1].trim())
-            }
-        }
-
-        val numberedMatch = NumberedItemRegex.matchEntire(paragraph)
-        if (numberedMatch != null) {
-            return@map ContentBlock.NumberedCard(
-                number = numberedMatch.groupValues[1].trim(),
-                title = numberedMatch.groupValues[2].trim().replace(Regex("\\s+"), " "),
-                body = numberedMatch.groupValues[3].trim()
-            )
-        }
-
-        if (NumberedStanzaRegex.matches(paragraph) || RomanStanzaRegex.matches(paragraph)) {
-            return@map ContentBlock.VerseBlock(lines)
-        }
-
-        if (lines.size >= 3 && lines.all { it.length <= 75 }) {
-            return@map ContentBlock.VerseBlock(lines)
-        }
-
-        val firstLine = lines.firstOrNull() ?: ""
-        if (firstLine.length <= 90) {
-            val defMatch = DefinitionRegex.matchEntire(paragraph)
-            if (defMatch != null) {
-                val term = defMatch.groupValues[1].trim().replace(Regex("\\s+"), " ")
-                val body = defMatch.groupValues[2].trim()
-                if (term.isNotEmpty() && body.isNotEmpty() && term.count { it == ' ' } <= 5) {
-                    return@map ContentBlock.KeyValueCard(term = term, definition = body)
-                }
-            }
-        }
-
-        ContentBlock.BodyParagraph(paragraph)
-    }
-}
-
+@OptIn(FlowPreview::class)
 @Composable
 fun LessonDetailScreen(
     lesson: Lesson,
@@ -179,8 +99,17 @@ fun LessonDetailScreen(
         }
     }
 
-    val contentBlocks = remember(lesson.content) {
-        parseContentBlocks(lesson.content)
+    var contentBlocks by remember(lesson.id, lesson.content) {
+        mutableStateOf(
+            LessonRepository.getCachedContentBlocks(lesson.id)
+                ?: if (lesson.content.isEmpty()) emptyList() else parseContentBlocks(lesson.content)
+        )
+    }
+
+    LaunchedEffect(lesson.id, lesson.content) {
+        if (LessonRepository.getCachedContentBlocks(lesson.id) == null) {
+            contentBlocks = LessonRepository.getContentBlocks(lesson)
+        }
     }
 
     val listState = rememberLazyListState(
@@ -227,9 +156,12 @@ fun LessonDetailScreen(
                     offset = listState.firstVisibleItemScrollOffset
                 )
             }
-        }.collect { position ->
-            currentOnReadingPositionChanged(position)
         }
+            .distinctUntilChanged()
+            .debounce(250L)
+            .collect { position ->
+                currentOnReadingPositionChanged(position)
+            }
     }
 
     Scaffold(

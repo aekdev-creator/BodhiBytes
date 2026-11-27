@@ -28,8 +28,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,10 +60,10 @@ fun QuizScreen(
     onNextLessonClick: (Lesson) -> Unit = {},
     onGoToLibraryClick: () -> Unit = {}
 ) {
-    var currentQuestionIndex by remember { mutableStateOf(0) }
-    var selectedOptionIndex by remember { mutableStateOf<Int?>(null) }
-    var score by remember { mutableStateOf(0) }
-    var isQuizFinished by remember { mutableStateOf(false) }
+    var currentQuestionIndex by rememberSaveable(quiz.id) { mutableIntStateOf(0) }
+    var selectedOptionIndex by rememberSaveable(quiz.id) { mutableStateOf<Int?>(null) }
+    var score by rememberSaveable(quiz.id) { mutableIntStateOf(0) }
+    var isQuizFinished by rememberSaveable(quiz.id) { mutableStateOf(false) }
 
     val totalQuestions = quiz.questions.size
     val currentQuestion = quiz.questions.getOrNull(currentQuestionIndex)
@@ -247,14 +248,21 @@ fun QuizScreen(
                     val containerColor = when {
                         !hasAnswered -> MaterialTheme.colorScheme.surface
                         isCorrectOption -> MaterialTheme.colorScheme.primaryContainer
-                        isSelected -> MaterialTheme.colorScheme.secondaryContainer
+                        isSelected -> MaterialTheme.colorScheme.errorContainer
                         else -> MaterialTheme.colorScheme.surface
+                    }
+
+                    val textColor = when {
+                        !hasAnswered -> MaterialTheme.colorScheme.onSurface
+                        isCorrectOption -> MaterialTheme.colorScheme.onPrimaryContainer
+                        isSelected -> MaterialTheme.colorScheme.onErrorContainer
+                        else -> MaterialTheme.colorScheme.onSurface
                     }
 
                     val borderStroke = when {
                         !hasAnswered -> cardBorder()
                         isCorrectOption -> BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary)
-                        isSelected -> BorderStroke(1.5.dp, MaterialTheme.colorScheme.secondary)
+                        isSelected -> BorderStroke(1.5.dp, MaterialTheme.colorScheme.error)
                         else -> cardBorder()
                     }
 
@@ -298,7 +306,7 @@ fun QuizScreen(
                                 } else {
                                     FontWeight.Normal
                                 },
-                                color = MaterialTheme.colorScheme.onSurface,
+                                color = textColor,
                                 modifier = Modifier.weight(1f)
                             )
                             if (statusTag != null) {
@@ -306,10 +314,10 @@ fun QuizScreen(
                                     text = statusTag,
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = if (isCorrectOption) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = when {
+                                        isCorrectOption -> MaterialTheme.colorScheme.primary
+                                        isSelected -> MaterialTheme.colorScheme.error
+                                        else -> MaterialTheme.colorScheme.onSurfaceVariant
                                     }
                                 )
                             }
@@ -341,7 +349,7 @@ fun QuizScreen(
                                     color = if (isCorrect) {
                                         MaterialTheme.colorScheme.primary
                                     } else {
-                                        MaterialTheme.colorScheme.onSurface
+                                        MaterialTheme.colorScheme.error
                                     }
                                 )
                                 Text(

@@ -70,13 +70,15 @@ fun saveReadingPositions(
 
 @Stable
 class BodhiBytesAppState(
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences,
+    initialLoadingCurriculum: Boolean = false
 ) {
     var lessonListScrollIndex by mutableIntStateOf(0)
     var lessonListScrollOffset by mutableIntStateOf(0)
     var lessonListExpandedKeys by mutableStateOf(emptySet<String>())
     var scrollToLibraryToken by mutableIntStateOf(0)
     var curriculumRetryToken by mutableIntStateOf(0)
+    var isLoadingCurriculum by mutableStateOf(initialLoadingCurriculum)
 
     var bookmarksScrollIndex by mutableIntStateOf(0)
     var bookmarksScrollOffset by mutableIntStateOf(0)
@@ -131,31 +133,39 @@ class BodhiBytesAppState(
         private set
 
     fun updateLessonListScroll(index: Int, offset: Int) {
-        lessonListScrollIndex = index
-        lessonListScrollOffset = offset
+        if (lessonListScrollIndex != index || lessonListScrollOffset != offset) {
+            lessonListScrollIndex = index
+            lessonListScrollOffset = offset
+        }
     }
 
     fun updateBookmarksScroll(index: Int, offset: Int) {
-        bookmarksScrollIndex = index
-        bookmarksScrollOffset = offset
+        if (bookmarksScrollIndex != index || bookmarksScrollOffset != offset) {
+            bookmarksScrollIndex = index
+            bookmarksScrollOffset = offset
+        }
     }
 
     fun updateDarkMode(enabled: Boolean) {
+        if (isDarkMode == enabled) return
         isDarkMode = enabled
         sharedPreferences.edit().putBoolean(KEY_DARK_MODE, enabled).apply()
     }
 
     fun updateReadingFontSize(size: ReadingFontSize) {
+        if (readingFontSize == size) return
         readingFontSize = size
         sharedPreferences.edit().putString(KEY_READING_FONT_SIZE, size.key).apply()
     }
 
     fun updateReadingLineSpacing(spacing: ReadingLineSpacing) {
+        if (readingLineSpacing == spacing) return
         readingLineSpacing = spacing
         sharedPreferences.edit().putString(KEY_READING_LINE_SPACING, spacing.key).apply()
     }
 
     fun updateKeepScreenAwake(enabled: Boolean) {
+        if (keepScreenAwake == enabled) return
         keepScreenAwake = enabled
         sharedPreferences.edit().putBoolean(KEY_KEEP_SCREEN_AWAKE, enabled).apply()
     }
@@ -181,22 +191,22 @@ class BodhiBytesAppState(
 
     fun updateReadingPosition(lessonId: Int, position: ReadingPosition) {
         val current = readingPositions[lessonId] ?: ReadingPosition()
-        if (current != position) {
-            val updated = if (position.hasProgress()) {
-                readingPositions + (lessonId to position)
-            } else {
-                readingPositions - lessonId
-            }
-            readingPositions = updated
-            saveReadingPositions(sharedPreferences, updated)
+        if (current == position) return
 
-            if (position.hasProgress() && !completedQuizLessonIds.contains(lessonId)) {
-                onLessonOpened(lessonId)
-            }
+        val updated = if (position.hasProgress()) {
+            readingPositions + (lessonId to position)
+        } else {
+            readingPositions - lessonId
+        }
+        readingPositions = updated
+        saveReadingPositions(sharedPreferences, updated)
+
+        if (position.hasProgress() && !completedQuizLessonIds.contains(lessonId)) {
+            onLessonOpened(lessonId)
         }
     }
 
-    fun clearContinueReadingLesson(lessonId: Int) {
+    private fun clearActiveReadingState(lessonId: Int) {
         if (readingPositions.containsKey(lessonId)) {
             val updatedPositions = readingPositions - lessonId
             readingPositions = updatedPositions
@@ -206,6 +216,10 @@ class BodhiBytesAppState(
             lastOpenedLessonId = null
             sharedPreferences.edit().remove(KEY_LAST_OPENED_LESSON_ID).apply()
         }
+    }
+
+    fun clearContinueReadingLesson(lessonId: Int) {
+        clearActiveReadingState(lessonId)
     }
 
     fun handleQuizCompleted(completedLessonId: Int) {
@@ -218,23 +232,22 @@ class BodhiBytesAppState(
             )
             .apply()
 
-        if (readingPositions.containsKey(completedLessonId)) {
-            val updatedPositions = readingPositions - completedLessonId
-            readingPositions = updatedPositions
-            saveReadingPositions(sharedPreferences, updatedPositions)
-        }
-
-        if (lastOpenedLessonId == completedLessonId) {
-            lastOpenedLessonId = null
-            sharedPreferences.edit().remove(KEY_LAST_OPENED_LESSON_ID).apply()
-        }
+        clearActiveReadingState(completedLessonId)
     }
 }
 
 @Composable
-fun rememberBodhiBytesAppState(context: Context): BodhiBytesAppState {
+fun rememberBodhiBytesAppState(
+    context: Context,
+    initialLoadingCurriculum: Boolean = false
+): BodhiBytesAppState {
     val prefs = remember(context) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
-    return remember(prefs) { BodhiBytesAppState(prefs) }
+    return remember(prefs) {
+        BodhiBytesAppState(
+            sharedPreferences = prefs,
+            initialLoadingCurriculum = initialLoadingCurriculum
+        )
+    }
 }

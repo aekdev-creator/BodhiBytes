@@ -30,6 +30,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -57,11 +61,20 @@ fun BodhiBytesTopBar(
             )
         )
         if (progress != null) {
+            val clamped = progress.coerceIn(0f, 1f)
+            val percent = (clamped * 100).toInt()
             LinearProgressIndicator(
-                progress = { progress.coerceIn(0f, 1f) },
+                progress = { clamped },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(2.5.dp),
+                    .height(2.5.dp)
+                    .semantics {
+                        contentDescription = "Progress $percent%"
+                        progressBarRangeInfo = ProgressBarRangeInfo(
+                            current = clamped,
+                            range = 0f..1f
+                        )
+                    },
                 color = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.outlineVariant
             )

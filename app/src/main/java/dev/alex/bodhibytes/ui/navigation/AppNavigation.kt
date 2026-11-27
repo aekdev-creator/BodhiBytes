@@ -31,9 +31,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.alex.bodhibytes.R
 import dev.alex.bodhibytes.data.LessonRepository
+import dev.alex.bodhibytes.model.CurriculumStructure
 import dev.alex.bodhibytes.model.Lesson
 import dev.alex.bodhibytes.model.Quiz
 import dev.alex.bodhibytes.ui.screens.AboutScreen
@@ -59,8 +61,6 @@ import dev.alex.bodhibytes.ui.theme.UnconditionedDarkColorScheme
 import dev.alex.bodhibytes.ui.theme.UnconditionedLightColorScheme
 import kotlinx.coroutines.launch
 
-private const val LAST_MAIN_CURRICULUM_LESSON_ID = 21
-
 sealed interface AppScreen {
     object List : AppScreen
     data class Detail(val lesson: Lesson) : AppScreen
@@ -71,13 +71,81 @@ sealed interface AppScreen {
     object About : AppScreen
 }
 
+private fun appScreenSaver(lessonsProvider: () -> List<Lesson>): Saver<AppScreen, List<String>> =
+    Saver(
+        save = { screen ->
+            when (screen) {
+                AppScreen.List -> listOf("list")
+                is AppScreen.Detail -> listOf("detail", screen.lesson.id.toString())
+                is AppScreen.QuizScreenState -> listOf("quiz", screen.lesson.id.toString())
+                AppScreen.Bookmarks -> listOf("bookmarks")
+                AppScreen.Settings -> listOf("settings")
+                AppScreen.Feedback -> listOf("feedback")
+                AppScreen.About -> listOf("about")
+            }
+        },
+        restore = { saved ->
+            val lessons = lessonsProvider()
+            when (saved.firstOrNull()) {
+                "detail" -> {
+                    val lessonId = saved.getOrNull(1)?.toIntOrNull()
+                    val lesson = lessons.find { it.id == lessonId }
+                    if (lesson != null) AppScreen.Detail(lesson) else AppScreen.List
+                }
+                "quiz" -> {
+                    val lessonId = saved.getOrNull(1)?.toIntOrNull()
+                    val lesson = lessons.find { it.id == lessonId }
+                    val quiz = lesson?.quiz
+                    if (lesson != null && quiz != null) {
+                        AppScreen.QuizScreenState(quiz, lesson)
+                    } else if (lesson != null) {
+                        AppScreen.Detail(lesson)
+                    } else {
+                        AppScreen.List
+                    }
+                }
+                "bookmarks" -> AppScreen.Bookmarks
+                "settings" -> AppScreen.Settings
+                "feedback" -> AppScreen.Feedback
+                "about" -> AppScreen.About
+                else -> AppScreen.List
+            }
+        }
+    )
+
 @Composable
 fun BodhiBytesApp() {
     val context = LocalContext.current
     val activity = context as? Activity
-    val appState = rememberBodhiBytesAppState(context)
+    val initialLessons = remember { LessonRepository.getCachedCurriculum() }
+    val appState = rememberBodhiBytesAppState(
+        context = context,
+        initialLoadingCurriculum = initialLessons.isEmpty()
+    )
 
-    var currentScreen by remember { mutableStateOf<AppScreen>(AppScreen.List) }
+    var allLessons by remember {
+        mutableStateOf(initialLessons)
+    }
+
+    LaunchedEffect(context, appState.curriculumRetryToken) {
+        val forceRefresh = appState.curriculumRetryToken > 0
+        if (allLessons.isEmpty() || forceRefresh) {
+            appState.isLoadingCurriculum = true
+        }
+        val loaded = LessonRepository.getCurriculum(
+            context = context,
+            forceRefresh = forceRefresh
+        )
+        if (loaded.isNotEmpty() || allLessons.isEmpty()) {
+            allLessons = loaded
+        }
+        appState.isLoadingCurriculum = false
+    }
+
+    val screenSaver = remember(allLessons) { appScreenSaver { allLessons } }
+    var currentScreen by rememberSaveable(stateSaver = screenSaver) {
+        mutableStateOf<AppScreen>(AppScreen.List)
+    }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -94,30 +162,8 @@ fun BodhiBytesApp() {
         }
     }
 
-    val allLessons by produceState(
-        initialValue = LessonRepository.getCachedCurriculum(),
-        key1 = context,
-        key2 = appState.curriculumRetryToken
-    ) {
-        val loaded = LessonRepository.getCurriculum(
-            context = context,
-            forceRefresh = appState.curriculumRetryToken > 0
-        )
-        if (loaded.isNotEmpty() || value.isEmpty()) {
-            value = loaded
-        }
-    }
-
     val orderedLessons = remember(allLessons) {
-        buildList {
-            allLessons.find { it.id == 1 }?.let { add(it) }
-            addAll(allLessons.filter { it.id in 2..6 })
-            addAll(allLessons.filter { it.id in 7..10 })
-            addAll(allLessons.filter { it.id in 11..15 })
-            addAll(allLessons.filter { it.id in 16..21 })
-            addAll(allLessons.filter { it.id in 22..31 })
-            addAll(allLessons.filter { it.id == 32 })
-        }
+        CurriculumStructure.orderedLessons(allLessons)
     }
 
     val continueReadingLesson = remember(
@@ -259,9 +305,11 @@ fun BodhiBytesApp() {
                         completedQuizLessonIds = appState.completedQuizLessonIds,
                         continueReadingLesson = continueReadingLesson,
                         isDarkMode = appState.isDarkMode,
+                        isLoadingCurriculum = appState.isLoadingCurriculum,
                         allLessons = allLessons,
                         scrollToLibraryToken = appState.scrollToLibraryToken,
                         onScrollToLibraryHandled = { appState.scrollToLibraryToken = 0 },
+                        onRetryCurriculum = { appState.curriculumRetryToken += 1 },
                         onExpandedKeysChanged = { appState.lessonListExpandedKeys = it },
                         onScrollChanged = { index, offset ->
                             appState.updateLessonListScroll(index, offset)
@@ -303,7 +351,7 @@ fun BodhiBytesApp() {
                 }
 
                 is AppScreen.QuizScreenState -> {
-                    val isLastMainLesson = screen.lesson.id == LAST_MAIN_CURRICULUM_LESSON_ID
+                    val isLastMainLesson = screen.lesson.id == CurriculumStructure.lastMainCurriculumLessonId
                     val currentIndex = orderedLessons.indexOfFirst { it.id == screen.lesson.id }
                     val nextLesson = if (!isLastMainLesson && currentIndex != -1 && currentIndex + 1 < orderedLessons.size) {
                         orderedLessons[currentIndex + 1]
