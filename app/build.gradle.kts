@@ -1,10 +1,10 @@
-
 import java.util.Properties
 import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.android.application)
     id("org.jetbrains.kotlin.plugin.compose") version "2.3.21"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.21"
 }
 
 val keystorePropsFile = rootProject.file("release.properties")
@@ -129,6 +129,7 @@ kotlin {
 }
 
 dependencies {
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.android.material)

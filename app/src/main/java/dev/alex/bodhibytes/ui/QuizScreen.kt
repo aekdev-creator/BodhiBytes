@@ -31,12 +31,14 @@ fun QuizScreen(
     quiz: Quiz,
     lesson: Lesson,
     nextLesson: Lesson? = null,
+    showGoToLibrary: Boolean = false,
     readingFontSize: ReadingFontSize = ReadingFontSize.DEFAULT,
     readingLineSpacing: ReadingLineSpacing = ReadingLineSpacing.COMFORTABLE,
     onQuizCompleted: (Int) -> Unit = {},
     onBackClick: () -> Unit,
     onHomeClick: () -> Unit = {},
-    onNextLessonClick: (Lesson) -> Unit = {}
+    onNextLessonClick: (Lesson) -> Unit = {},
+    onGoToLibraryClick: () -> Unit = {}
 ) {
     var currentQuestionIndex by remember { mutableStateOf(0) }
     var selectedOptionIndex by remember { mutableStateOf<Int?>(null) }
@@ -138,7 +140,21 @@ fun QuizScreen(
                         ) {
                             Text("Retake Quiz")
                         }
-                        if (nextLesson != null) {
+                        if (showGoToLibrary) {
+                            Button(
+                                onClick = onGoToLibraryClick,
+                                shape = CircleShape,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(46.dp)
+                            ) {
+                                Text(
+                                    text = "Go to Library",
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        } else if (nextLesson != null) {
                             Button(
                                 onClick = { onNextLessonClick(nextLesson) },
                                 shape = CircleShape,
@@ -162,13 +178,14 @@ fun QuizScreen(
                         ) {
                             Text("Back to Lesson")
                         }
-                        TextButton(
+                        OutlinedButton(
                             onClick = onHomeClick,
+                            shape = CircleShape,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(44.dp)
+                                .height(46.dp)
                         ) {
-                            Text("Return to Curriculum")
+                            Text("Return to Home")
                         }
                     }
                 }

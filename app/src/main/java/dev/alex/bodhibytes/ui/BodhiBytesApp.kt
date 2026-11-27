@@ -9,6 +9,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +31,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -39,11 +41,9 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -56,6 +56,7 @@ import kotlinx.coroutines.launch
 
 private const val KEY_COMPLETED_QUIZ_LESSON_IDS = "completed_quiz_lesson_ids"
 private const val KEY_LAST_OPENED_LESSON_ID = "last_opened_lesson_id"
+private const val LAST_MAIN_CURRICULUM_LESSON_ID = 12
 
 private val UnconditionedLightColorScheme = lightColorScheme(
     primary = Color(0xFF47608B),
@@ -100,40 +101,79 @@ private val CardShape = RoundedCornerShape(14.dp)
 @Composable
 private fun cardBorder(): BorderStroke = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
 
-private data class ParsedDefinition(
-    val term: String,
-    val definition: String
-)
+private sealed interface ContentBlock {
+    data class SectionHeading(val title: String) : ContentBlock
+    data class NumberedCard(val number: String, val title: String, val body: String) : ContentBlock
+    data class KeyValueCard(val term: String, val definition: String) : ContentBlock
+    data class VerseBlock(val lines: List<String>) : ContentBlock
+    data class SourceNote(val text: String) : ContentBlock
+    data class BodyParagraph(val text: String) : ContentBlock
+}
 
 private val DefinitionRegex = Regex(
-    "^([\\p{L}\\p{N}\\s()/\\-–—]{1,75}):\\s+(.+)$",
+    "^([\\p{L}\\p{N}\\s()/&\\-–—]{1,75}):\\s+(.+)$",
     RegexOption.DOT_MATCHES_ALL
 )
 
 private val NumberedItemRegex = Regex(
-    "^(\\d+\\.\\s+[\\p{L}\\p{N}\\s()/\\-–—]{1,65}):\\s+(.+)$",
+    "^(\\d+)\\.\\s+([\\p{L}\\p{N}\\s()/&\\-–—]{1,65}):\\s+(.+)$",
     RegexOption.DOT_MATCHES_ALL
 )
 
-private fun parseNumberedEntry(paragraph: String): ParsedDefinition? {
-    val trimmed = paragraph.trim()
-    val match = NumberedItemRegex.matchEntire(trimmed) ?: return null
-    val label = match.groupValues[1].trim().replace(Regex("\\s+"), " ")
-    val body = match.groupValues[2].trim()
-    if (label.isEmpty() || body.isEmpty()) return null
-    return ParsedDefinition(term = label, definition = body)
-}
+private val StandaloneHeadingRegex = Regex(
+    "^([\\p{L}\\p{N}\\s()/&\\-–—]{3,75}):$"
+)
 
-private fun parseDefinition(paragraph: String): ParsedDefinition? {
-    val trimmed = paragraph.trim()
-    val firstLine = trimmed.lines().firstOrNull()?.trim() ?: return null
-    if (firstLine.length > 140) return null
-    val match = DefinitionRegex.matchEntire(trimmed) ?: return null
-    val term = match.groupValues[1].trim().replace(Regex("\\s+"), " ")
-    val definition = match.groupValues[2].trim()
-    if (term.isEmpty() || definition.isEmpty()) return null
-    if (term.count { it == ' ' } > 8) return null
-    return ParsedDefinition(term = term, definition = definition)
+private fun parseContentBlocks(content: String): List<ContentBlock> {
+    val rawParagraphs = content
+        .split(Regex("\\n\\s*\\n"))
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+
+    return rawParagraphs.map { paragraph ->
+        val lines = paragraph.lines().map { it.trim() }.filter { it.isNotEmpty() }
+
+        if (paragraph.startsWith("Source & Study Note:") ||
+            paragraph.startsWith("Source and Translation Note") ||
+            paragraph.startsWith("SOURCE AND TRANSLATION NOTE")
+        ) {
+            return@map ContentBlock.SourceNote(paragraph)
+        }
+
+        if (lines.size == 1) {
+            val headingMatch = StandaloneHeadingRegex.matchEntire(lines[0])
+            if (headingMatch != null && lines[0].count { it == ' ' } <= 9) {
+                return@map ContentBlock.SectionHeading(headingMatch.groupValues[1].trim())
+            }
+        }
+
+        val numberedMatch = NumberedItemRegex.matchEntire(paragraph)
+        if (numberedMatch != null) {
+            return@map ContentBlock.NumberedCard(
+                number = numberedMatch.groupValues[1].trim(),
+                title = numberedMatch.groupValues[2].trim().replace(Regex("\\s+"), " "),
+                body = numberedMatch.groupValues[3].trim()
+            )
+        }
+
+        if (lines.size >= 3 && lines.all { it.length <= 75 }) {
+            return@map ContentBlock.VerseBlock(lines)
+        }
+
+        val firstLine = lines.firstOrNull() ?: ""
+        if (firstLine.length <= 140) {
+            val defMatch = DefinitionRegex.matchEntire(paragraph)
+            if (defMatch != null) {
+                val term = defMatch.groupValues[1].trim().replace(Regex("\\s+"), " ")
+                val body = defMatch.groupValues[2].trim()
+                if (term.isNotEmpty() && body.isNotEmpty() && term.count { it == ' ' } <= 8) {
+                    return@map ContentBlock.KeyValueCard(term = term, definition = body)
+                }
+            }
+        }
+
+        ContentBlock.BodyParagraph(paragraph)
+    }
 }
 
 enum class ReadingFontSize(
@@ -160,9 +200,9 @@ enum class ReadingLineSpacing(
     val lineHeight: TextUnit,
     val paragraphSpacing: Dp
 ) {
-    COMPACT("compact", "Compact", 18.sp, 6.dp),
-    COMFORTABLE("comfortable", "Comfortable", 20.sp, 10.dp),
-    SPACIOUS("spacious", "Spacious", 24.sp, 14.dp);
+    COMPACT("compact", "Compact", 18.sp, 8.dp),
+    COMFORTABLE("comfortable", "Comfortable", 21.sp, 12.dp),
+    SPACIOUS("spacious", "Spacious", 25.sp, 16.dp);
 
     companion object {
         fun fromKey(key: String?): ReadingLineSpacing {
@@ -338,6 +378,7 @@ fun BodhiBytesApp() {
     var lessonListScrollIndex by remember { mutableStateOf(0) }
     var lessonListScrollOffset by remember { mutableStateOf(0) }
     var lessonListExpandedKeys by remember { mutableStateOf(emptySet<String>()) }
+    var scrollToLibraryToken by remember { mutableIntStateOf(0) }
 
     var bookmarksScrollIndex by remember { mutableStateOf(0) }
     var bookmarksScrollOffset by remember { mutableStateOf(0) }
@@ -437,7 +478,12 @@ fun BodhiBytesApp() {
         }
     }
 
-    val allLessons = remember { LessonRepository.getCurriculum() }
+    val allLessons by produceState(
+        initialValue = LessonRepository.getCachedCurriculum(),
+        key1 = context
+    ) {
+        value = LessonRepository.getCurriculum(context)
+    }
 
     val orderedLessons = remember(allLessons) {
         buildList {
@@ -589,6 +635,9 @@ fun BodhiBytesApp() {
                         readingPositions = readingPositions,
                         continueReadingLesson = continueReadingLesson,
                         isDarkMode = isDarkMode,
+                        allLessons = allLessons,
+                        scrollToLibraryToken = scrollToLibraryToken,
+                        onScrollToLibraryHandled = { scrollToLibraryToken = 0 },
                         onExpandedKeysChanged = { lessonListExpandedKeys = it },
                         onScrollChanged = { index, offset ->
                             lessonListScrollIndex = index
@@ -639,8 +688,9 @@ fun BodhiBytesApp() {
                     )
                 }
                 is AppScreen.QuizScreenState -> {
+                    val isLastMainLesson = screen.lesson.id == LAST_MAIN_CURRICULUM_LESSON_ID
                     val currentIndex = orderedLessons.indexOfFirst { it.id == screen.lesson.id }
-                    val nextLesson = if (currentIndex != -1 && currentIndex + 1 < orderedLessons.size) {
+                    val nextLesson = if (!isLastMainLesson && currentIndex != -1 && currentIndex + 1 < orderedLessons.size) {
                         orderedLessons[currentIndex + 1]
                     } else {
                         null
@@ -650,6 +700,7 @@ fun BodhiBytesApp() {
                         quiz = screen.quiz,
                         lesson = screen.lesson,
                         nextLesson = nextLesson,
+                        showGoToLibrary = isLastMainLesson,
                         readingFontSize = readingFontSize,
                         readingLineSpacing = readingLineSpacing,
                         onQuizCompleted = handleQuizCompleted,
@@ -658,6 +709,10 @@ fun BodhiBytesApp() {
                         onNextLessonClick = { targetLesson: Lesson ->
                             recordLastOpenedLesson(targetLesson.id)
                             currentScreen = AppScreen.Detail(targetLesson)
+                        },
+                        onGoToLibraryClick = {
+                            scrollToLibraryToken += 1
+                            currentScreen = AppScreen.List
                         }
                     )
                 }
@@ -724,13 +779,15 @@ fun LessonListScreen(
     readingPositions: Map<Int, ReadingPosition> = emptyMap(),
     continueReadingLesson: Lesson? = null,
     isDarkMode: Boolean = false,
+    allLessons: List<Lesson> = remember { LessonRepository.getCachedCurriculum() },
+    scrollToLibraryToken: Int = 0,
+    onScrollToLibraryHandled: () -> Unit = {},
     onExpandedKeysChanged: (Set<String>) -> Unit,
     onScrollChanged: (Int, Int) -> Unit,
     onLessonSelected: (Lesson) -> Unit,
     onClearContinueReading: (Lesson) -> Unit = {},
     onMenuClick: () -> Unit
 ) {
-    val allLessons = remember { LessonRepository.getCurriculum() }
 
     val welcomeLesson = remember {
         Lesson(
@@ -794,7 +851,7 @@ fun LessonListScreen(
                     ),
                     subModules = listOf(
                         LessonModule(
-                            title = "The Three Principal Aspects of the Path",
+                            title = "The Three Principal Aspects of the Path by Tsongkhapa",
                             lessons = allLessons.filter { it.id == 111 },
                             summary = "Lam gyi gtso bo rnam gsum by Tsongkhapa: determination to be free, supreme bodhicitta, and the wisdom realizing dependent arising and emptiness."
                         ),
@@ -809,12 +866,82 @@ fun LessonListScreen(
         }
     }
 
+    val libraryHomeIndex = remember(homeItems) {
+        homeItems.indexOfFirst {
+            it is HomeItem.NestedModule && it.module.title == "Library"
+        }
+    }
+    val libraryParentKey = remember(libraryHomeIndex) {
+        if (libraryHomeIndex >= 0) "nested_$libraryHomeIndex" else null
+    }
+    val targetExpandedKeysForLibrary = remember(libraryParentKey) {
+        if (libraryParentKey != null) setOf(libraryParentKey) else emptySet()
+    }
+    val effectiveExpandedKeys = if (scrollToLibraryToken > 0) {
+        targetExpandedKeysForLibrary
+    } else {
+        expandedKeys
+    }
+
+    val bottomLazyItemIndex = remember(homeItems, effectiveExpandedKeys, continueReadingLesson) {
+        var count = 1 + if (continueReadingLesson != null) 1 else 0
+        homeItems.forEachIndexed { i, currentItem ->
+            count += 1
+            when (currentItem) {
+                is HomeItem.RegularModule -> {
+                    if (effectiveExpandedKeys.contains("regular_$i")) {
+                        count += currentItem.module.lessons.size
+                    }
+                }
+                is HomeItem.NestedModule -> {
+                    if (effectiveExpandedKeys.contains("nested_$i")) {
+                        count += currentItem.module.lessons.size
+                        currentItem.subModules.forEachIndexed { subIdx, subMod ->
+                            count += 1
+                            if (effectiveExpandedKeys.contains("nested_${i}_sub_$subIdx")) {
+                                count += subMod.lessons.size
+                            }
+                        }
+                    }
+                }
+                is HomeItem.StandaloneLesson -> Unit
+            }
+        }
+        (count - 1).coerceAtLeast(0)
+    }
+
+    val effectiveInitialIndex = if (scrollToLibraryToken > 0) {
+        bottomLazyItemIndex
+    } else {
+        initialIndex
+    }
+    val effectiveInitialOffset = if (scrollToLibraryToken > 0) {
+        Int.MAX_VALUE
+    } else {
+        initialOffset
+    }
+
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = initialIndex,
-        initialFirstVisibleItemScrollOffset = initialOffset
+        initialFirstVisibleItemIndex = effectiveInitialIndex,
+        initialFirstVisibleItemScrollOffset = effectiveInitialOffset
     )
 
-    LaunchedEffect(listState) {
+    var isJumpingToLibrary by remember { mutableStateOf(false) }
+
+    LaunchedEffect(scrollToLibraryToken, bottomLazyItemIndex, targetExpandedKeysForLibrary) {
+        if (scrollToLibraryToken > 0) {
+            isJumpingToLibrary = true
+            onExpandedKeysChanged(targetExpandedKeysForLibrary)
+            withFrameNanos { }
+            listState.scrollToItem(index = bottomLazyItemIndex, scrollOffset = Int.MAX_VALUE)
+            onScrollChanged(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset)
+            isJumpingToLibrary = false
+            onScrollToLibraryHandled()
+        }
+    }
+
+    LaunchedEffect(listState, isJumpingToLibrary) {
+        if (isJumpingToLibrary) return@LaunchedEffect
         snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
             .collect { (index, offset) ->
                 onScrollChanged(index, offset)
@@ -891,7 +1018,7 @@ fun LessonListScreen(
                     is HomeItem.RegularModule -> {
                         val module = item.module
                         val key = "regular_$index"
-                        val isExpanded = expandedKeys.contains(key)
+                        val isExpanded = effectiveExpandedKeys.contains(key)
                         val moduleSummary = buildModuleSummary(module.title, module.lessons, module.summary)
 
                         item(key = key) {
@@ -972,7 +1099,7 @@ fun LessonListScreen(
                     is HomeItem.NestedModule -> {
                         val module = item.module
                         val parentKey = "nested_$index"
-                        val isParentExpanded = expandedKeys.contains(parentKey)
+                        val isParentExpanded = effectiveExpandedKeys.contains(parentKey)
                         val parentSummary = if (module.summary.isNotBlank()) {
                             module.summary
                         } else if (item.subModules.isEmpty()) {
@@ -1063,7 +1190,7 @@ fun LessonListScreen(
 
                             item.subModules.forEachIndexed { subIndex, subModule ->
                                 val subKey = "nested_${index}_sub_$subIndex"
-                                val isSubExpanded = expandedKeys.contains(subKey)
+                                val isSubExpanded = effectiveExpandedKeys.contains(subKey)
                                 val subSummary = buildModuleSummary(
                                     subModule.title,
                                     subModule.lessons,
@@ -1502,7 +1629,7 @@ fun SettingsScreen(
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Text(
-                                    text = "Prevent screen sleep while reading lessons",
+                                    text = "Prevent screen timeout while reading lessons",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -1533,60 +1660,82 @@ fun SettingsScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = "READING FONT SIZE",
+                            text = "READING TYPOGRAPHY",
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             letterSpacing = 1.sp,
                             color = MaterialTheme.colorScheme.primary
                         )
+
+                        Text(
+                            text = "Text Size",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            ReadingFontSize.entries.forEach { sizeOption ->
+                            ReadingFontSize.entries.forEach { size ->
                                 FilterChip(
-                                    selected = readingFontSize == sizeOption,
-                                    onClick = { onReadingFontSizeChanged(sizeOption) },
-                                    label = { Text(sizeOption.label) }
+                                    selected = readingFontSize == size,
+                                    onClick = { onReadingFontSizeChanged(size) },
+                                    label = { Text(size.label) }
                                 )
                             }
                         }
-                    }
-                }
-            }
 
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = CardShape,
-                    border = cardBorder(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
                         Text(
-                            text = "LINE SPACING",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            letterSpacing = 1.sp,
-                            color = MaterialTheme.colorScheme.primary
+                            text = "Line Spacing",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
                         )
+
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            ReadingLineSpacing.entries.forEach { spacingOption ->
+                            ReadingLineSpacing.entries.forEach { spacing ->
                                 FilterChip(
-                                    selected = readingLineSpacing == spacingOption,
-                                    onClick = { onReadingLineSpacingChanged(spacingOption) },
-                                    label = { Text(spacingOption.label) }
+                                    selected = readingLineSpacing == spacing,
+                                    onClick = { onReadingLineSpacingChanged(spacing) },
+                                    label = { Text(spacing.label) }
+                                )
+                            }
+                        }
+
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(14.dp),
+                                verticalArrangement = Arrangement.spacedBy(readingLineSpacing.paragraphSpacing)
+                            ) {
+                                Text(
+                                    text = "PREVIEW",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    letterSpacing = 1.sp,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Mindfulness is the gentle awareness of the present moment, observed with clarity, patience, and compassion.",
+                                    fontSize = readingFontSize.bodyFontSize,
+                                    lineHeight = readingLineSpacing.lineHeight,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "Adjusting text size and spacing helps keep longer contemplative texts comfortable to read.",
+                                    fontSize = readingFontSize.bodyFontSize,
+                                    lineHeight = readingLineSpacing.lineHeight,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -1601,8 +1750,7 @@ fun SettingsScreen(
 @Composable
 fun FeedbackScreen(onBackClick: () -> Unit) {
     val uriHandler = LocalUriHandler.current
-    var feedbackMessage by remember { mutableStateOf("") }
-    var submittedNote by remember { mutableStateOf<String?>(null) }
+    val supportEmail = "bodhibytes@googlegroups.com"
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -1649,66 +1797,40 @@ fun FeedbackScreen(onBackClick: () -> Unit) {
                 )
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier = Modifier.padding(18.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "SHARE YOUR THOUGHTS",
+                        text = "CONTACT & SUPPORT",
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
                         letterSpacing = 1.sp,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "Have suggestions, questions, or lesson feedback? Send a note below or open your email client.",
+                        text = "Get in Touch",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Have suggestions for new lessons, spotted a typo, or need assistance with the app? Send us an email anytime.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    OutlinedTextField(
-                        value = feedbackMessage,
-                        onValueChange = {
-                            feedbackMessage = it
-                            submittedNote = null
+                    Button(
+                        onClick = {
+                            uriHandler.openUri("mailto:$supportEmail?subject=BodhiBytes%20Feedback")
                         },
-                        label = { Text("Your message") },
-                        minLines = 4,
+                        shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth()
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Button(
-                            onClick = {
-                                if (feedbackMessage.isNotBlank()) {
-                                    submittedNote = "Feedback recorded locally for this session."
-                                    feedbackMessage = ""
-                                }
-                            },
-                            enabled = feedbackMessage.isNotBlank(),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Submit")
-                        }
-                        OutlinedButton(
-                            onClick = {
-                                runCatching {
-                                    uriHandler.openUri("mailto:support@bodhibytes.app?subject=BodhiBytes%20Feedback")
-                                }
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Email Support")
-                        }
-                    }
-                    submittedNote?.let { note ->
-                        Text(
-                            text = note,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary
+                        Icon(
+                            Icons.Default.Email,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
                         )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "Email $supportEmail")
                     }
                 }
             }
@@ -1720,8 +1842,8 @@ fun FeedbackScreen(onBackClick: () -> Unit) {
 @Composable
 fun AboutScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
-    val versionName = remember {
-        runCatching {
+    val versionName = remember(context) {
+        try {
             val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 context.packageManager.getPackageInfo(
                     context.packageName,
@@ -1732,7 +1854,9 @@ fun AboutScreen(onBackClick: () -> Unit) {
                 context.packageManager.getPackageInfo(context.packageName, 0)
             }
             packageInfo.versionName ?: "1.0"
-        }.getOrDefault("1.0")
+        } catch (_: Exception) {
+            "1.0"
+        }
     }
 
     Scaffold(
@@ -1742,7 +1866,7 @@ fun AboutScreen(onBackClick: () -> Unit) {
                 TopAppBar(
                     title = {
                         Text(
-                            text = "About",
+                            text = "About BodhiBytes",
                             fontWeight = FontWeight.SemiBold
                         )
                     },
@@ -1763,58 +1887,61 @@ fun AboutScreen(onBackClick: () -> Unit) {
             }
         }
     ) { innerPadding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(16.dp),
+                .padding(innerPadding)
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = CardShape,
-                    border = cardBorder(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = CardShape,
+                border = cardBorder(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(18.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.mipmap.ic_launcher),
-                                contentDescription = "BodhiBytes Logo",
-                                modifier = Modifier.size(44.dp)
-                            )
-                            Column {
-                                Text(
-                                    text = "BodhiBytes",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "Version $versionName",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        Text(
-                            text = "BodhiBytes presents structured readings, foundational Buddhist concepts, classical texts, and comprehension quizzes designed for clear, contemplative study.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                        Image(
+                            painter = painterResource(id = R.mipmap.ic_launcher),
+                            contentDescription = "BodhiBytes Logo",
+                            modifier = Modifier.size(48.dp)
                         )
+                        Column {
+                            Text(
+                                text = "BodhiBytes",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Version $versionName",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
+
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+                    Text(
+                        text = "BodhiBytes offers clear, structured introductions to foundational Buddhist philosophy, ethics, mindfulness, and classical contemplative texts.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "Designed for quiet, distraction-free reading and reflection.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
@@ -1826,32 +1953,26 @@ fun WelcomeCard(
     lesson: Lesson,
     isDarkMode: Boolean = false
 ) {
-    val slateContainerColor = if (isDarkMode) {
-        Color(0xFF1C2533)
+    val containerColor = if (isDarkMode) {
+        Color(0xFF1D2430)
     } else {
-        Color(0xFFEBF1F8)
-    }
-    val slateBorderColor = if (isDarkMode) {
-        Color(0xFF344661)
-    } else {
-        Color(0xFFC8D6E8)
+        Color(0xFFEDF1F7)
     }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = CardShape,
-        border = BorderStroke(1.dp, slateBorderColor),
+        border = cardBorder(),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(
-            containerColor = slateContainerColor,
+            containerColor = containerColor,
             contentColor = MaterialTheme.colorScheme.onSurface
         )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(horizontal = 20.dp, vertical = 18.dp)
         ) {
             Text(
                 text = "WELCOME",
@@ -1860,14 +1981,15 @@ fun WelcomeCard(
                 letterSpacing = 1.sp,
                 color = MaterialTheme.colorScheme.primary
             )
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = lesson.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
             )
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "Explore Buddhist philosophy, mindfulness practices, and foundational teachings at your own pace.",
+                text = "Explore structured lessons and classical texts on Buddhist wisdom, ethics, and meditation.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -1883,10 +2005,8 @@ fun LessonCard(
     isExpandedLesson: Boolean = false,
     onClick: () -> Unit
 ) {
-    val displaySummary = remember(lesson.summary, lesson.content, lesson.title) {
-        if (lesson.summary.isNotBlank()) {
-            lesson.summary
-        } else {
+    val summaryText = remember(lesson.id, lesson.title, lesson.summary, lesson.content) {
+        lesson.summary.trim().ifEmpty {
             buildBriefSummary(lesson.content, lesson.title)
         }
     }
@@ -1899,13 +2019,17 @@ fun LessonCard(
         border = cardBorder(),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = if (isExpandedLesson) {
+                MaterialTheme.colorScheme.surfaceVariant
+            } else {
+                MaterialTheme.colorScheme.surface
+            }
         )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp)
+                .padding(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1913,35 +2037,35 @@ fun LessonCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (isExpandedLesson) "LESSON" else "READING",
-                    style = MaterialTheme.typography.labelSmall,
+                    text = lesson.title,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 1.sp,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
                 )
                 if (hasSavedPosition) {
-                    Text(
-                        text = "IN PROGRESS",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Text(
+                            text = "In Progress",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        )
+                    }
                 }
             }
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = lesson.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            if (showSummary && displaySummary.isNotBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
+            if (showSummary && summaryText.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = displaySummary,
+                    text = summaryText,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 5,
+                    maxLines = 4,
                     overflow = TextOverflow.Ellipsis
                 )
             }
@@ -1964,36 +2088,70 @@ fun LessonDetailScreen(
     onQuizClick: () -> Unit
 ) {
     val context = LocalContext.current
-    val paragraphs = remember(lesson.content) {
-        lesson.content
-            .split(Regex("\\n\\s*\\n"))
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
+
+    DisposableEffect(keepScreenAwake) {
+        val window = (context as? Activity)?.window
+        if (keepScreenAwake) {
+            window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+        onDispose {
+            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
+
+    val contentBlocks = remember(lesson.content) {
+        parseContentBlocks(lesson.content)
     }
 
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = savedReadingPosition.index.coerceAtLeast(0),
-        initialFirstVisibleItemScrollOffset = savedReadingPosition.offset.coerceAtLeast(0)
+        initialFirstVisibleItemIndex = savedReadingPosition.index,
+        initialFirstVisibleItemScrollOffset = savedReadingPosition.offset
     )
 
-    DisposableEffect(context, keepScreenAwake) {
-        val window = (context as? Activity)?.window
-        val previousFlag = window?.attributes?.flags?.and(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) ?: 0
-        if (keepScreenAwake) {
-            window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-        onDispose {
-            if (keepScreenAwake && previousFlag == 0) {
-                window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    val readingProgress by remember {
+        derivedStateOf {
+            val layoutInfo = listState.layoutInfo
+            val totalItems = layoutInfo.totalItemsCount
+            if (totalItems <= 1) {
+                1f
+            } else {
+                val visibleItems = layoutInfo.visibleItemsInfo
+                val lastVisible = visibleItems.lastOrNull()
+                if (lastVisible != null && lastVisible.index == totalItems - 1 &&
+                    lastVisible.offset + lastVisible.size <= layoutInfo.viewportEndOffset
+                ) {
+                    1f
+                } else {
+                    (listState.firstVisibleItemIndex.toFloat() / (totalItems - 1).coerceAtLeast(1))
+                        .coerceIn(0f, 1f)
+                }
             }
         }
     }
 
+    val animatedProgress by animateFloatAsState(
+        targetValue = readingProgress,
+        label = "lesson_reading_progress"
+    )
+
+    val currentOnReadingPositionChanged by rememberUpdatedState(onReadingPositionChanged)
+
     LaunchedEffect(listState, lesson.id) {
-        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
-            .collect { (index, offset) ->
-                onReadingPositionChanged(ReadingPosition(index = index, offset = offset))
+        snapshotFlow {
+            val atBottom = !listState.canScrollForward
+            if (atBottom && (listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0)) {
+                ReadingPosition(0, 0)
+            } else {
+                ReadingPosition(
+                    index = listState.firstVisibleItemIndex,
+                    offset = listState.firstVisibleItemScrollOffset
+                )
             }
+        }.collect { position ->
+            currentOnReadingPositionChanged(position)
+        }
     }
 
     Scaffold(
@@ -2019,8 +2177,8 @@ fun LessonDetailScreen(
                         IconButton(onClick = onBookmarkClick) {
                             Icon(
                                 imageVector = if (isBookmarked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = if (isBookmarked) "Remove Bookmark" else "Bookmark Lesson",
-                                tint = if (isBookmarked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                contentDescription = if (isBookmarked) "Remove Bookmark" else "Add Bookmark",
+                                tint = if (isBookmarked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     },
@@ -2029,9 +2187,13 @@ fun LessonDetailScreen(
                         titleContentColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
+                LinearProgressIndicator(
+                    progress = { animatedProgress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(2.5.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.outlineVariant
                 )
             }
         }
@@ -2041,91 +2203,238 @@ fun LessonDetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 18.dp),
             verticalArrangement = Arrangement.spacedBy(readingLineSpacing.paragraphSpacing)
         ) {
             if (lesson.summary.isNotBlank()) {
-                item(key = "lesson_header") {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = lesson.summary,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontSize = readingFontSize.bodyFontSize,
-                                lineHeight = readingLineSpacing.lineHeight
-                            ),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                item(key = "lesson_overview_card") {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = CardShape,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
                         )
-                        HorizontalDivider(
-                            modifier = Modifier.padding(top = 6.dp),
-                            color = MaterialTheme.colorScheme.outlineVariant
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = "LESSON OVERVIEW",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = lesson.summary.trim(),
+                                fontSize = readingFontSize.bodyFontSize,
+                                lineHeight = readingLineSpacing.lineHeight,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            }
+
+            items(contentBlocks.size) { index ->
+                when (val block = contentBlocks[index]) {
+                    is ContentBlock.SectionHeading -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp, bottom = 2.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = block.title,
+                                fontSize = readingFontSize.titleFontSize,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+                            )
+                        }
+                    }
+
+                    is ContentBlock.NumberedCard -> {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = CardShape,
+                            border = cardBorder(),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(14.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                    modifier = Modifier.size(26.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text(
+                                            text = block.number,
+                                            style = MaterialTheme.typography.labelMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    }
+                                }
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        text = block.title,
+                                        fontSize = readingFontSize.bodyFontSize,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = block.body,
+                                        fontSize = readingFontSize.bodyFontSize,
+                                        lineHeight = readingLineSpacing.lineHeight,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    is ContentBlock.KeyValueCard -> {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = CardShape,
+                            border = cardBorder(),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(14.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = block.term,
+                                    fontSize = readingFontSize.bodyFontSize,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = block.definition,
+                                    fontSize = readingFontSize.bodyFontSize,
+                                    lineHeight = readingLineSpacing.lineHeight,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+
+                    is ContentBlock.VerseBlock -> {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            border = cardBorder()
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(IntrinsicSize.Min)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(4.dp)
+                                        .fillMaxHeight()
+                                        .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp))
+                                        .background(MaterialTheme.colorScheme.primary)
+                                )
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    block.lines.forEach { line ->
+                                        Text(
+                                            text = line,
+                                            fontSize = readingFontSize.bodyFontSize,
+                                            lineHeight = readingLineSpacing.lineHeight,
+                                            fontStyle = FontStyle.Italic,
+                                            fontWeight = FontWeight.Medium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    is ContentBlock.SourceNote -> {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+                            border = cardBorder()
+                        ) {
+                            Text(
+                                text = block.text,
+                                style = MaterialTheme.typography.bodySmall,
+                                lineHeight = 18.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(12.dp)
+                            )
+                        }
+                    }
+
+                    is ContentBlock.BodyParagraph -> {
+                        Text(
+                            text = block.text,
+                            fontSize = readingFontSize.bodyFontSize,
+                            lineHeight = readingLineSpacing.lineHeight,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
             }
 
-            items(
-                count = paragraphs.size,
-                key = { index -> "paragraph_${lesson.id}_$index" }
-            ) { index ->
-                val paragraph = paragraphs[index]
-                val structuredEntry = parseNumberedEntry(paragraph) ?: parseDefinition(paragraph)
-
-                if (structuredEntry != null) {
-                    Text(
-                        text = buildAnnotatedString {
-                            withStyle(
-                                style = SpanStyle(
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            ) {
-                                append(structuredEntry.term)
-                            }
-                            append(": ")
-                            append(structuredEntry.definition)
-                        },
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = readingFontSize.bodyFontSize,
-                            lineHeight = readingLineSpacing.lineHeight
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp)
-                    )
-                } else {
-                    Text(
-                        text = paragraph,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = readingFontSize.bodyFontSize,
-                            lineHeight = readingLineSpacing.lineHeight
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp)
-                    )
-                }
-            }
-
             if (lesson.quiz != null) {
-                item(key = "start_quiz_button") {
-                    Spacer(modifier = Modifier.height(12.dp))
+                item(key = "lesson_quiz_button") {
+                    Spacer(modifier = Modifier.height(8.dp))
                     Button(
                         onClick = onQuizClick,
-                        shape = CircleShape,
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp)
+                            .height(50.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
                     ) {
                         Text(
-                            text = "Start Quiz",
-                            style = MaterialTheme.typography.labelLarge,
+                            text = "Take Lesson Quiz",
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
