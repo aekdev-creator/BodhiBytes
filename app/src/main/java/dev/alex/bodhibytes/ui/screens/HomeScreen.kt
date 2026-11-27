@@ -22,17 +22,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +36,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
@@ -155,6 +150,8 @@ fun LessonListScreen(
     initialIndex: Int,
     initialOffset: Int,
     expandedKeys: Set<String>,
+    searchQuery: String = "",
+    onSearchQueryChanged: (String) -> Unit = {},
     readingPositions: Map<Int, ReadingPosition> = emptyMap(),
     completedQuizLessonIds: Set<Int> = emptySet(),
     continueReadingLesson: Lesson? = null,
@@ -170,7 +167,6 @@ fun LessonListScreen(
     onClearContinueReading: (Lesson) -> Unit = {},
     onMenuClick: () -> Unit
 ) {
-    var searchQuery by rememberSaveable { mutableStateOf("") }
     val trimmedQuery = searchQuery.trim()
 
     val filteredLessons = remember(allLessons, trimmedQuery) {
@@ -255,7 +251,7 @@ fun LessonListScreen(
     LaunchedEffect(scrollToLibraryToken, libraryParentKey) {
         if (scrollToLibraryToken > 0) {
             isJumpingToLibrary = true
-            searchQuery = ""
+            onSearchQueryChanged("")
             val updatedKeys = if (libraryParentKey != null) {
                 expandedKeys + libraryParentKey
             } else {
@@ -317,46 +313,6 @@ fun LessonListScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            item(key = "curriculum_search_bar") {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = CardShape,
-                    placeholder = {
-                        Text(
-                            text = "Search lessons, terms, or texts…",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    },
-                    trailingIcon = {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { searchQuery = "" }) {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Clear Search",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                    )
-                )
-            }
-
             if (trimmedQuery.isNotEmpty()) {
                 item(key = "search_results_header") {
                     val resultCount = filteredLessons.size

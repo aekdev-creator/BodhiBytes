@@ -12,19 +12,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -57,6 +62,7 @@ import dev.alex.bodhibytes.ui.screens.QuizScreen
 import dev.alex.bodhibytes.ui.screens.SettingsScreen
 import dev.alex.bodhibytes.ui.state.ReadingPosition
 import dev.alex.bodhibytes.ui.state.rememberBodhiBytesAppState
+import dev.alex.bodhibytes.ui.theme.CardShape
 import dev.alex.bodhibytes.ui.theme.UnconditionedDarkColorScheme
 import dev.alex.bodhibytes.ui.theme.UnconditionedLightColorScheme
 import kotlinx.coroutines.launch
@@ -146,6 +152,7 @@ fun BodhiBytesApp() {
     var currentScreen by rememberSaveable(stateSaver = screenSaver) {
         mutableStateOf<AppScreen>(AppScreen.List)
     }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -264,6 +271,51 @@ fun BodhiBytesApp() {
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
 
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { query ->
+                            searchQuery = query
+                            if (query.trim().isNotEmpty() && currentScreen !is AppScreen.List) {
+                                currentScreen = AppScreen.List
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        singleLine = true,
+                        shape = CardShape,
+                        placeholder = {
+                            Text(
+                                text = "Search lessons, terms, or texts…",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Clear,
+                                        contentDescription = "Clear Search",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                        )
+                    )
+
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 8.dp),
                         color = MaterialTheme.colorScheme.outlineVariant
@@ -301,6 +353,8 @@ fun BodhiBytesApp() {
                         initialIndex = appState.lessonListScrollIndex,
                         initialOffset = appState.lessonListScrollOffset,
                         expandedKeys = appState.lessonListExpandedKeys,
+                        searchQuery = searchQuery,
+                        onSearchQueryChanged = { searchQuery = it },
                         readingPositions = appState.readingPositions,
                         completedQuizLessonIds = appState.completedQuizLessonIds,
                         continueReadingLesson = continueReadingLesson,
